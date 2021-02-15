@@ -288,6 +288,28 @@ func stringListTransferFunc(iterator *pathIterator, field Field, extractList ext
 			}
 			return strings.Join(list, `,`), nil
 		}, nil
+	case `First`:
+		return func(record neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return ``, nil
+			}
+			return list[0], nil
+		}, nil
+	case `Last`:
+		return func(record neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return ``, nil
+			}
+			return list[len(list)-1], nil
+		}, nil
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:String`, field.Name, element.Key)
 	}
