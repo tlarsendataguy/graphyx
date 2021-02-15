@@ -37,12 +37,24 @@ type OutgoingObjects struct {
 	TransferFuncs []func(neo4j.Record)
 }
 
+const source string = `Neo4j Input`
+
 func CreateOutgoingObjects(fields []Field) (OutgoingObjects, error) {
 	editor := sdk.EditingRecordInfo{}
 	for _, field := range fields {
 		switch field.DataType {
 		case `Integer`:
-			editor.AddInt64Field(field.Name, `Neo4j Input`)
+			editor.AddInt64Field(field.Name, source)
+		case `Float`:
+			editor.AddDoubleField(field.Name, source)
+		case `Boolean`:
+			editor.AddBoolField(field.Name, source)
+		case `Date`:
+			editor.AddDateField(field.Name, source)
+		case `DateTime`:
+			editor.AddDateTimeField(field.Name, source)
+		case `String`:
+			editor.AddV_StringField(field.Name, source, 2147483648)
 		default:
 			return OutgoingObjects{}, fmt.Errorf(`field %v is invalid type %v`, field.Name, field.DataType)
 		}

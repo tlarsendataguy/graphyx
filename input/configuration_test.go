@@ -77,20 +77,42 @@ func TestOutgoingRecordInfoFromConfig(t *testing.T) {
 			Name:     `Field1`,
 			DataType: `Integer`,
 			Path: []input.Element{
-				{Key: `p`, DataType: `Path`},
-				{Key: `Nodes`, DataType: `List:Node`},
-				{Key: `0`, DataType: `Node`},
-				{Key: `ID`, DataType: `Integer`},
+				{Key: `value`, DataType: `Integer`},
 			},
 		},
 		{
 			Name:     `Field2`,
-			DataType: `Integer`,
+			DataType: `Float`,
 			Path: []input.Element{
-				{Key: `p`, DataType: `Path`},
-				{Key: `Relationships`, DataType: `List:Relationship`},
-				{Key: `0`, DataType: `Relationship`},
-				{Key: `ID`, DataType: `Integer`},
+				{Key: `value`, DataType: `Float`},
+			},
+		},
+		{
+			Name:     `Field3`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `String`},
+			},
+		},
+		{
+			Name:     `Field4`,
+			DataType: `Boolean`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Boolean`},
+			},
+		},
+		{
+			Name:     `Field5`,
+			DataType: `Date`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Date`},
+			},
+		},
+		{
+			Name:     `Field5`,
+			DataType: `DateTime`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `DateTime`},
 			},
 		},
 	}
@@ -99,8 +121,20 @@ func TestOutgoingRecordInfoFromConfig(t *testing.T) {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
 	info := outgoingStuff.RecordInfo
-	if len(info.IntFields) != 2 {
-		t.Fatalf(`expected 2 int fields but got %v`, len(info.IntFields))
+	if count := len(info.IntFields); count != 1 {
+		t.Fatalf(`expected 1 int field but got %v`, count)
+	}
+	if count := len(info.FloatFields); count != 1 {
+		t.Fatalf(`expected 1 float field but got %v`, count)
+	}
+	if count := len(info.StringFields); count != 1 {
+		t.Fatalf(`expected 1 string field but got %v`, count)
+	}
+	if count := len(info.BoolFields); count != 1 {
+		t.Fatalf(`expected 1 bool field but got %v`, count)
+	}
+	if count := len(info.DateTimeFields); count != 2 {
+		t.Fatalf(`expected 2 datetime field but got %v`, count)
 	}
 	t.Logf(`%v`, outgoingStuff)
 }
