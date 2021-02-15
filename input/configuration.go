@@ -268,6 +268,15 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			return node.Labels(), nil
 		}
 		return stringListTransferFunc(iterator, field, nodeFunc)
+	case `Properties`:
+		nodeFunc := func(record neo4j.Record) (map[string]interface{}, error) {
+			node, err := nodeExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return node.Props(), nil
+		}
+		return mapTransferFunc(iterator, field, nodeFunc)
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Node`, field.Name, element.Key)
 	}
@@ -329,5 +338,30 @@ func stringListTransferFunc(iterator *pathIterator, field Field, extractList ext
 			}
 			return list[index], nil
 		}, nil
+	}
+}
+
+type extractMap func(record neo4j.Record) (map[string]interface{}, error)
+
+func mapTransferFunc(iterator *pathIterator, field Field, extract extractMap) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a list of strings and not in a property data type`, field.Name)
+	}
+	switch element.DataType {
+	case `String`, `Integer`, `Boolean`, `Float`, `Date`, `DateTime`:
+		return func(record neo4j.Record) (interface{}, error) {
+			extractedMap, err := extract(record)
+			if err != nil {
+				return nil, err
+			}
+			value, hasKey := extractedMap[element.Key]
+			if !hasKey {
+				return nil, nil
+			}
+			return value, nil
+		}, nil
+	default:
+		return nil, fmt.Errorf(`field %v has an invalid data type '%v' for Map`, field.Name, element.DataType)
 	}
 }
