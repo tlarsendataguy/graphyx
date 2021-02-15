@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -311,6 +312,22 @@ func stringListTransferFunc(iterator *pathIterator, field Field, extractList ext
 			return list[len(list)-1], nil
 		}, nil
 	default:
-		return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:String`, field.Name, element.Key)
+		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
+			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:String`, field.Name, element.Key)
+		}
+		index, err := strconv.Atoi(element.Key[6:])
+		if err != nil {
+			return nil, fmt.Errorf(`field %v does not have a valid index in key '%v'`, field.Name, element.Key)
+		}
+		return func(record neo4j.Record) (interface{}, error) {
+			list, getErr := extractList(record)
+			if getErr != nil {
+				return nil, getErr
+			}
+			if len(list) <= index {
+				return nil, nil
+			}
+			return list[index], nil
+		}, nil
 	}
 }
