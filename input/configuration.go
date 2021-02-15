@@ -348,6 +348,7 @@ func mapTransferFunc(iterator *pathIterator, field Field, extract extractMap) (G
 	if !ok {
 		return nil, fmt.Errorf(`the path for field %v ends in a list of strings and not in a property data type`, field.Name)
 	}
+
 	switch element.DataType {
 	case `String`, `Integer`, `Boolean`, `Float`, `Date`, `DateTime`:
 		return func(record neo4j.Record) (interface{}, error) {
@@ -361,6 +362,23 @@ func mapTransferFunc(iterator *pathIterator, field Field, extract extractMap) (G
 			}
 			return value, nil
 		}, nil
+	case `List:String`:
+		listFunc := func(record neo4j.Record) ([]string, error) {
+			extractedMap, err := extract(record)
+			if err != nil {
+				return nil, err
+			}
+			value, hasKey := extractedMap[element.Key]
+			if !hasKey {
+				return nil, nil
+			}
+			listValue, convertOk := value.([]string)
+			if !convertOk {
+				return nil, fmt.Errorf(`map value with key '%v' on field %v is not a list of strings; it is %T`, element.Key, field.Name, value)
+			}
+			return listValue, nil
+		}
+		return stringListTransferFunc(iterator, field, listFunc)
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid data type '%v' for Map`, field.Name, element.DataType)
 	}
