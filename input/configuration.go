@@ -81,7 +81,11 @@ func CreateOutgoingObjects(fields []Field) (OutgoingObjects, error) {
 			transferFuncs[index] = integerTransferFunc(fieldName, outInfo, getValueFunc)
 		case `Float`:
 			transferFuncs[index] = floatTransferFunc(fieldName, outInfo, getValueFunc)
-		case `Boolean`, `Date`, `DateTime`, `String`:
+		case `Boolean`:
+			transferFuncs[index] = boolTransferFunc(fieldName, outInfo, getValueFunc)
+		case `String`:
+			transferFuncs[index] = stringTransferFunc(fieldName, outInfo, getValueFunc)
+		case `Date`, `DateTime`:
 			continue
 		default:
 			return OutgoingObjects{}, fmt.Errorf(`invalid field type '%v' for field '%v'`, fieldType, fieldName)
@@ -147,13 +151,51 @@ func floatTransferFunc(fieldName string, info *sdk.OutgoingRecordInfo, getValueF
 	}
 }
 
+func boolTransferFunc(fieldName string, info *sdk.OutgoingRecordInfo, getValueFunc GetValueFunc) TransferFunc {
+	return func(record neo4j.Record) error {
+		value, getErr := getValueFunc(record)
+		if getErr != nil {
+			return getErr
+		}
+		if value == nil {
+			info.BoolFields[fieldName].SetNull()
+			return nil
+		}
+		boolValue, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf(`value %v is not a boolean for field %v`, value, fieldName)
+		}
+		info.BoolFields[fieldName].SetBool(boolValue)
+		return nil
+	}
+}
+
+func stringTransferFunc(fieldName string, info *sdk.OutgoingRecordInfo, getValueFunc GetValueFunc) TransferFunc {
+	return func(record neo4j.Record) error {
+		value, getErr := getValueFunc(record)
+		if getErr != nil {
+			return getErr
+		}
+		if value == nil {
+			info.StringFields[fieldName].SetNull()
+			return nil
+		}
+		stringValue, ok := value.(string)
+		if !ok {
+			return fmt.Errorf(`value %v is not a string for field %v`, value, fieldName)
+		}
+		info.StringFields[fieldName].SetString(stringValue)
+		return nil
+	}
+}
+
 func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, error) {
 	element, isValid := iterator.NextField()
 	if !isValid {
 		return nil, fmt.Errorf(`no path was provided for field '%v'`, field.Name)
 	}
 	switch element.DataType {
-	case `Integer`, `Float`:
+	case `Integer`, `Float`, `Boolean`, `String`:
 		return func(record neo4j.Record) (interface{}, error) {
 			value, exists := record.Get(element.Key)
 			if !exists {
@@ -161,7 +203,7 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			}
 			return value, nil
 		}, nil
-	case `Boolean`, `Date`, `DateTime`, `String`:
+	case `Date`, `DateTime`:
 		return nil, nil
 	default:
 		return nil, fmt.Errorf(`invalid field type '%v' for field '%v'`, field.DataType, field.Name)
