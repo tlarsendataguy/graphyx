@@ -3,15 +3,17 @@ package graphyx
 import "C"
 import (
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"github.com/tlarsen7572/graphyx/input"
+	"github.com/tlarsen7572/graphyx/output"
 	"unsafe"
 )
 
 func Neo4jInput(toolId C.int, xmlProperties unsafe.Pointer, engineInterface unsafe.Pointer, pluginInterface unsafe.Pointer) C.long {
-	plugin := &neo4jInput{}
+	plugin := &input.Neo4jInput{}
 	return C.long(sdk.RegisterTool(plugin, int(toolId), xmlProperties, engineInterface, pluginInterface))
 }
 
 func Neo4jOutput(toolId C.int, xmlProperties unsafe.Pointer, engineInterface unsafe.Pointer, pluginInterface unsafe.Pointer) C.long {
-	plugin := &neo4jOutput{}
+	plugin := &output.Neo4jOutput{}
 	return C.long(sdk.RegisterTool(plugin, int(toolId), xmlProperties, engineInterface, pluginInterface))
 }

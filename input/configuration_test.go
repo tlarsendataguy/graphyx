@@ -1,7 +1,7 @@
-package graphyx_test
+package input_test
 
 import (
-	"github.com/tlarsen7572/graphyx"
+	"github.com/tlarsen7572/graphyx/input"
 	"reflect"
 	"testing"
 )
@@ -21,27 +21,45 @@ func TestBasicConfig(t *testing.T) {
 				<Element DataType="Integer" Key="ID" />
 			</Path>
 		</Field>
+		<Field Name="Field2" DataType="Integer">
+			<Path>
+				<Element DataType="Path" Key="p" />
+				<Element DataType="List:Relationship" Key="Relationships" />
+				<Element DataType="Relationship" Key="0" />
+				<Element DataType="Integer" Key="ID" />
+			</Path>
+		</Field>
 	</Fields>
 </Configuration>`
 
-	decoded, err := graphyx.DecodeConfig(config)
+	decoded, err := input.DecodeConfig(config)
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
 
-	expected := graphyx.Configuration{
+	expected := input.Configuration{
 		ConnStr:  `bolt://localhost:7687`,
 		Username: `user`,
 		Password: `password`,
 		Query:    `MATCH p=()-[r:ACTED_IN]->() RETURN p`,
-		Fields: []graphyx.Field{
+		Fields: []input.Field{
 			{
 				Name:     `Field1`,
 				DataType: `Integer`,
-				Path: []graphyx.Element{
+				Path: []input.Element{
 					{Key: `p`, DataType: `Path`},
 					{Key: `Nodes`, DataType: `List:Node`},
 					{Key: `0`, DataType: `Node`},
+					{Key: `ID`, DataType: `Integer`},
+				},
+			},
+			{
+				Name:     `Field2`,
+				DataType: `Integer`,
+				Path: []input.Element{
+					{Key: `p`, DataType: `Path`},
+					{Key: `Relationships`, DataType: `List:Relationship`},
+					{Key: `0`, DataType: `Relationship`},
 					{Key: `ID`, DataType: `Integer`},
 				},
 			},
@@ -51,4 +69,8 @@ func TestBasicConfig(t *testing.T) {
 		t.Fatalf("expected\n%v\nbut got\n%v", expected, decoded)
 	}
 	t.Logf(`%v`, decoded)
+}
+
+func TestOutgoingRecordInfoFromConfig(t *testing.T) {
+
 }

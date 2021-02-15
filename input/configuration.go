@@ -1,4 +1,4 @@
-package graphyx
+package input
 
 import "encoding/xml"
 
