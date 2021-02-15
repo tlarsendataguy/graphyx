@@ -409,3 +409,41 @@ func TestNodeIdRecordInfo(t *testing.T) {
 		t.Fatalf(`expected 23 but got %v`, value)
 	}
 }
+
+func TestConcatenatedNodeLabelsToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `Labels`, DataType: `List:String`},
+				{Key: `Concatenate`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockNode{labels: []string{
+			`Label1`,
+			`Label2`,
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `Label1,Label2` {
+		t.Fatalf(`expected 'Label1,Label2' but got %v`, value)
+	}
+}

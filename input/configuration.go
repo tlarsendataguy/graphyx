@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"strings"
 	"time"
 )
 
@@ -257,7 +258,37 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			}
 			return node.Id(), nil
 		}, nil
+	case `Labels`:
+		nodeFunc := func(record neo4j.Record) ([]string, error) {
+			node, err := nodeExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return node.Labels(), nil
+		}
+		return stringListTransferFunc(iterator, field, nodeFunc)
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Node`, field.Name, element.Key)
+	}
+}
+
+type extractStringList func(record neo4j.Record) ([]string, error)
+
+func stringListTransferFunc(iterator *pathIterator, field Field, extractList extractStringList) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a list of strings and not in a property data type`, field.Name)
+	}
+	switch element.Key {
+	case `Concatenate`:
+		return func(record neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			return strings.Join(list, `,`), nil
+		}, nil
+	default:
+		return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:String`, field.Name, element.Key)
 	}
 }
