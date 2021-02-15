@@ -72,5 +72,35 @@ func TestBasicConfig(t *testing.T) {
 }
 
 func TestOutgoingRecordInfoFromConfig(t *testing.T) {
-
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `p`, DataType: `Path`},
+				{Key: `Nodes`, DataType: `List:Node`},
+				{Key: `0`, DataType: `Node`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+		{
+			Name:     `Field2`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `p`, DataType: `Path`},
+				{Key: `Relationships`, DataType: `List:Relationship`},
+				{Key: `0`, DataType: `Relationship`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+	}
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	info := outgoingStuff.RecordInfo
+	if len(info.IntFields) != 2 {
+		t.Fatalf(`expected 2 int fields but got %v`, len(info.IntFields))
+	}
+	t.Logf(`%v`, outgoingStuff)
 }
