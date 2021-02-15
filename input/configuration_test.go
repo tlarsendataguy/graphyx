@@ -199,3 +199,34 @@ func TestIntegerToRecordInfo(t *testing.T) {
 		t.Fatalf(`expected 12345 but got %v`, value)
 	}
 }
+
+func TestFloatToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Float`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Float`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{123.45})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.FloatFields[`Field1`].GetCurrentFloat()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 123.45 {
+		t.Fatalf(`expected 123.45 but got %v`, value)
+	}
+}
