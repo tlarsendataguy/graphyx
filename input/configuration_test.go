@@ -4,6 +4,7 @@ import (
 	"github.com/tlarsen7572/graphyx/input"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestBasicConfig(t *testing.T) {
@@ -290,5 +291,69 @@ func TestStringToRecordInfo(t *testing.T) {
 	}
 	if value != `hello world` {
 		t.Fatalf(`expected 'hello world' but got %v`, value)
+	}
+}
+
+func TestDateToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Date`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Date`},
+			},
+		},
+	}
+	expectedDate := time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)
+	record := NewMockRecord([]string{`value`}, []interface{}{expectedDate})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.DateTimeFields[`Field1`].GetCurrentDateTime()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != expectedDate {
+		t.Fatalf(`expected %v but got %v`, expectedDate, value)
+	}
+}
+
+func TestDateTimeToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `DateTime`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `DateTime`},
+			},
+		},
+	}
+	expectedDate := time.Date(2020, 1, 2, 3, 4, 5, 0, time.UTC)
+	record := NewMockRecord([]string{`value`}, []interface{}{expectedDate})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.DateTimeFields[`Field1`].GetCurrentDateTime()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != expectedDate {
+		t.Fatalf(`expected %v but got %v`, expectedDate, value)
 	}
 }

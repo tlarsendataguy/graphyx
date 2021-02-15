@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"time"
 )
 
 type Configuration struct {
@@ -86,7 +87,7 @@ func CreateOutgoingObjects(fields []Field) (OutgoingObjects, error) {
 		case `String`:
 			transferFuncs[index] = stringTransferFunc(fieldName, outInfo, getValueFunc)
 		case `Date`, `DateTime`:
-			continue
+			transferFuncs[index] = dateTimeTransferFunc(fieldName, outInfo, getValueFunc)
 		default:
 			return OutgoingObjects{}, fmt.Errorf(`invalid field type '%v' for field '%v'`, fieldType, fieldName)
 		}
@@ -189,13 +190,32 @@ func stringTransferFunc(fieldName string, info *sdk.OutgoingRecordInfo, getValue
 	}
 }
 
+func dateTimeTransferFunc(fieldName string, info *sdk.OutgoingRecordInfo, getValueFunc GetValueFunc) TransferFunc {
+	return func(record neo4j.Record) error {
+		value, getErr := getValueFunc(record)
+		if getErr != nil {
+			return getErr
+		}
+		if value == nil {
+			info.DateTimeFields[fieldName].SetNull()
+			return nil
+		}
+		dateTimeValue, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf(`value %v is not a string for field %v`, value, fieldName)
+		}
+		info.DateTimeFields[fieldName].SetDateTime(dateTimeValue)
+		return nil
+	}
+}
+
 func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, error) {
 	element, isValid := iterator.NextField()
 	if !isValid {
 		return nil, fmt.Errorf(`no path was provided for field '%v'`, field.Name)
 	}
 	switch element.DataType {
-	case `Integer`, `Float`, `Boolean`, `String`:
+	case `Integer`, `Float`, `Boolean`, `String`, `Date`, `DateTime`:
 		return func(record neo4j.Record) (interface{}, error) {
 			value, exists := record.Get(element.Key)
 			if !exists {
@@ -203,8 +223,6 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			}
 			return value, nil
 		}, nil
-	case `Date`, `DateTime`:
-		return nil, nil
 	default:
 		return nil, fmt.Errorf(`invalid field type '%v' for field '%v'`, field.DataType, field.Name)
 	}
