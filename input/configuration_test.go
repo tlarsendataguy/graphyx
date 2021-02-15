@@ -803,3 +803,25 @@ func TestNodeWithWrongDataTypePropertyToRecordInfo(t *testing.T) {
 	}
 	t.Logf(`error: %v`, err.Error())
 }
+
+func TestWrongType(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{`abcdefg`})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err == nil {
+		t.Fatalf(`expected an error but got none`)
+	}
+	t.Logf(`error: %v`, err.Error())
+}
