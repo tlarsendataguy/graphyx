@@ -138,3 +138,64 @@ func TestOutgoingRecordInfoFromConfig(t *testing.T) {
 	}
 	t.Logf(`%v`, outgoingStuff)
 }
+
+func NewMockRecord(keys []string, values []interface{}) *MockRecord {
+	return &MockRecord{keys: keys, values: values}
+}
+
+type MockRecord struct {
+	keys   []string
+	values []interface{}
+}
+
+func (r *MockRecord) Keys() []string {
+	return r.keys
+}
+
+func (r *MockRecord) Values() []interface{} {
+	return r.values
+}
+
+func (r *MockRecord) Get(key string) (interface{}, bool) {
+	for index, foundKey := range r.keys {
+		if foundKey == key {
+			return r.values[index], true
+		}
+	}
+	return nil, false
+}
+
+func (r *MockRecord) GetByIndex(index int) interface{} {
+	return r.values[index]
+}
+
+func TestIntegerToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{12345})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 12345 {
+		t.Fatalf(`expected 12345 but got %v`, value)
+	}
+}
