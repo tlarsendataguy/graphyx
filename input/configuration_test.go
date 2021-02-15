@@ -512,12 +512,9 @@ func TestFirstNodeLabelZeroLabelsToRecordInfo(t *testing.T) {
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
-	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
-	if isNull {
-		t.Fatalf(`expected non-null but got null`)
-	}
-	if value != `` {
-		t.Fatalf(`expected '' but got %v`, value)
+	isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetNull()
+	if !isNull {
+		t.Fatalf(`expected null but got non-null`)
 	}
 }
 
@@ -585,11 +582,8 @@ func TestLastNodeLabelZeroLabelsToRecordInfo(t *testing.T) {
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
-	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
-	if isNull {
-		t.Fatalf(`expected non-null but got null`)
-	}
-	if value != `` {
-		t.Fatalf(`expected '' but got %v`, value)
+	isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetNull()
+	if !isNull {
+		t.Fatalf(`expected null but got non-null`)
 	}
 }

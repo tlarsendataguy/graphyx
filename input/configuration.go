@@ -295,7 +295,7 @@ func stringListTransferFunc(iterator *pathIterator, field Field, extractList ext
 				return nil, err
 			}
 			if len(list) == 0 {
-				return ``, nil
+				return nil, nil
 			}
 			return list[0], nil
 		}, nil
@@ -306,7 +306,7 @@ func stringListTransferFunc(iterator *pathIterator, field Field, extractList ext
 				return nil, err
 			}
 			if len(list) == 0 {
-				return ``, nil
+				return nil, nil
 			}
 			return list[len(list)-1], nil
 		}, nil
