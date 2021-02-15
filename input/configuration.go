@@ -124,11 +124,11 @@ func integerTransferFunc(fieldName string, info *sdk.OutgoingRecordInfo, getValu
 			info.IntFields[fieldName].SetNull()
 			return nil
 		}
-		intValue, ok := value.(int)
+		intValue, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf(`value %v is not an integer for field %v`, value, fieldName)
 		}
-		info.IntFields[fieldName].SetInt(intValue)
+		info.IntFields[fieldName].SetInt(int(intValue))
 		return nil
 	}
 }
@@ -223,7 +223,41 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			}
 			return value, nil
 		}, nil
+	case `Node`:
+		extractNodeFunc := func(record neo4j.Record) (neo4j.Node, error) {
+			value, exists := record.Get(element.Key)
+			if !exists {
+				return nil, nil
+			}
+			nodeValue, ok := value.(neo4j.Node)
+			if !ok {
+				return nil, fmt.Errorf(`path key %v for field %v is not a Node as expected, but is %T`, element.Key, field.Name, value)
+			}
+			return nodeValue, nil
+		}
+		return nodeTransferFunc(iterator, field, extractNodeFunc)
 	default:
 		return nil, fmt.Errorf(`invalid field type '%v' for field '%v'`, field.DataType, field.Name)
+	}
+}
+
+type extractNode func(record neo4j.Record) (neo4j.Node, error)
+
+func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extractNode) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a Node and not in a property data type`, field.Name)
+	}
+	switch element.Key {
+	case `ID`:
+		return func(record neo4j.Record) (interface{}, error) {
+			node, err := nodeExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return node.Id(), nil
+		}, nil
+	default:
+		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Node`, field.Name, element.Key)
 	}
 }

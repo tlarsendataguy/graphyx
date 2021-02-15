@@ -170,6 +170,24 @@ func (r *MockRecord) GetByIndex(index int) interface{} {
 	return r.values[index]
 }
 
+type MockNode struct {
+	id     int64
+	labels []string
+	props  map[string]interface{}
+}
+
+func (n *MockNode) Id() int64 {
+	return n.id
+}
+
+func (n *MockNode) Labels() []string {
+	return n.labels
+}
+
+func (n *MockNode) Props() map[string]interface{} {
+	return n.props
+}
+
 func TestIntegerToRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
@@ -180,7 +198,7 @@ func TestIntegerToRecordInfo(t *testing.T) {
 			},
 		},
 	}
-	record := NewMockRecord([]string{`value`}, []interface{}{12345})
+	record := NewMockRecord([]string{`value`}, []interface{}{int64(12345)})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
@@ -355,5 +373,39 @@ func TestDateTimeToRecordInfo(t *testing.T) {
 	}
 	if value != expectedDate {
 		t.Fatalf(`expected %v but got %v`, expectedDate, value)
+	}
+}
+
+func TestNodeIdRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockNode{id: 23},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 23 {
+		t.Fatalf(`expected 23 but got %v`, value)
 	}
 }
