@@ -1,6 +1,7 @@
 package input_test
 
 import (
+	"github.com/neo4j/neo4j-go-driver/neo4j"
 	"github.com/tlarsen7572/graphyx/input"
 	"reflect"
 	"testing"
@@ -214,6 +215,19 @@ func (r *MockRelationship) Type() string {
 
 func (r *MockRelationship) Props() map[string]interface{} {
 	return r.props
+}
+
+type MockPath struct {
+	nodes []neo4j.Node
+	rels  []neo4j.Relationship
+}
+
+func (p *MockPath) Nodes() []neo4j.Node {
+	return p.nodes
+}
+
+func (p *MockPath) Relationships() []neo4j.Relationship {
+	return p.rels
 }
 
 func TestIntegerToRecordInfo(t *testing.T) {
@@ -1024,5 +1038,170 @@ func TestRelationshipPropertiesToRecordInfo(t *testing.T) {
 	}
 	if value != `hello world` {
 		t.Fatalf(`expected 'hello world' but got %v`, value)
+	}
+}
+
+func TestPathFirstNodeIdRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Path`},
+				{Key: `Nodes`, DataType: `List:Node`},
+				{Key: `First`, DataType: `Node`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockPath{
+			nodes: []neo4j.Node{
+				&MockNode{id: 234},
+				&MockNode{id: 534},
+				&MockNode{id: 9349},
+			},
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 234 {
+		t.Fatalf(`expected 234 but got %v`, value)
+	}
+}
+
+func TestPathLastNodeIdRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Path`},
+				{Key: `Nodes`, DataType: `List:Node`},
+				{Key: `Last`, DataType: `Node`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockPath{
+			nodes: []neo4j.Node{
+				&MockNode{id: 234},
+				&MockNode{id: 534},
+				&MockNode{id: 9349},
+			},
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 9349 {
+		t.Fatalf(`expected 9349 but got %v`, value)
+	}
+}
+
+func TestPathIndexedNodeIdRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Path`},
+				{Key: `Nodes`, DataType: `List:Node`},
+				{Key: `Index:1`, DataType: `Node`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockPath{
+			nodes: []neo4j.Node{
+				&MockNode{id: 234},
+				&MockNode{id: 534},
+				&MockNode{id: 9349},
+			},
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 534 {
+		t.Fatalf(`expected 534 but got %v`, value)
+	}
+}
+
+func TestPathIndexedNodeOutOfBoundsToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Path`},
+				{Key: `Nodes`, DataType: `List:Node`},
+				{Key: `Index:3`, DataType: `Node`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockPath{
+			nodes: []neo4j.Node{
+				&MockNode{id: 234},
+				&MockNode{id: 534},
+				&MockNode{id: 9349},
+			},
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetNull()
+	if !isNull {
+		t.Fatalf(`expected null but got non-null`)
 	}
 }

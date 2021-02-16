@@ -251,6 +251,19 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			return relValue, nil
 		}
 		return relationshipTransferFunc(iterator, field, extractRelationshipFunc)
+	case `Path`:
+		extractPathFunc := func(record neo4j.Record) (neo4j.Path, error) {
+			value, exists := record.Get(element.Key)
+			if !exists {
+				return nil, nil
+			}
+			pathValue, ok := value.(neo4j.Path)
+			if !ok {
+				return nil, fmt.Errorf(`path key %v for field %v is not a Path as expected, but is %T`, element.Key, field.Name, value)
+			}
+			return pathValue, nil
+		}
+		return pathTransferFunc(iterator, field, extractPathFunc)
 	default:
 		return nil, fmt.Errorf(`invalid data type '%v' for path in field '%v'`, element.DataType, field.Name)
 	}
@@ -270,6 +283,9 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			if err != nil {
 				return nil, err
 			}
+			if node == nil {
+				return nil, nil
+			}
 			return node.Id(), nil
 		}, nil
 	case `Labels`:
@@ -277,6 +293,9 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			node, err := nodeExtractor(record)
 			if err != nil {
 				return nil, err
+			}
+			if node == nil {
+				return nil, nil
 			}
 			return node.Labels(), nil
 		}
@@ -286,6 +305,9 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			node, err := nodeExtractor(record)
 			if err != nil {
 				return nil, err
+			}
+			if node == nil {
+				return nil, nil
 			}
 			return node.Props(), nil
 		}
@@ -309,6 +331,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
+			if relationship == nil {
+				return nil, nil
+			}
 			return relationship.Id(), nil
 		}, nil
 	case `StartId`:
@@ -316,6 +341,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			relationship, err := relExtractor(record)
 			if err != nil {
 				return nil, err
+			}
+			if relationship == nil {
+				return nil, nil
 			}
 			return relationship.StartId(), nil
 		}, nil
@@ -325,6 +353,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
+			if relationship == nil {
+				return nil, nil
+			}
 			return relationship.EndId(), nil
 		}, nil
 	case `Type`:
@@ -333,19 +364,102 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
+			if relationship == nil {
+				return nil, nil
+			}
 			return relationship.Type(), nil
 		}, nil
 	case `Properties`:
 		nodeFunc := func(record neo4j.Record) (map[string]interface{}, error) {
-			rel, err := relExtractor(record)
+			relationship, err := relExtractor(record)
 			if err != nil {
 				return nil, err
 			}
-			return rel.Props(), nil
+			if relationship == nil {
+				return nil, nil
+			}
+			return relationship.Props(), nil
 		}
 		return mapTransferFunc(iterator, field, nodeFunc)
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Relationship`, field.Name, element.Key)
+	}
+}
+
+type extractPath func(record neo4j.Record) (neo4j.Path, error)
+
+func pathTransferFunc(iterator *pathIterator, field Field, extract extractPath) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a Path and not in a property data type`, field.Name)
+	}
+
+	switch element.Key {
+	case `Nodes`:
+		nodesFunc := func(record neo4j.Record) ([]neo4j.Node, error) {
+			extractedPath, err := extract(record)
+			if err != nil {
+				return nil, err
+			}
+			return extractedPath.Nodes(), nil
+		}
+		return nodeListTransferFunc(iterator, field, nodesFunc)
+	default:
+		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Path`, field.Name, element.Key)
+	}
+}
+
+type extractNodeList func(record neo4j.Record) ([]neo4j.Node, error)
+
+func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extractNodeList) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a list of Nodes and not in a property data type`, field.Name)
+	}
+	switch element.Key {
+	case `First`:
+		nodeFunc := func(record neo4j.Record) (neo4j.Node, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[0], nil
+		}
+		return nodeTransferFunc(iterator, field, nodeFunc)
+	case `Last`:
+		nodeFunc := func(record neo4j.Record) (neo4j.Node, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[len(list)-1], nil
+		}
+		return nodeTransferFunc(iterator, field, nodeFunc)
+	default:
+		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
+			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:Node`, field.Name, element.Key)
+		}
+		index, err := strconv.Atoi(element.Key[6:])
+		if err != nil {
+			return nil, fmt.Errorf(`field %v does not have a valid index in key '%v'`, field.Name, element.Key)
+		}
+		nodeFunc := func(record neo4j.Record) (neo4j.Node, error) {
+			list, getErr := extractList(record)
+			if getErr != nil {
+				return nil, getErr
+			}
+			if len(list) <= index {
+				return nil, nil
+			}
+			return list[index], nil
+		}
+		return nodeTransferFunc(iterator, field, nodeFunc)
 	}
 }
 
