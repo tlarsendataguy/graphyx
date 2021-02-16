@@ -404,8 +404,71 @@ func pathTransferFunc(iterator *pathIterator, field Field, extract extractPath) 
 			return extractedPath.Nodes(), nil
 		}
 		return nodeListTransferFunc(iterator, field, nodesFunc)
+	case `Relationships`:
+		relsFunc := func(record neo4j.Record) ([]neo4j.Relationship, error) {
+			extractedPath, err := extract(record)
+			if err != nil {
+				return nil, err
+			}
+			return extractedPath.Relationships(), nil
+		}
+		return relListTransferFunc(iterator, field, relsFunc)
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Path`, field.Name, element.Key)
+	}
+}
+
+type extractRelList func(record neo4j.Record) ([]neo4j.Relationship, error)
+
+func relListTransferFunc(iterator *pathIterator, field Field, extractList extractRelList) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a list of Relationships and not in a property data type`, field.Name)
+	}
+	switch element.Key {
+	case `First`:
+		relFunc := func(record neo4j.Record) (neo4j.Relationship, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[0], nil
+		}
+		return relationshipTransferFunc(iterator, field, relFunc)
+	case `Last`:
+		relFunc := func(record neo4j.Record) (neo4j.Relationship, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[len(list)-1], nil
+		}
+		return relationshipTransferFunc(iterator, field, relFunc)
+	default:
+		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
+			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:Relationship`, field.Name, element.Key)
+		}
+		index, err := strconv.Atoi(element.Key[6:])
+		if err != nil {
+			return nil, fmt.Errorf(`field %v does not have a valid index in key '%v'`, field.Name, element.Key)
+		}
+		relFunc := func(record neo4j.Record) (neo4j.Relationship, error) {
+			list, getErr := extractList(record)
+			if getErr != nil {
+				return nil, getErr
+			}
+			if len(list) <= index {
+				return nil, nil
+			}
+			return list[index], nil
+		}
+		return relationshipTransferFunc(iterator, field, relFunc)
 	}
 }
 
