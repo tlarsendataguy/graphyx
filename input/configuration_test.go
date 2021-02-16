@@ -188,6 +188,34 @@ func (n *MockNode) Props() map[string]interface{} {
 	return n.props
 }
 
+type MockRelationship struct {
+	id      int64
+	startId int64
+	endId   int64
+	relType string
+	props   map[string]interface{}
+}
+
+func (r *MockRelationship) Id() int64 {
+	return r.id
+}
+
+func (r *MockRelationship) StartId() int64 {
+	return r.startId
+}
+
+func (r *MockRelationship) EndId() int64 {
+	return r.endId
+}
+
+func (r *MockRelationship) Type() string {
+	return r.relType
+}
+
+func (r *MockRelationship) Props() map[string]interface{} {
+	return r.props
+}
+
 func TestIntegerToRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
@@ -824,4 +852,177 @@ func TestWrongType(t *testing.T) {
 		t.Fatalf(`expected an error but got none`)
 	}
 	t.Logf(`error: %v`, err.Error())
+}
+
+func TestRelationshipIdToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Relationship`},
+				{Key: `ID`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockRelationship{id: 452},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 452 {
+		t.Fatalf(`expected 452 but got %v`, value)
+	}
+}
+
+func TestRelationshipStartIdToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Relationship`},
+				{Key: `StartId`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockRelationship{startId: 452},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 452 {
+		t.Fatalf(`expected 452 but got %v`, value)
+	}
+}
+
+func TestRelationshipEndIdToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Relationship`},
+				{Key: `EndId`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockRelationship{endId: 452},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 452 {
+		t.Fatalf(`expected 452 but got %v`, value)
+	}
+}
+
+func TestRelationshipTypeToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Relationship`},
+				{Key: `Type`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockRelationship{relType: `hello world`},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `hello world` {
+		t.Fatalf(`expected 'hello world' but got %v`, value)
+	}
+}
+
+func TestRelationshipPropertiesToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Relationship`},
+				{Key: `Properties`, DataType: `Map`},
+				{Key: `Something`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockRelationship{props: map[string]interface{}{
+			`Something`: `hello world`,
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `hello world` {
+		t.Fatalf(`expected 'hello world' but got %v`, value)
+	}
 }

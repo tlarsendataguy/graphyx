@@ -238,8 +238,21 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			return nodeValue, nil
 		}
 		return nodeTransferFunc(iterator, field, extractNodeFunc)
+	case `Relationship`:
+		extractRelationshipFunc := func(record neo4j.Record) (neo4j.Relationship, error) {
+			value, exists := record.Get(element.Key)
+			if !exists {
+				return nil, nil
+			}
+			relValue, ok := value.(neo4j.Relationship)
+			if !ok {
+				return nil, fmt.Errorf(`path key %v for field %v is not a Relationship as expected, but is %T`, element.Key, field.Name, value)
+			}
+			return relValue, nil
+		}
+		return relationshipTransferFunc(iterator, field, extractRelationshipFunc)
 	default:
-		return nil, fmt.Errorf(`invalid field type '%v' for field '%v'`, field.DataType, field.Name)
+		return nil, fmt.Errorf(`invalid data type '%v' for path in field '%v'`, element.DataType, field.Name)
 	}
 }
 
@@ -279,6 +292,60 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 		return mapTransferFunc(iterator, field, nodeFunc)
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Node`, field.Name, element.Key)
+	}
+}
+
+type extractRelationship func(record neo4j.Record) (neo4j.Relationship, error)
+
+func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor extractRelationship) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a Relationship and not in a property data type`, field.Name)
+	}
+	switch element.Key {
+	case `ID`:
+		return func(record neo4j.Record) (interface{}, error) {
+			relationship, err := relExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return relationship.Id(), nil
+		}, nil
+	case `StartId`:
+		return func(record neo4j.Record) (interface{}, error) {
+			relationship, err := relExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return relationship.StartId(), nil
+		}, nil
+	case `EndId`:
+		return func(record neo4j.Record) (interface{}, error) {
+			relationship, err := relExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return relationship.EndId(), nil
+		}, nil
+	case `Type`:
+		return func(record neo4j.Record) (interface{}, error) {
+			relationship, err := relExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return relationship.Type(), nil
+		}, nil
+	case `Properties`:
+		nodeFunc := func(record neo4j.Record) (map[string]interface{}, error) {
+			rel, err := relExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			return rel.Props(), nil
+		}
+		return mapTransferFunc(iterator, field, nodeFunc)
+	default:
+		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Relationship`, field.Name, element.Key)
 	}
 }
 
