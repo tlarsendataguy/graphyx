@@ -1331,3 +1331,269 @@ func TestPathIndexedRelationshipIdToRecordInfo(t *testing.T) {
 		t.Fatalf(`expected 534 but got %v`, value)
 	}
 }
+
+func TestFirstStringListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:String`},
+				{Key: `First`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]string{
+			`a`,
+			`b`,
+			`c`,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `a` {
+		t.Fatalf(`expected 'a' but got %v`, value)
+	}
+}
+
+func TestLastStringListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:String`},
+				{Key: `Last`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]string{
+			`a`,
+			`b`,
+			`c`,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `c` {
+		t.Fatalf(`expected 'c' but got %v`, value)
+	}
+}
+
+func TestIndexedStringListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:String`},
+				{Key: `Index:1`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]string{
+			`a`,
+			`b`,
+			`c`,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `b` {
+		t.Fatalf(`expected 'b' but got %v`, value)
+	}
+}
+
+func TestConcatenateStringListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:String`},
+				{Key: `Concatenate`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]string{
+			`a`,
+			`b`,
+			`c`,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `a,b,c` {
+		t.Fatalf(`expected 'a,b,c' but got %v`, value)
+	}
+}
+
+func TestFirstIntegerListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:Integer`},
+				{Key: `First`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]int64{
+			1,
+			2,
+			3,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 1 {
+		t.Fatalf(`expected 1 but got %v`, value)
+	}
+}
+
+func TestLastIntegerListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:Integer`},
+				{Key: `Last`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]int64{
+			1,
+			2,
+			3,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 3 {
+		t.Fatalf(`expected 3 but got %v`, value)
+	}
+}
+
+func TestIndexedIntegerListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:Integer`},
+				{Key: `Index:1`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]int64{
+			1,
+			2,
+			3,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 2 {
+		t.Fatalf(`expected 2 but got %v`, value)
+	}
+}

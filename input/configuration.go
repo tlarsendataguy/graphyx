@@ -225,6 +225,32 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			}
 			return value, nil
 		}, nil
+	case `List:String`:
+		extractListFunc := func(record neo4j.Record) ([]string, error) {
+			value, exists := record.Get(element.Key)
+			if !exists {
+				return nil, nil
+			}
+			valueList, ok := value.([]string)
+			if !ok {
+				return nil, fmt.Errorf(`path key %v for field %v is not a list of strings as expected, but is %T`, element.Key, field.Name, value)
+			}
+			return valueList, nil
+		}
+		return stringListTransferFunc(iterator, field, extractListFunc)
+	case `List:Integer`:
+		extractListFunc := func(record neo4j.Record) ([]int64, error) {
+			value, exists := record.Get(element.Key)
+			if !exists {
+				return nil, nil
+			}
+			valueList, ok := value.([]int64)
+			if !ok {
+				return nil, fmt.Errorf(`path key %v for field %v is not a list of integers as expected, but is %T`, element.Key, field.Name, value)
+			}
+			return valueList, nil
+		}
+		return integerListTransferFunc(iterator, field, extractListFunc)
 	case `Node`:
 		extractNodeFunc := func(record neo4j.Record) (neo4j.Node, error) {
 			value, exists := record.Get(element.Key)
@@ -567,6 +593,57 @@ func stringListTransferFunc(iterator *pathIterator, field Field, extractList ext
 	default:
 		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
 			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:String`, field.Name, element.Key)
+		}
+		index, err := strconv.Atoi(element.Key[6:])
+		if err != nil {
+			return nil, fmt.Errorf(`field %v does not have a valid index in key '%v'`, field.Name, element.Key)
+		}
+		return func(record neo4j.Record) (interface{}, error) {
+			list, getErr := extractList(record)
+			if getErr != nil {
+				return nil, getErr
+			}
+			if len(list) <= index {
+				return nil, nil
+			}
+			return list[index], nil
+		}, nil
+	}
+}
+
+type extractIntegerList func(record neo4j.Record) ([]int64, error)
+
+func integerListTransferFunc(iterator *pathIterator, field Field, extractList extractIntegerList) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a list of integers and not in a property data type`, field.Name)
+	}
+	switch element.Key {
+	case `First`:
+		return func(record neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[0], nil
+		}, nil
+	case `Last`:
+		return func(record neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[len(list)-1], nil
+		}, nil
+	default:
+		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
+			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:Integer`, field.Name, element.Key)
 		}
 		index, err := strconv.Atoi(element.Key[6:])
 		if err != nil {
