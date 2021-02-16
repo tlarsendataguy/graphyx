@@ -764,6 +764,40 @@ func mapTransferFunc(iterator *pathIterator, field Field, extract extractMap) (G
 			return listValue, nil
 		}
 		return stringListTransferFunc(iterator, field, listFunc)
+	case `List:Integer`:
+		listFunc := func(record neo4j.Record) ([]int64, error) {
+			extractedMap, err := extract(record)
+			if err != nil {
+				return nil, err
+			}
+			value, hasKey := extractedMap[element.Key]
+			if !hasKey {
+				return nil, nil
+			}
+			listValue, convertOk := value.([]int64)
+			if !convertOk {
+				return nil, fmt.Errorf(`map value with key '%v' on field %v is not a list of integers; it is %T`, element.Key, field.Name, value)
+			}
+			return listValue, nil
+		}
+		return integerListTransferFunc(iterator, field, listFunc)
+	case `List:Float`:
+		listFunc := func(record neo4j.Record) ([]float64, error) {
+			extractedMap, err := extract(record)
+			if err != nil {
+				return nil, err
+			}
+			value, hasKey := extractedMap[element.Key]
+			if !hasKey {
+				return nil, nil
+			}
+			listValue, convertOk := value.([]float64)
+			if !convertOk {
+				return nil, fmt.Errorf(`map value with key '%v' on field %v is not a list of floats; it is %T`, element.Key, field.Name, value)
+			}
+			return listValue, nil
+		}
+		return floatListTransferFunc(iterator, field, listFunc)
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid data type '%v' for Map`, field.Name, element.DataType)
 	}

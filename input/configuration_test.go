@@ -1711,3 +1711,87 @@ func TestIndexedFloatListToRecordInfo(t *testing.T) {
 		t.Fatalf(`expected 2.2 but got %v`, value)
 	}
 }
+
+func TestNodeIntegerListPropertyToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `Properties`, DataType: `Map`},
+				{Key: `Something`, DataType: `List:Integer`},
+				{Key: `First`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockNode{props: map[string]interface{}{
+			`Something`: []int64{
+				1,
+				2,
+				3,
+			},
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 1 {
+		t.Fatalf(`expected 1 but got %v`, value)
+	}
+}
+
+func TestNodeFloatListPropertyToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Float`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `Properties`, DataType: `Map`},
+				{Key: `Something`, DataType: `List:Float`},
+				{Key: `First`, DataType: `Float`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		&MockNode{props: map[string]interface{}{
+			`Something`: []float64{
+				1.1,
+				2.2,
+				3.3,
+			},
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.FloatFields[`Field1`].GetCurrentFloat()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 1.1 {
+		t.Fatalf(`expected 1.1 but got %v`, value)
+	}
+}
