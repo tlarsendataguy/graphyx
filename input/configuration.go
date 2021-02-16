@@ -251,6 +251,19 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			return valueList, nil
 		}
 		return integerListTransferFunc(iterator, field, extractListFunc)
+	case `List:Float`:
+		extractListFunc := func(record neo4j.Record) ([]float64, error) {
+			value, exists := record.Get(element.Key)
+			if !exists {
+				return nil, nil
+			}
+			valueList, ok := value.([]float64)
+			if !ok {
+				return nil, fmt.Errorf(`path key %v for field %v is not a list of integers as expected, but is %T`, element.Key, field.Name, value)
+			}
+			return valueList, nil
+		}
+		return floatListTransferFunc(iterator, field, extractListFunc)
 	case `Node`:
 		extractNodeFunc := func(record neo4j.Record) (neo4j.Node, error) {
 			value, exists := record.Get(element.Key)
@@ -617,6 +630,57 @@ func integerListTransferFunc(iterator *pathIterator, field Field, extractList ex
 	element, ok := iterator.NextField()
 	if !ok {
 		return nil, fmt.Errorf(`the path for field %v ends in a list of integers and not in a property data type`, field.Name)
+	}
+	switch element.Key {
+	case `First`:
+		return func(record neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[0], nil
+		}, nil
+	case `Last`:
+		return func(record neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return nil, err
+			}
+			if len(list) == 0 {
+				return nil, nil
+			}
+			return list[len(list)-1], nil
+		}, nil
+	default:
+		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
+			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:Integer`, field.Name, element.Key)
+		}
+		index, err := strconv.Atoi(element.Key[6:])
+		if err != nil {
+			return nil, fmt.Errorf(`field %v does not have a valid index in key '%v'`, field.Name, element.Key)
+		}
+		return func(record neo4j.Record) (interface{}, error) {
+			list, getErr := extractList(record)
+			if getErr != nil {
+				return nil, getErr
+			}
+			if len(list) <= index {
+				return nil, nil
+			}
+			return list[index], nil
+		}, nil
+	}
+}
+
+type extractFloatList func(record neo4j.Record) ([]float64, error)
+
+func floatListTransferFunc(iterator *pathIterator, field Field, extractList extractFloatList) (GetValueFunc, error) {
+	element, ok := iterator.NextField()
+	if !ok {
+		return nil, fmt.Errorf(`the path for field %v ends in a list of floats and not in a property data type`, field.Name)
 	}
 	switch element.Key {
 	case `First`:
