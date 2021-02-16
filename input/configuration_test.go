@@ -1,7 +1,7 @@
 package input_test
 
 import (
-	"github.com/neo4j/neo4j-go-driver/neo4j"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/graphyx/input"
 	"reflect"
 	"testing"
@@ -19,7 +19,7 @@ func TestBasicConfig(t *testing.T) {
 			<Path>
 				<Element DataType="Path" Key="p" />
 				<Element DataType="List:Node" Key="Nodes" />
-				<Element DataType="Node" Key="0" />
+				<Element DataType="Node" Key="First" />
 				<Element DataType="Integer" Key="ID" />
 			</Path>
 		</Field>
@@ -27,7 +27,7 @@ func TestBasicConfig(t *testing.T) {
 			<Path>
 				<Element DataType="Path" Key="p" />
 				<Element DataType="List:Relationship" Key="Relationships" />
-				<Element DataType="Relationship" Key="0" />
+				<Element DataType="Relationship" Key="First" />
 				<Element DataType="Integer" Key="ID" />
 			</Path>
 		</Field>
@@ -51,7 +51,7 @@ func TestBasicConfig(t *testing.T) {
 				Path: []input.Element{
 					{Key: `p`, DataType: `Path`},
 					{Key: `Nodes`, DataType: `List:Node`},
-					{Key: `0`, DataType: `Node`},
+					{Key: `First`, DataType: `Node`},
 					{Key: `ID`, DataType: `Integer`},
 				},
 			},
@@ -61,7 +61,7 @@ func TestBasicConfig(t *testing.T) {
 				Path: []input.Element{
 					{Key: `p`, DataType: `Path`},
 					{Key: `Relationships`, DataType: `List:Relationship`},
-					{Key: `0`, DataType: `Relationship`},
+					{Key: `First`, DataType: `Relationship`},
 					{Key: `ID`, DataType: `Integer`},
 				},
 			},
@@ -141,93 +141,8 @@ func TestOutgoingRecordInfoFromConfig(t *testing.T) {
 	t.Logf(`%v`, outgoingStuff)
 }
 
-func NewMockRecord(keys []string, values []interface{}) *MockRecord {
-	return &MockRecord{keys: keys, values: values}
-}
-
-type MockRecord struct {
-	keys   []string
-	values []interface{}
-}
-
-func (r *MockRecord) Keys() []string {
-	return r.keys
-}
-
-func (r *MockRecord) Values() []interface{} {
-	return r.values
-}
-
-func (r *MockRecord) Get(key string) (interface{}, bool) {
-	for index, foundKey := range r.keys {
-		if foundKey == key {
-			return r.values[index], true
-		}
-	}
-	return nil, false
-}
-
-func (r *MockRecord) GetByIndex(index int) interface{} {
-	return r.values[index]
-}
-
-type MockNode struct {
-	id     int64
-	labels []string
-	props  map[string]interface{}
-}
-
-func (n *MockNode) Id() int64 {
-	return n.id
-}
-
-func (n *MockNode) Labels() []string {
-	return n.labels
-}
-
-func (n *MockNode) Props() map[string]interface{} {
-	return n.props
-}
-
-type MockRelationship struct {
-	id      int64
-	startId int64
-	endId   int64
-	relType string
-	props   map[string]interface{}
-}
-
-func (r *MockRelationship) Id() int64 {
-	return r.id
-}
-
-func (r *MockRelationship) StartId() int64 {
-	return r.startId
-}
-
-func (r *MockRelationship) EndId() int64 {
-	return r.endId
-}
-
-func (r *MockRelationship) Type() string {
-	return r.relType
-}
-
-func (r *MockRelationship) Props() map[string]interface{} {
-	return r.props
-}
-
-type MockPath struct {
-	nodes []neo4j.Node
-	rels  []neo4j.Relationship
-}
-
-func (p *MockPath) Nodes() []neo4j.Node {
-	return p.nodes
-}
-
-func (p *MockPath) Relationships() []neo4j.Relationship {
-	return p.rels
+func NewMockRecord(keys []string, values []interface{}) *neo4j.Record {
+	return &neo4j.Record{Keys: keys, Values: values}
 }
 
 func TestIntegerToRecordInfo(t *testing.T) {
@@ -430,7 +345,7 @@ func TestNodeIdRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{id: 23},
+		neo4j.Node{Id: 23},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -465,7 +380,7 @@ func TestConcatenatedNodeLabelsToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{labels: []string{
+		neo4j.Node{Labels: []string{
 			`Label1`,
 			`Label2`,
 		}},
@@ -503,7 +418,7 @@ func TestFirstNodeLabelToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{labels: []string{
+		neo4j.Node{Labels: []string{
 			`Label1`,
 			`Label2`,
 		}},
@@ -541,7 +456,7 @@ func TestFirstNodeLabelZeroLabelsToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{labels: []string{}},
+		neo4j.Node{Labels: []string{}},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -573,7 +488,7 @@ func TestLastNodeLabelToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{labels: []string{
+		neo4j.Node{Labels: []string{
 			`Label1`,
 			`Label2`,
 		}},
@@ -611,7 +526,7 @@ func TestLastNodeLabelZeroLabelsToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{labels: []string{}},
+		neo4j.Node{Labels: []string{}},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -643,7 +558,7 @@ func TestLabelIndexToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{labels: []string{
+		neo4j.Node{Labels: []string{
 			`Label1`,
 			`Label2`,
 			`Label3`,
@@ -682,7 +597,7 @@ func TestLabelIndexOutOfBoundsToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{labels: []string{
+		neo4j.Node{Labels: []string{
 			`Label1`,
 		}},
 	})
@@ -716,7 +631,7 @@ func TestNodeStringPropertyToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{props: map[string]interface{}{
+		neo4j.Node{Props: map[string]interface{}{
 			`Something`: `hello world`,
 		}},
 	})
@@ -753,7 +668,7 @@ func TestNodeMissingStringPropertyToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{props: map[string]interface{}{}},
+		neo4j.Node{Props: map[string]interface{}{}},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -786,7 +701,7 @@ func TestNodeStringListPropertyToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{props: map[string]interface{}{
+		neo4j.Node{Props: map[string]interface{}{
 			`Something`: []string{
 				`hello world`,
 				`abcdefg`,
@@ -828,7 +743,7 @@ func TestNodeWithWrongDataTypePropertyToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{props: map[string]interface{}{
+		&neo4j.Node{Props: map[string]interface{}{
 			`Something`: `hello world`,
 		}},
 	})
@@ -880,7 +795,7 @@ func TestRelationshipIdToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockRelationship{id: 452},
+		neo4j.Relationship{Id: 452},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -914,7 +829,7 @@ func TestRelationshipStartIdToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockRelationship{startId: 452},
+		neo4j.Relationship{StartId: 452},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -948,7 +863,7 @@ func TestRelationshipEndIdToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockRelationship{endId: 452},
+		neo4j.Relationship{EndId: 452},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -982,7 +897,7 @@ func TestRelationshipTypeToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockRelationship{relType: `hello world`},
+		neo4j.Relationship{Type: `hello world`},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
 	if err != nil {
@@ -1017,7 +932,7 @@ func TestRelationshipPropertiesToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockRelationship{props: map[string]interface{}{
+		neo4j.Relationship{Props: map[string]interface{}{
 			`Something`: `hello world`,
 		}},
 	})
@@ -1055,11 +970,11 @@ func TestPathFirstNodeIdRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockPath{
-			nodes: []neo4j.Node{
-				&MockNode{id: 234},
-				&MockNode{id: 534},
-				&MockNode{id: 9349},
+		neo4j.Path{
+			Nodes: []neo4j.Node{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
 			},
 		},
 	})
@@ -1097,11 +1012,11 @@ func TestPathLastNodeIdRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockPath{
-			nodes: []neo4j.Node{
-				&MockNode{id: 234},
-				&MockNode{id: 534},
-				&MockNode{id: 9349},
+		neo4j.Path{
+			Nodes: []neo4j.Node{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
 			},
 		},
 	})
@@ -1139,11 +1054,11 @@ func TestPathIndexedNodeIdRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockPath{
-			nodes: []neo4j.Node{
-				&MockNode{id: 234},
-				&MockNode{id: 534},
-				&MockNode{id: 9349},
+		neo4j.Path{
+			Nodes: []neo4j.Node{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
 			},
 		},
 	})
@@ -1181,11 +1096,11 @@ func TestPathIndexedNodeOutOfBoundsToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockPath{
-			nodes: []neo4j.Node{
-				&MockNode{id: 234},
-				&MockNode{id: 534},
-				&MockNode{id: 9349},
+		neo4j.Path{
+			Nodes: []neo4j.Node{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
 			},
 		},
 	})
@@ -1220,11 +1135,11 @@ func TestPathFirstRelationshipIdToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockPath{
-			rels: []neo4j.Relationship{
-				&MockRelationship{id: 234},
-				&MockRelationship{id: 534},
-				&MockRelationship{id: 9349},
+		neo4j.Path{
+			Relationships: []neo4j.Relationship{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
 			},
 		},
 	})
@@ -1262,11 +1177,11 @@ func TestPathLastRelationshipIdToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockPath{
-			rels: []neo4j.Relationship{
-				&MockRelationship{id: 234},
-				&MockRelationship{id: 534},
-				&MockRelationship{id: 9349},
+		neo4j.Path{
+			Relationships: []neo4j.Relationship{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
 			},
 		},
 	})
@@ -1304,11 +1219,11 @@ func TestPathIndexedRelationshipIdToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockPath{
-			rels: []neo4j.Relationship{
-				&MockRelationship{id: 234},
-				&MockRelationship{id: 534},
-				&MockRelationship{id: 9349},
+		neo4j.Path{
+			Relationships: []neo4j.Relationship{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
 			},
 		},
 	})
@@ -1726,7 +1641,7 @@ func TestNodeIntegerListPropertyToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{props: map[string]interface{}{
+		neo4j.Node{Props: map[string]interface{}{
 			`Something`: []int64{
 				1,
 				2,
@@ -1768,7 +1683,7 @@ func TestNodeFloatListPropertyToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		&MockNode{props: map[string]interface{}{
+		neo4j.Node{Props: map[string]interface{}{
 			`Something`: []float64{
 				1.1,
 				2.2,
