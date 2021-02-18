@@ -202,9 +202,20 @@ func dateTimeTransferFunc(fieldName string, info *sdk.OutgoingRecordInfo, getVal
 			info.DateTimeFields[fieldName].SetNull()
 			return nil
 		}
-		dateTimeValue, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf(`value %v is not a string for field %v`, value, fieldName)
+		var dateTimeValue time.Time
+		switch typed := value.(type) {
+		case neo4j.Time:
+			dateTimeValue = typed.Time()
+		case neo4j.LocalTime:
+			dateTimeValue = typed.Time()
+		case neo4j.LocalDateTime:
+			dateTimeValue = typed.Time()
+		case neo4j.Date:
+			dateTimeValue = typed.Time()
+		case time.Time:
+			dateTimeValue = typed
+		default:
+			return fmt.Errorf(`value %v is not a datetime for field %v`, value, fieldName)
 		}
 		info.DateTimeFields[fieldName].SetDateTime(dateTimeValue)
 		return nil
@@ -268,11 +279,11 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 		extractNodeFunc := func(record *neo4j.Record) (neo4j.Node, error) {
 			value, exists := record.Get(element.Key)
 			if !exists {
-				return neo4j.Node{}, nil
+				return emptyNode, nil
 			}
 			nodeValue, ok := value.(neo4j.Node)
 			if !ok {
-				return neo4j.Node{}, fmt.Errorf(`path key %v for field %v is not a Node as expected, but is %T`, element.Key, field.Name, value)
+				return emptyNode, fmt.Errorf(`path key %v for field %v is not a Node as expected, but is %T`, element.Key, field.Name, value)
 			}
 			return nodeValue, nil
 		}
@@ -281,11 +292,11 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 		extractRelationshipFunc := func(record *neo4j.Record) (neo4j.Relationship, error) {
 			value, exists := record.Get(element.Key)
 			if !exists {
-				return neo4j.Relationship{}, nil
+				return emptyRel, nil
 			}
 			relValue, ok := value.(neo4j.Relationship)
 			if !ok {
-				return neo4j.Relationship{}, fmt.Errorf(`path key %v for field %v is not a Relationship as expected, but is %T`, element.Key, field.Name, value)
+				return emptyRel, fmt.Errorf(`path key %v for field %v is not a Relationship as expected, but is %T`, element.Key, field.Name, value)
 			}
 			return relValue, nil
 		}
@@ -321,6 +332,9 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			node, err := nodeExtractor(record)
 			if err != nil {
 				return nil, err
+			}
+			if node.Id < 0 {
+				return nil, nil
 			}
 			return node.Id, nil
 		}, nil
@@ -361,6 +375,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
+			if relationship.Id < 0 {
+				return nil, nil
+			}
 			return relationship.Id, nil
 		}, nil
 	case `StartId`:
@@ -368,6 +385,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			relationship, err := relExtractor(record)
 			if err != nil {
 				return nil, err
+			}
+			if relationship.Id < 0 {
+				return nil, nil
 			}
 			return relationship.StartId, nil
 		}, nil
@@ -377,6 +397,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
+			if relationship.Id < 0 {
+				return nil, nil
+			}
 			return relationship.EndId, nil
 		}, nil
 	case `Type`:
@@ -384,6 +407,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			relationship, err := relExtractor(record)
 			if err != nil {
 				return nil, err
+			}
+			if relationship.Id < 0 {
+				return nil, nil
 			}
 			return relationship.Type, nil
 		}, nil
@@ -435,6 +461,8 @@ func pathTransferFunc(iterator *pathIterator, field Field, extract extractPath) 
 
 type extractRelList func(record *neo4j.Record) ([]neo4j.Relationship, error)
 
+var emptyRel = neo4j.Relationship{Id: -1}
+
 func relListTransferFunc(iterator *pathIterator, field Field, extractList extractRelList) (GetValueFunc, error) {
 	element, ok := iterator.NextField()
 	if !ok {
@@ -445,10 +473,10 @@ func relListTransferFunc(iterator *pathIterator, field Field, extractList extrac
 		relFunc := func(record *neo4j.Record) (neo4j.Relationship, error) {
 			list, err := extractList(record)
 			if err != nil {
-				return neo4j.Relationship{}, err
+				return emptyRel, err
 			}
 			if len(list) == 0 {
-				return neo4j.Relationship{}, nil
+				return emptyRel, nil
 			}
 			return list[0], nil
 		}
@@ -457,10 +485,10 @@ func relListTransferFunc(iterator *pathIterator, field Field, extractList extrac
 		relFunc := func(record *neo4j.Record) (neo4j.Relationship, error) {
 			list, err := extractList(record)
 			if err != nil {
-				return neo4j.Relationship{}, err
+				return emptyRel, err
 			}
 			if len(list) == 0 {
-				return neo4j.Relationship{}, nil
+				return emptyRel, nil
 			}
 			return list[len(list)-1], nil
 		}
@@ -476,10 +504,10 @@ func relListTransferFunc(iterator *pathIterator, field Field, extractList extrac
 		relFunc := func(record *neo4j.Record) (neo4j.Relationship, error) {
 			list, getErr := extractList(record)
 			if getErr != nil {
-				return neo4j.Relationship{}, getErr
+				return emptyRel, getErr
 			}
 			if len(list) <= index {
-				return neo4j.Relationship{}, nil
+				return emptyRel, nil
 			}
 			return list[index], nil
 		}
@@ -488,6 +516,8 @@ func relListTransferFunc(iterator *pathIterator, field Field, extractList extrac
 }
 
 type extractNodeList func(record *neo4j.Record) ([]neo4j.Node, error)
+
+var emptyNode = neo4j.Node{Id: -1}
 
 func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extractNodeList) (GetValueFunc, error) {
 	element, ok := iterator.NextField()
@@ -499,10 +529,10 @@ func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extra
 		nodeFunc := func(record *neo4j.Record) (neo4j.Node, error) {
 			list, err := extractList(record)
 			if err != nil {
-				return neo4j.Node{}, err
+				return emptyNode, err
 			}
 			if len(list) == 0 {
-				return neo4j.Node{}, nil
+				return emptyNode, nil
 			}
 			return list[0], nil
 		}
@@ -511,10 +541,10 @@ func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extra
 		nodeFunc := func(record *neo4j.Record) (neo4j.Node, error) {
 			list, err := extractList(record)
 			if err != nil {
-				return neo4j.Node{}, err
+				return emptyNode, err
 			}
 			if len(list) == 0 {
-				return neo4j.Node{}, nil
+				return emptyNode, nil
 			}
 			return list[len(list)-1], nil
 		}
@@ -530,10 +560,10 @@ func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extra
 		nodeFunc := func(record *neo4j.Record) (neo4j.Node, error) {
 			list, getErr := extractList(record)
 			if getErr != nil {
-				return neo4j.Node{}, getErr
+				return emptyNode, getErr
 			}
 			if len(list) <= index {
-				return neo4j.Node{}, nil
+				return emptyNode, nil
 			}
 			return list[index], nil
 		}
