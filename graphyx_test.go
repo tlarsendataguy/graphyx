@@ -1,6 +1,7 @@
-package graphyx
+package main_test
 
 import (
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
 	"github.com/tlarsen7572/graphyx/input"
 	"testing"
@@ -9,8 +10,8 @@ import (
 func TestInput(t *testing.T) {
 	config := `<Configuration>
 	<ConnStr>bolt://localhost:7687</ConnStr>
-	<Username>neo4j</Username>
-	<Password>neo4j</Password>
+	<Username>test</Username>
+	<Password>test</Password>
 	<Query>MATCH p=()-[r:ACTED_IN]->() RETURN p</Query>
 	<Fields>
 		<Field Name="Field1" DataType="Integer">
@@ -38,7 +39,6 @@ func TestInput(t *testing.T) {
 	t.Logf(`%v`, collector.Data)
 }
 
-/*
 func TestConnection(t *testing.T) {
 	uri := `bolt://localhost:7687`
 	username := `test`
@@ -78,4 +78,3 @@ func TestConnection(t *testing.T) {
 	})
 
 }
-*/

@@ -702,7 +702,7 @@ func TestNodeStringListPropertyToRecordInfo(t *testing.T) {
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
 		neo4j.Node{Props: map[string]interface{}{
-			`Something`: []string{
+			`Something`: []interface{}{
 				`hello world`,
 				`abcdefg`,
 				`wxyz`,
@@ -1259,7 +1259,7 @@ func TestFirstStringListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]string{
+		[]interface{}{
 			`a`,
 			`b`,
 			`c`,
@@ -1297,7 +1297,7 @@ func TestLastStringListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]string{
+		[]interface{}{
 			`a`,
 			`b`,
 			`c`,
@@ -1335,7 +1335,7 @@ func TestIndexedStringListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]string{
+		[]interface{}{
 			`a`,
 			`b`,
 			`c`,
@@ -1373,7 +1373,7 @@ func TestConcatenateStringListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]string{
+		[]interface{}{
 			`a`,
 			`b`,
 			`c`,
@@ -1411,10 +1411,10 @@ func TestFirstIntegerListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]int64{
-			1,
-			2,
-			3,
+		[]interface{}{
+			int64(1),
+			int64(2),
+			int64(3),
 		},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
@@ -1449,10 +1449,10 @@ func TestLastIntegerListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]int64{
-			1,
-			2,
-			3,
+		[]interface{}{
+			int64(1),
+			int64(2),
+			int64(3),
 		},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
@@ -1487,10 +1487,10 @@ func TestIndexedIntegerListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]int64{
-			1,
-			2,
-			3,
+		[]interface{}{
+			int64(1),
+			int64(2),
+			int64(3),
 		},
 	})
 	outgoingStuff, err := input.CreateOutgoingObjects(fields)
@@ -1525,7 +1525,7 @@ func TestFirstFloatListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]float64{
+		[]interface{}{
 			1.1,
 			2.2,
 			3.3,
@@ -1563,7 +1563,7 @@ func TestLastFloatListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]float64{
+		[]interface{}{
 			1.1,
 			2.2,
 			3.3,
@@ -1601,7 +1601,7 @@ func TestIndexedFloatListToRecordInfo(t *testing.T) {
 		},
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
-		[]float64{
+		[]interface{}{
 			1.1,
 			2.2,
 			3.3,
@@ -1642,10 +1642,10 @@ func TestNodeIntegerListPropertyToRecordInfo(t *testing.T) {
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
 		neo4j.Node{Props: map[string]interface{}{
-			`Something`: []int64{
-				1,
-				2,
-				3,
+			`Something`: []interface{}{
+				int64(1),
+				int64(2),
+				int64(3),
 			},
 		}},
 	})
@@ -1684,7 +1684,7 @@ func TestNodeFloatListPropertyToRecordInfo(t *testing.T) {
 	}
 	record := NewMockRecord([]string{`value`}, []interface{}{
 		neo4j.Node{Props: map[string]interface{}{
-			`Something`: []float64{
+			`Something`: []interface{}{
 				1.1,
 				2.2,
 				3.3,

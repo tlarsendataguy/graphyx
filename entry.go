@@ -1,4 +1,4 @@
-package graphyx
+package main
 
 import "C"
 import (
@@ -19,3 +19,5 @@ func Neo4jOutput(toolId C.int, xmlProperties unsafe.Pointer, engineInterface uns
 	plugin := &output.Neo4jOutput{}
 	return C.long(sdk.RegisterTool(plugin, int(toolId), xmlProperties, engineInterface, pluginInterface))
 }
+
+func main() {}
