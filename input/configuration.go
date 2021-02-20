@@ -236,7 +236,7 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			}
 			return value, nil
 		}, nil
-	case `List:String`:
+	case `List:String`, `List:Integer`, `List:Float`, `List:Boolean`, `List:Date`, `List:DateTime`:
 		extractListFunc := func(record *neo4j.Record) ([]interface{}, error) {
 			value, exists := record.Get(element.Key)
 			if !exists {
@@ -244,33 +244,7 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			}
 			valueList, ok := value.([]interface{})
 			if !ok {
-				return nil, fmt.Errorf(`path key %v for field %v is not a list of strings as expected, but is %T`, element.Key, field.Name, value)
-			}
-			return valueList, nil
-		}
-		return listTransferFunc(iterator, field, extractListFunc)
-	case `List:Integer`:
-		extractListFunc := func(record *neo4j.Record) ([]interface{}, error) {
-			value, exists := record.Get(element.Key)
-			if !exists {
-				return nil, nil
-			}
-			valueList, ok := value.([]interface{})
-			if !ok {
-				return nil, fmt.Errorf(`path key %v for field %v is not a list of integers as expected, but is %T`, element.Key, field.Name, value)
-			}
-			return valueList, nil
-		}
-		return listTransferFunc(iterator, field, extractListFunc)
-	case `List:Float`:
-		extractListFunc := func(record *neo4j.Record) ([]interface{}, error) {
-			value, exists := record.Get(element.Key)
-			if !exists {
-				return nil, nil
-			}
-			valueList, ok := value.([]interface{})
-			if !ok {
-				return nil, fmt.Errorf(`path key %v for field %v is not a list of integers as expected, but is %T`, element.Key, field.Name, value)
+				return nil, fmt.Errorf(`path key %v for field %v is not a list, but is %T`, element.Key, field.Name, value)
 			}
 			return valueList, nil
 		}
@@ -637,6 +611,7 @@ func listTransferFunc(iterator *pathIterator, field Field, extract extractList) 
 	if !ok {
 		return nil, fmt.Errorf(`the path for field %v ends in a list of strings and not in a property data type`, field.Name)
 	}
+
 	switch element.Key {
 	case `Concatenate`:
 		return func(record *neo4j.Record) (interface{}, error) {
@@ -679,7 +654,7 @@ func listTransferFunc(iterator *pathIterator, field Field, extract extractList) 
 		}, nil
 	default:
 		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
-			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:String`, field.Name, element.Key)
+			return nil, fmt.Errorf(`field %v has an invalid key '%v' for list`, field.Name, element.Key)
 		}
 		index, err := strconv.Atoi(element.Key[6:])
 		if err != nil {
@@ -719,7 +694,7 @@ func mapTransferFunc(iterator *pathIterator, field Field, extract extractMap) (G
 			}
 			return value, nil
 		}, nil
-	case `List:String`:
+	case `List:String`, `List:Integer`, `List:Boolean`, `List:Float`, `List:Date`, `List:DateTime`:
 		listFunc := func(record *neo4j.Record) ([]interface{}, error) {
 			extractedMap, err := extract(record)
 			if err != nil {
@@ -731,41 +706,7 @@ func mapTransferFunc(iterator *pathIterator, field Field, extract extractMap) (G
 			}
 			listValue, convertOk := value.([]interface{})
 			if !convertOk {
-				return nil, fmt.Errorf(`map value with key '%v' on field %v is not a list of strings; it is %T`, element.Key, field.Name, value)
-			}
-			return listValue, nil
-		}
-		return listTransferFunc(iterator, field, listFunc)
-	case `List:Integer`:
-		listFunc := func(record *neo4j.Record) ([]interface{}, error) {
-			extractedMap, err := extract(record)
-			if err != nil {
-				return nil, err
-			}
-			value, hasKey := extractedMap[element.Key]
-			if !hasKey {
-				return nil, nil
-			}
-			listValue, convertOk := value.([]interface{})
-			if !convertOk {
-				return nil, fmt.Errorf(`map value with key '%v' on field %v is not a list of integers; it is %T`, element.Key, field.Name, value)
-			}
-			return listValue, nil
-		}
-		return listTransferFunc(iterator, field, listFunc)
-	case `List:Float`:
-		listFunc := func(record *neo4j.Record) ([]interface{}, error) {
-			extractedMap, err := extract(record)
-			if err != nil {
-				return nil, err
-			}
-			value, hasKey := extractedMap[element.Key]
-			if !hasKey {
-				return nil, nil
-			}
-			listValue, convertOk := value.([]interface{})
-			if !convertOk {
-				return nil, fmt.Errorf(`map value with key '%v' on field %v is not a list of floats; it is %T`, element.Key, field.Name, value)
+				return nil, fmt.Errorf(`map value with key '%v' on field %v is not a list; it is %T`, element.Key, field.Name, value)
 			}
 			return listValue, nil
 		}

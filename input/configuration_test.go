@@ -1589,6 +1589,82 @@ func TestLastFloatListToRecordInfo(t *testing.T) {
 	}
 }
 
+func TestLastBooleanListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Boolean`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:Boolean`},
+				{Key: `Last`, DataType: `Boolean`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]interface{}{
+			false,
+			false,
+			true,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.BoolFields[`Field1`].GetCurrentBool()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != true {
+		t.Fatalf(`expected true but got %v`, value)
+	}
+}
+
+func TestLastDateTimeListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `DateTime`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:DateTime`},
+				{Key: `Last`, DataType: `DateTime`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]interface{}{
+			neo4j.DateOf(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
+			neo4j.LocalDateTimeOf(time.Date(2022, 1, 2, 3, 4, 5, 6, time.UTC)),
+			time.Date(2024, 1, 2, 3, 4, 5, 6, time.UTC),
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.DateTimeFields[`Field1`].GetCurrentDateTime()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if expected := time.Date(2024, 1, 2, 3, 4, 5, 0, time.UTC); value != expected {
+		t.Fatalf(`expected 2024-01-02 03:04:05 but got %v`, value)
+	}
+}
+
 func TestIndexedFloatListToRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
@@ -1708,5 +1784,89 @@ func TestNodeFloatListPropertyToRecordInfo(t *testing.T) {
 	}
 	if value != 1.1 {
 		t.Fatalf(`expected 1.1 but got %v`, value)
+	}
+}
+
+func TestNodeBooleanListPropertyToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Boolean`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `Properties`, DataType: `Map`},
+				{Key: `Something`, DataType: `List:Boolean`},
+				{Key: `First`, DataType: `Boolean`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Node{Props: map[string]interface{}{
+			`Something`: []interface{}{
+				true,
+				false,
+				false,
+			},
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.BoolFields[`Field1`].GetCurrentBool()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != true {
+		t.Fatalf(`expected true but got %v`, value)
+	}
+}
+
+func TestNodeDateTimeListPropertyToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `DateTime`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `Properties`, DataType: `Map`},
+				{Key: `Something`, DataType: `List:DateTime`},
+				{Key: `First`, DataType: `DateTime`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Node{Props: map[string]interface{}{
+			`Something`: []interface{}{
+				neo4j.DateOf(time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)),
+				neo4j.LocalDateTimeOf(time.Date(2022, 1, 2, 3, 4, 5, 6, time.UTC)),
+				time.Date(2024, 1, 2, 3, 4, 5, 6, time.UTC),
+			},
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.DateTimeFields[`Field1`].GetCurrentDateTime()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if expected := time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC); value != expected {
+		t.Fatalf(`expected 2020-01-02 but got %v`, value)
 	}
 }
