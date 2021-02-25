@@ -42,4 +42,32 @@
   </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
+<script type="text/javascript">
+  // Mock window.Alteryx for testing outside of Alteryx
+  if (window.Alteryx == null){
+    window.Alteryx = {
+      JsEvent: function(eventStr) {}
+    }
+    window.CustomToolConfig = {
+      Configuration: {},
+      Annotation: '',
+    }
+    window.parent.postMessage("CustomConfigLoaded", "*")
+  }
+
+  // Tool-specific configuration settings
+  window.Alteryx.Gui = {
+    SetConfiguration: function(currentToolConfig) {
+      window.CustomToolConfig = currentToolConfig
+      window.parent.postMessage("CustomConfigLoaded", "*")
+      window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
+    },
+    GetConfiguration: function() {
+      window.Alteryx.JsEvent(JSON.stringify({
+        Event: 'GetConfiguration',
+        Configuration: window.CustomToolConfig
+      }))
+    }
+  }
+</script>
 </html>

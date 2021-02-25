@@ -1,35 +1,42 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
 
 void main() {
-  runApp(MyApp());
+  runApp(Neo4jInputApp());
 }
 
-class MyApp extends StatelessWidget {
+class Neo4jInputApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Neo4j Input',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.indigo,
+        accentColor: Colors.green,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+            child: Center(
+              child: Controls(),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
+class Controls extends StatefulWidget {
+  Controls({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ControlsState createState() => _ControlsState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ControlsState extends State<Controls> {
   String connStr;
   TextEditingController urlController = TextEditingController(text: "http://localhost:7474");
   TextEditingController userController = TextEditingController(text: "test");
@@ -47,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future _query() async {
     var query = this.queryController.text;
     if (!RegExp("\\sLIMIT\\s").hasMatch(query)) {
-      query += " LIMIT 25";
+      query += " LIMIT 1";
     }
 
     var response = await http.post(
@@ -55,7 +62,6 @@ class _MyHomePageState extends State<MyHomePage> {
       headers: {
         'Accept': 'application/vnd.neo4j.jolt+json-seq;strict=true',
         'Content-Type': 'application/json',
-        'X-Stream': 'true',
         'Authorization': 'Basic ' + base64Encode(utf8.encode('${this.userController.text}:${this.passwordController.text}')),
       },
       body: '''{
@@ -74,28 +80,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextField(controller: this.urlController, decoration: InputDecoration(hintText: "url")),
-              TextField(controller: this.userController, decoration: InputDecoration(hintText: "username")),
-              TextField(controller: this.passwordController, decoration: InputDecoration(hintText: "password")),
-              TextField(controller: this.queryController, decoration: InputDecoration(hintText: "query")),
-              TextButton(onPressed: _connect, child: Text("Test Connection")),
-              TextButton(onPressed: _query, child: Text("Run Query")),
-              SelectableText(
-                '$response',
-              ),
-            ],
-          ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url")),
+        TextField(controller: this.userController, decoration: InputDecoration(labelText: "username")),
+        TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password")),
+        TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query")),
+        TextButton(onPressed: _connect, child: Text("Test Connection")),
+        TextButton(onPressed: _query, child: Text("Run Query")),
+        SelectableText(
+          '$response',
         ),
-      ),
+      ],
     );
   }
 }
