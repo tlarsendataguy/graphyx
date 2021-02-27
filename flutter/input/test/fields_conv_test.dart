@@ -68,4 +68,13 @@ void main(){
     expect(result.password, equals(''));
     expect(result.fields, equals([]));
   });
+
+  test("convert partial json map to config", (){
+    var result = configFromMap({'ConnStr': 'something'});
+    expect(result.query, equals(''));
+    expect(result.connStr, equals('something'));
+    expect(result.username, equals(''));
+    expect(result.password, equals(''));
+    expect(result.fields, equals([]));
+  });
 }
