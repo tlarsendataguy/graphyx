@@ -1,4 +1,29 @@
 
+
+class Config {
+  Config({this.connStr, this.username, this.password, this.query, this.fields});
+
+  String connStr;
+  String username;
+  String password;
+  String query;
+  List<Field> fields;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'ConnStr': connStr,
+      'Username': username,
+      'Password': password,
+      'Query': query,
+      'Fields': fieldsToJson(fields),
+    };
+  }
+
+  String toString() {
+    return '{connStr="$connStr", username="$username", query="$query", path=${fields.toString()}}';
+  }
+}
+
 List<Map<String,dynamic>> fieldsToJson(List<Field> fields) {
   List<Map<String,dynamic>> mapList = [];
   for (var field in fields) {
