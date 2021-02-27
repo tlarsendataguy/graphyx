@@ -1,4 +1,19 @@
 
+Config configFromMap(Map<String, dynamic> jsonMap) {
+  var connStr = jsonMap['ConnStr'] ?? '';
+  var username = jsonMap['Username'] ?? '';
+  var password = jsonMap['Password'] ?? '';
+  var query = jsonMap['Query'] ?? '';
+  var fields = _jsonToFields(jsonMap['Fields']);
+  return Config(
+    connStr: connStr.toString(),
+    username: username.toString(),
+    password: password.toString(),
+    query: query.toString(),
+    fields: fields,
+  );
+}
+
 class Config {
   Config({this.connStr, this.username, this.password, this.query, this.fields});
 
@@ -31,7 +46,10 @@ List<Map<String,dynamic>> _fieldsToJson(List<Field> fields) {
   return mapList;
 }
 
-List<Field> jsonToFields(List<Map<String, dynamic>> json) {
+List<Field> _jsonToFields(List<Map<String, dynamic>> json) {
+  if (json == null) {
+    return [];
+  }
   List<Field> fields = [];
   for (var jsonField in json) {
     var name = jsonField['Name'];
