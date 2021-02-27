@@ -1,5 +1,4 @@
 
-
 class Config {
   Config({this.connStr, this.username, this.password, this.query, this.fields});
 
@@ -15,7 +14,7 @@ class Config {
       'Username': username,
       'Password': password,
       'Query': query,
-      'Fields': fieldsToJson(fields),
+      'Fields': _fieldsToJson(fields),
     };
   }
 
@@ -24,7 +23,7 @@ class Config {
   }
 }
 
-List<Map<String,dynamic>> fieldsToJson(List<Field> fields) {
+List<Map<String,dynamic>> _fieldsToJson(List<Field> fields) {
   List<Map<String,dynamic>> mapList = [];
   for (var field in fields) {
     mapList.add(field.toMap());
