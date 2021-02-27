@@ -48,8 +48,11 @@
     window.Alteryx = {
       JsEvent: function(eventStr) {}
     }
-    window.CustomToolConfig = {
-      Configuration: {},
+    window.customToolConfig = {
+      Configuration: {
+        'ConnStr': 'http://localhost:7474',
+        'Query': 'MATCH p=()-[r:ACTED_IN]->() RETURN p'
+      },
       Annotation: '',
     }
     window.parent.postMessage("CustomConfigLoaded", "*")

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:input/configuration.dart' as c;
 
 void main() {
   runApp(Neo4jInputApp());
@@ -78,6 +79,28 @@ class _ControlsState extends State<Controls> {
     });
   }
 
+  void _getConfig() {
+    setState((){
+      this.response = c.configToString(c.Configuration);
+    });
+  }
+
+  void _setConfig() {
+    setState((){
+      var newField = c.Field(Name: 'Hello World', DataType: 'Integer', Path: [
+      c.Element(Key: 'p', DataType: 'Integer'),
+      ]);
+      if (c.Configuration.Fields == null) {
+        c.Configuration.Fields = [newField];
+      } else {
+        c.Configuration.Fields.add(c.Field(Name: 'Hello World', DataType: 'Integer', Path: [
+          c.Element(Key: 'p', DataType: 'Integer'),
+        ]));
+      }
+      this.response = c.configToString(c.Configuration);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -89,6 +112,8 @@ class _ControlsState extends State<Controls> {
         TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query")),
         TextButton(onPressed: _connect, child: Text("Test Connection")),
         TextButton(onPressed: _query, child: Text("Run Query")),
+        TextButton(onPressed: _getConfig, child: Text("Get Config")),
+        TextButton(onPressed: _setConfig, child: Text("Set Config")),
         SelectableText(
           '$response',
         ),
