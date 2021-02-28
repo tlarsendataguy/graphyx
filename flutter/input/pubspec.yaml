@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  rxdart: ^0.25.0
   js: ^0.6.2
   http: ^0.12.2
   flutter:
@@ -57,6 +58,10 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
+  fonts:
+    - family: JetBrains
+      fonts:
+        - asset: assets/JetBrainsMono-Regular.ttf
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

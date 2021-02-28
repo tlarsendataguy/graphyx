@@ -20,6 +20,8 @@ class Config {
   external set Query(String value);
   external List<Field> get Fields;
   external set Fields(List<Field> value);
+  external List<ReturnValue> get LastValidatedReturnValues;
+  external set LastValidatedReturnValues(List<ReturnValue> value);
 }
 
 @JS()
@@ -57,4 +59,13 @@ String configToString(Config config) {
   }
 
   return '{ConnStr="${config.ConnStr}", Username="${config.Username}", Query="${config.Query}", Fields=$fieldsStr}';
+}
+
+@JS()
+@anonymous
+class ReturnValue {
+  external factory ReturnValue({String Name, String DataType});
+
+  external String get Name;
+  external String get DataType;
 }
