@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/configuration.dart' as c;
+import 'package:input/neo4j_response.dart';
 
 void main() {
   var appState = AppState();
@@ -97,75 +98,14 @@ class _ControlsState extends State<Controls> {
 }'''
 
       );
-
-      try {
-        var errors = jsonDecode(response.body);
-        var msg = errors['errors'][0]['message'];
+      var validated = validate(response.body);
+      c.Configuration.LastValidatedResponse = validated;
+      if (validated.Error != ''){
         setState((){
-          this.validationError = msg;
-        });
-        return;
-      } catch (_) {}
-
-      var events = response.body.split('\n');
-      print(events);
-      var header = jsonDecode(events[0]);
-      var data = jsonDecode(events[1]);
-      if (data['data'] == null) {
-        setState((){
-          this.validationError = 'The query was successful but no records were returned.  No metadata is available to generate output fields.';
+          this.validationError = validated.Error;
         });
         return;
       }
-
-      var fields = header['header']['fields'];
-      var dataTypes = data['data'];
-      List<String> metaData = [];
-      var index = 0;
-      for (var field in fields) {
-        var dataType = List.from(dataTypes[index].keys)[0];
-        var fieldType = 'Unknown';
-        switch (dataType) {
-          case '..':
-            fieldType = 'Path';
-            break;
-          case '()':
-            fieldType = 'Node';
-            break;
-          case '->':
-          case '<-':
-            fieldType = 'Relationship';
-            break;
-          case '[]':
-            var firstItem = dataTypes[index][dataType][0];
-            var firstItemType = List.from(firstItem.keys)[0];
-            fieldType = 'List:$firstItemType';
-            break;
-          case '{}':
-            fieldType = 'Map';
-            break;
-          case '?':
-            fieldType = 'Boolean';
-            break;
-          case 'Z':
-            fieldType = 'Integer';
-            break;
-          case 'R':
-            fieldType = 'Float';
-            break;
-          case 'U':
-            fieldType = 'String';
-            break;
-          case 'T':
-            fieldType = 'Date';
-            break;
-          default:
-            break;
-        }
-        metaData.add('${field.toString()}:$fieldType');
-        index++;
-      }
-      print('$metaData');
 
       setState((){
         this.validationError = '';
@@ -177,28 +117,6 @@ class _ControlsState extends State<Controls> {
         this.validationError = ex.toString();
       });
     }
-  }
-
-  void _getConfig() {
-    setState((){
-      this.validationError = c.configToString(c.Configuration);
-    });
-  }
-
-  void _setConfig() {
-    setState((){
-      var newField = c.Field(Name: 'Hello World', DataType: 'Integer', Path: [
-      c.Element(Key: 'p', DataType: 'Integer'),
-      ]);
-      if (c.Configuration.Fields == null) {
-        c.Configuration.Fields = [newField];
-      } else {
-        c.Configuration.Fields.add(c.Field(Name: 'Hello World', DataType: 'Integer', Path: [
-          c.Element(Key: 'p', DataType: 'Integer'),
-        ]));
-      }
-      this.validationError = c.configToString(c.Configuration);
-    });
   }
 
   @override
