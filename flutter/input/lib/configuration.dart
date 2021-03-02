@@ -30,6 +30,7 @@ class Field {
   external factory Field({String Name, String DataType, List<Element> Path});
 
   external String get Name;
+  external set Name(String value);
   external String get DataType;
   external List<Element> get Path;
 }

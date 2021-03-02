@@ -139,19 +139,77 @@ class _ControlsState extends State<Controls> {
           '$validationError',
           style: TextStyle(color: Colors.red),
         ),
-        Expanded(
-          child: ReorderableListView(
-            onReorder: (value1, value2){
-              print("value1=$value1, value2=$value2");
-            },
-            children: [
-              Text('1', key: Key('1')),
-              Text('2', key: Key('2')),
-              Text('3', key: Key('3')),
-            ],
-          ),
+        StreamBuilder(
+          stream: BlocProvider.of<AppState>(context).fields,
+          builder: (_, __){
+            var fields = c.Configuration.Fields;
+            List<Widget> children;
+            if (fields == null){
+              children = [];
+            } else {
+              var indexes = List<int>.generate(c.Configuration.Fields.length, (e)=>e);
+              children = indexes.map((e) => FieldWidget(e)).toList();
+            }
+            return Expanded(
+              child: ReorderableListView(
+                onReorder: (value1, value2){
+                  print("value1=$value1, value2=$value2");
+                },
+                children: children,
+              ),
+            );
+          },
         ),
-        ElevatedButton(onPressed: (){}, child: Text("Add field"),)
+        ElevatedButton(onPressed: (){
+          var fields = c.Configuration.Fields;
+          if (fields == null){
+            c.Configuration.Fields = [c.Field(Path: [])];
+          } else {
+            c.Configuration.Fields.add(c.Field(Path: []));
+          }
+          var state = BlocProvider.of<AppState>(context);
+          state.notifyUpdated(updated.Fields);
+        }, child: Text("Add field"),)
+      ],
+    );
+  }
+}
+
+class FieldWidget extends StatefulWidget {
+  FieldWidget(this.index) {
+    this.field = c.Configuration.Fields[index];
+    this.key = ObjectKey(field);
+  }
+  int index;
+  c.Field field;
+  Key key;
+  State<StatefulWidget> createState() {
+    return _FieldWidgetState();
+  }
+}
+
+class _FieldWidgetState extends State<FieldWidget> {
+  TextEditingController _name;
+
+  initState(){
+    _name = TextEditingController(text: widget.field.Name);
+  }
+
+  void _deleteField(){
+    c.Configuration.Fields.removeAt(widget.index);
+    BlocProvider.of<AppState>(context).notifyUpdated(updated.Fields);
+  }
+
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(icon: Icon(Icons.delete), onPressed: _deleteField),
+        SizedBox(
+          width: 200,
+          child: TextField(controller: _name, onChanged: (value){
+            widget.field.Name = value;
+          }),
+        ),
       ],
     );
   }
