@@ -15,6 +15,11 @@ class FieldState extends BlocState {
     _pathChanged.add(null);
   }
 
+  void truncatePathAtElement(int index) {
+    field.Path = field.Path.sublist(0, index);
+    _pathChanged.add(null);
+  }
+
   void dispose() {
     _pathChanged.close();
   }

@@ -34,6 +34,7 @@ class Field {
   external String get DataType;
   external set DataType(String value);
   external List<Element> get Path;
+  external set Path(List<Element> value);
 }
 
 @JS()

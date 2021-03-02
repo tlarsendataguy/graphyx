@@ -4,19 +4,22 @@ import 'package:input/configuration.dart' as c;
 import 'package:input/field_state.dart';
 
 class PathChips extends StatelessWidget {
-  PathChips(this.field);
+  PathChips(this.field, this.index);
   final c.Field field;
+  final int index;
 
   Widget build(BuildContext context) {
     var fieldState = BlocProvider.of<FieldState>(context);
     return StreamBuilder(
       stream: fieldState.pathChanged,
       builder: (_, __){
-        List<Widget> widgets;
-        if (field.Path == null) {
-          widgets = [];
-        } else {
-          widgets = field.Path.map((e) => Chip(label: Text('${e.Key} (${e.DataType})'))).toList();
+        List<Widget> widgets = [];
+        if (field.Path != null) {
+          var pathIndex = 0;
+          for (var element in field.Path) {
+            widgets.add(ElementChip('${element.Key} (${element.DataType})', pathIndex));
+            pathIndex++;
+          }
         }
         return Wrap(
           spacing: 4,
@@ -24,6 +27,23 @@ class PathChips extends StatelessWidget {
           children: widgets,
         );
       },
+    );
+  }
+}
+
+class ElementChip extends StatelessWidget {
+  ElementChip(this.label, this.index);
+  final String label;
+  final int index;
+
+  Widget build(BuildContext context) {
+    var fieldState = BlocProvider.of<FieldState>(context);
+    return Chip(
+        label: Text(label),
+        deleteIcon: Icon(Icons.close),
+        onDeleted: () {
+          fieldState.truncatePathAtElement(index);
+        }
     );
   }
 }

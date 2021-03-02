@@ -46,7 +46,7 @@ class _FieldWidgetState extends State<FieldWidget> {
                   widget.field.Name = value;
                 }),
               ),
-              Expanded(child: PathChips(widget.field)),
+              Expanded(child: PathChips(widget.field, widget.index)),
             ],
           ),
           PathSelector(widget.field),
