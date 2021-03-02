@@ -32,6 +32,7 @@ class Field {
   external String get Name;
   external set Name(String value);
   external String get DataType;
+  external set DataType(String value);
   external List<Element> get Path;
 }
 
