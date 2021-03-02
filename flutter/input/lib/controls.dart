@@ -21,6 +21,7 @@ class _ControlsState extends State<Controls> {
   TextEditingController passwordController;
   TextEditingController queryController;
   String validationError = '';
+  List<Widget> fieldWidgets = [];
 
   void initState(){
     urlController = TextEditingController(text: c.Configuration.ConnStr);
@@ -85,15 +86,35 @@ class _ControlsState extends State<Controls> {
     }
     catch (ex) {
       setState((){
-        //this.validationError = 'Unable to connect to the Neo4j database.  Double-check the URL and credentials and make sure you have a working network connection to the database.';
-        this.validationError = ex.toString();
+        this.validationError = 'Unable to connect to the Neo4j database.  Double-check the URL make sure you have a working network connection to the database.';
       });
     }
   }
 
+  void moveField(int moveFrom, int moveTo) {
+    var field = c.Configuration.Fields[moveFrom];
+    if (moveTo > moveFrom) {
+      c.Configuration.Fields.insert(moveTo, field);
+      c.Configuration.Fields.removeAt(moveFrom);
+    } else {
+      c.Configuration.Fields.removeAt(moveFrom);
+      c.Configuration.Fields.insert(moveTo, field);
+    }
+    setState(generateFieldWidgets);
+  }
+
+  void generateFieldWidgets(){
+    var fields = c.Configuration.Fields;
+    List<Widget> children = [];
+    if (fields != null){
+      var indexes = List<int>.generate(c.Configuration.Fields.length, (e)=>e);
+      children = indexes.map((e) => FieldWidget(e)).toList();
+    }
+    fieldWidgets = children;
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -113,21 +134,12 @@ class _ControlsState extends State<Controls> {
         ),
         StreamBuilder(
           stream: BlocProvider.of<AppState>(context).fields,
-          builder: (_, __){
-            var fields = c.Configuration.Fields;
-            List<Widget> children;
-            if (fields == null){
-              children = [];
-            } else {
-              var indexes = List<int>.generate(c.Configuration.Fields.length, (e)=>e);
-              children = indexes.map((e) => FieldWidget(e)).toList();
-            }
+          builder: (_, __) {
+            generateFieldWidgets();
             return Expanded(
               child: ReorderableListView(
-                onReorder: (value1, value2){
-                  print("value1=$value1, value2=$value2");
-                },
-                children: children,
+                onReorder: moveField,
+                children: fieldWidgets,
               ),
             );
           },
@@ -139,8 +151,7 @@ class _ControlsState extends State<Controls> {
           } else {
             c.Configuration.Fields.add(c.Field(Path: []));
           }
-          var state = BlocProvider.of<AppState>(context);
-          state.notifyUpdated(updated.Fields);
+          setState(generateFieldWidgets);
         }, child: Text("Add field"),)
       ],
     );

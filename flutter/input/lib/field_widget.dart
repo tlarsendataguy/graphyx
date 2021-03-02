@@ -34,23 +34,26 @@ class _FieldWidgetState extends State<FieldWidget> {
   Widget build(BuildContext context) {
     return BlocProvider<FieldState>(
       bloc: FieldState(widget.field),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              IconButton(icon: Icon(Icons.delete), onPressed: _deleteField),
-              SizedBox(
-                width: 200,
-                child: TextField(controller: _name, onChanged: (value){
-                  widget.field.Name = value;
-                }),
-              ),
-              Expanded(child: PathChips(widget.field, widget.index)),
-            ],
-          ),
-          PathSelector(widget.field),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconButton(icon: Icon(Icons.delete), onPressed: _deleteField),
+                SizedBox(
+                  width: 200,
+                  child: TextField(controller: _name, onChanged: (value){
+                    widget.field.Name = value;
+                  }),
+                ),
+                Expanded(child: PathChips(widget.field, widget.index)),
+              ],
+            ),
+            PathSelector(widget.field),
+          ],
+        ),
       ),
     );
   }
