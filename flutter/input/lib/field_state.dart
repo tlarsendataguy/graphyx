@@ -4,14 +4,14 @@ import 'package:input/configuration.dart' as c;
 
 class FieldState extends BlocState {
   FieldState(this.field);
-  c.Field field;
+  c.FieldData field;
 
   var _pathChanged = rx.PublishSubject();
   Stream get pathChanged => _pathChanged.stream;
 
-  void addElementToPath(c.Element element){
+  void addElementToPath(c.ElementData element){
     field.DataType = element.DataType;
-    field.Path.add(element);
+    field.Path.add(c.ElementContainer(Element: element));
     _pathChanged.add(null);
   }
 

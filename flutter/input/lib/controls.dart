@@ -54,6 +54,14 @@ class _ControlsState extends State<Controls> {
     }
 
     try {
+      var body = {
+        "statements": [
+          {
+            "statement": query,
+            "parameters": {},
+          },
+        ],
+      };
       var response = await http.post(
           '${this.urlController.text}/db/neo4j/tx/commit',
           headers: {
@@ -61,15 +69,7 @@ class _ControlsState extends State<Controls> {
             'Content-Type': 'application/json',
             'Authorization': 'Basic ' + base64Encode(utf8.encode('${this.userController.text}:${this.passwordController.text}')),
           },
-          body: '''{
-  "statements": [
-    {
-      "statement": "$query",
-      "parameters": {}
-    }
-  ]
-}'''
-
+          body: jsonEncode(body),
       );
       var validated = validate(response.body);
       c.Configuration.LastValidatedResponse = validated;
@@ -147,9 +147,9 @@ class _ControlsState extends State<Controls> {
         ElevatedButton(onPressed: (){
           var fields = c.Configuration.Fields;
           if (fields == null){
-            c.Configuration.Fields = [c.Field(Path: [])];
+            c.Configuration.Fields = [c.FieldContainer(Field: c.FieldData(Path: []))];
           } else {
-            c.Configuration.Fields.add(c.Field(Path: []));
+            c.Configuration.Fields.add(c.FieldContainer(Field: c.FieldData(Path: [])));
           }
           setState(generateFieldWidgets);
         }, child: Text("Add field"),)

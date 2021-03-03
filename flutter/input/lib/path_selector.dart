@@ -6,7 +6,7 @@ import 'package:input/field_state.dart';
 
 class PathSelector extends StatelessWidget {
   PathSelector(this.field);
-  final c.Field field;
+  final c.FieldData field;
 
   Widget build(BuildContext context) {
     var fieldState = BlocProvider.of<FieldState>(context);
@@ -16,8 +16,8 @@ class PathSelector extends StatelessWidget {
         if (field.Path.length == 0) {
           return ChooseReturnValue(field);
         }
-        var lastElement = field.Path.last;
-        switch (lastElement.DataType){
+        var lastContainer = field.Path.last;
+        switch (lastContainer.Element.DataType){
           case 'Path':
             return SelectPathChild(field);
           case 'List:Node':
@@ -28,7 +28,7 @@ class PathSelector extends StatelessWidget {
           case 'List:DateTime':
           case 'List:Boolean':
           case 'List:String':
-            var itemType = lastElement.DataType.split(':')[1];
+            var itemType = lastContainer.Element.DataType.split(':')[1];
             return SelectListChild(field, itemType);
           case 'Node':
             return SelectNodeChild(field);
@@ -52,22 +52,22 @@ class PathSelector extends StatelessWidget {
 
 class ChooseReturnValue extends StatelessWidget {
   ChooseReturnValue(this.field);
-  final c.Field field;
+  final c.FieldData field;
 
   Widget build(BuildContext context) {
     var appState = BlocProvider.of<AppState>(context);
     return StreamBuilder(
       stream: appState.returnValues,
       builder: (_, __){
-        List<DropdownMenuItem<c.ReturnValue>> widgets;
+        List<DropdownMenuItem<c.ReturnValueData>> widgets;
         if (c.Configuration.LastValidatedResponse == null || c.Configuration.LastValidatedResponse.Error != ''){
           widgets = [];
         } else {
-          widgets = c.Configuration.LastValidatedResponse.ReturnValues.map<DropdownMenuItem<c.ReturnValue>>((e)=>DropdownMenuItem<c.ReturnValue>(child: Text('${e.Name}:${e.DataType}'), value: e)).toList();
+          widgets = c.Configuration.LastValidatedResponse.ReturnValues.map<DropdownMenuItem<c.ReturnValueData>>((e)=>DropdownMenuItem<c.ReturnValueData>(child: Text('${e.ReturnValue.Name}:${e.ReturnValue.DataType}'), value: e.ReturnValue)).toList();
         }
-        return DropdownButton<c.ReturnValue>(items: widgets, onChanged: (e){
+        return DropdownButton<c.ReturnValueData>(items: widgets, onChanged: (e){
           var fieldState = BlocProvider.of<FieldState>(context);
-          fieldState.addElementToPath(c.Element(Key: e.Name, DataType: e.DataType));
+          fieldState.addElementToPath(c.ElementData(Key: e.Name, DataType: e.DataType));
         });
       },
     );
@@ -82,7 +82,7 @@ class SelectData {
 
 class SelectPathChild extends StatelessWidget {
   SelectPathChild(this.field);
-  final c.Field field;
+  final c.FieldData field;
 
   Widget build(BuildContext context) {
     return DropdownButton<SelectData>(
@@ -92,7 +92,7 @@ class SelectPathChild extends StatelessWidget {
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
-        fieldState.addElementToPath(c.Element(Key: e.name, DataType: e.dataType));
+        fieldState.addElementToPath(c.ElementData(Key: e.name, DataType: e.dataType));
       },
     );
   }
@@ -100,7 +100,7 @@ class SelectPathChild extends StatelessWidget {
 
 class SelectListChild extends StatelessWidget {
   SelectListChild(this.field, this.itemType);
-  final c.Field field;
+  final c.FieldData field;
   final String itemType;
 
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class SelectListChild extends StatelessWidget {
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
-        fieldState.addElementToPath(c.Element(Key: e.name, DataType: e.dataType));
+        fieldState.addElementToPath(c.ElementData(Key: e.name, DataType: e.dataType));
       },
     );
   }
@@ -119,7 +119,7 @@ class SelectListChild extends StatelessWidget {
 
 class SelectNodeChild extends StatelessWidget {
   SelectNodeChild(this.field);
-  final c.Field field;
+  final c.FieldData field;
 
   Widget build(BuildContext context) {
     return DropdownButton<SelectData>(
@@ -130,7 +130,7 @@ class SelectNodeChild extends StatelessWidget {
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
-        fieldState.addElementToPath(c.Element(Key: e.name, DataType: e.dataType));
+        fieldState.addElementToPath(c.ElementData(Key: e.name, DataType: e.dataType));
       },
     );
   }
@@ -138,7 +138,7 @@ class SelectNodeChild extends StatelessWidget {
 
 class SelectRelationshipChild extends StatelessWidget {
   SelectRelationshipChild(this.field);
-  final c.Field field;
+  final c.FieldData field;
 
   Widget build(BuildContext context) {
     return DropdownButton<SelectData>(
@@ -151,7 +151,7 @@ class SelectRelationshipChild extends StatelessWidget {
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
-        fieldState.addElementToPath(c.Element(Key: e.name, DataType: e.dataType));
+        fieldState.addElementToPath(c.ElementData(Key: e.name, DataType: e.dataType));
       },
     );
   }
@@ -159,7 +159,7 @@ class SelectRelationshipChild extends StatelessWidget {
 
 class SelectMapChild extends StatefulWidget {
   SelectMapChild(this.field);
-  final c.Field field;
+  final c.FieldData field;
 
   State<StatefulWidget> createState() => _SelectMapChildState();
 }
@@ -201,7 +201,7 @@ class _SelectMapChildState extends State<SelectMapChild>{
           icon: Icon(Icons.chevron_right),
           onPressed: (){
             var fieldState = BlocProvider.of<FieldState>(context);
-            fieldState.addElementToPath(c.Element(Key: _property.text, DataType: _selectedType));
+            fieldState.addElementToPath(c.ElementData(Key: _property.text, DataType: _selectedType));
           },
         ),
       ],

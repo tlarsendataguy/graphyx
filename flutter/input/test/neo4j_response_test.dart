@@ -25,8 +25,8 @@ void main(){
     var validatedResponse = validate(response);
     expect(validatedResponse.Error, equals(''));
     expect(validatedResponse.ReturnValues.length, equals(1));
-    expect(validatedResponse.ReturnValues[0].Name, equals('p'));
-    expect(validatedResponse.ReturnValues[0].DataType, equals('Path'));
+    expect(validatedResponse.ReturnValues[0].ReturnValue.Name, equals('p'));
+    expect(validatedResponse.ReturnValues[0].ReturnValue.DataType, equals('Path'));
   });
 
   test("multiple return values with a list",(){
@@ -38,9 +38,9 @@ void main(){
     var validatedResponse = validate(response);
     expect(validatedResponse.Error, equals(''));
     expect(validatedResponse.ReturnValues.length, equals(2));
-    expect(validatedResponse.ReturnValues[0].Name, equals('p'));
-    expect(validatedResponse.ReturnValues[0].DataType, equals('Path'));
-    expect(validatedResponse.ReturnValues[1].Name, equals('nodes(p)'));
-    expect(validatedResponse.ReturnValues[1].DataType, equals('List:Node'));
+    expect(validatedResponse.ReturnValues[0].ReturnValue.Name, equals('p'));
+    expect(validatedResponse.ReturnValues[0].ReturnValue.DataType, equals('Path'));
+    expect(validatedResponse.ReturnValues[1].ReturnValue.Name, equals('nodes(p)'));
+    expect(validatedResponse.ReturnValues[1].ReturnValue.DataType, equals('List:Node'));
   });
 }

@@ -5,7 +5,7 @@ import 'package:input/field_state.dart';
 
 class PathChips extends StatelessWidget {
   PathChips(this.field, this.index);
-  final c.Field field;
+  final c.FieldData field;
   final int index;
 
   Widget build(BuildContext context) {
@@ -16,8 +16,8 @@ class PathChips extends StatelessWidget {
         List<Widget> widgets = [];
         if (field.Path != null) {
           var pathIndex = 0;
-          for (var element in field.Path) {
-            widgets.add(ElementChip('${element.Key} (${element.DataType})', pathIndex));
+          for (var container in field.Path) {
+            widgets.add(ElementChip('${container.Element.Key} (${container.Element.DataType})', pathIndex));
             pathIndex++;
           }
         }

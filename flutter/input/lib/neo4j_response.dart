@@ -27,7 +27,7 @@ ValidatedResponse validate(String response) {
 
   var fields = header['header']['fields'];
   var dataTypes = data['data'];
-  List<ReturnValue> returnValues = [];
+  List<ReturnValueContainer> returnValues = [];
   var index = 0;
   for (var field in fields) {
     var dataType = List.from(dataTypes[index].keys)[0];
@@ -41,7 +41,7 @@ ValidatedResponse validate(String response) {
       default:
         fieldType = decodeNonListDataType(dataType);
     }
-    returnValues.add(ReturnValue(Name: field, DataType: fieldType));
+    returnValues.add(ReturnValueContainer(ReturnValue: ReturnValueData(Name: field, DataType: fieldType)));
     index++;
   }
   return ValidatedResponse(ReturnValues: returnValues, Error: '');

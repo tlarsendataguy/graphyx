@@ -20,7 +20,7 @@
 <body>
   <script type="text/javascript">
     // Mock window.Alteryx for testing outside of Alteryx
-    if (window.Alteryx === null){
+    if (window.Alteryx == null){
       window.Alteryx = {
         JsEvent: function(eventStr) {}
       }
@@ -34,7 +34,7 @@
           LastValidatedResponse: {
             Error: '',
             ReturnValues: [
-              {ReturnValue: {'@Name': 'p', '@DataType': 'Path'}}
+              {ReturnValue: {Name: 'p', DataType: 'Path'}}
             ]
           }
         }

@@ -8,7 +8,7 @@ external Config get Configuration;
 @JS()
 @anonymous
 class Config {
-  external factory Config({String ConnStr, String Username, String Password, String Query, List<Field> Fields});
+  external factory Config({String ConnStr, String Username, String Password, String Query, List<FieldData> Fields});
 
   external String get ConnStr;
   external set ConnStr(String value);
@@ -18,29 +18,44 @@ class Config {
   external set Password(String value);
   external String get Query;
   external set Query(String value);
-  external List<Field> get Fields;
-  external set Fields(List<Field> value);
+  external List<FieldContainer> get Fields;
+  external set Fields(List<FieldContainer> value);
   external ValidatedResponse get LastValidatedResponse;
   external set LastValidatedResponse(ValidatedResponse value);
 }
 
 @JS()
 @anonymous
-class Field {
-  external factory Field({String Name, String DataType, List<Element> Path});
+class FieldContainer {
+  external factory FieldContainer({FieldData Field});
+
+  external FieldData get Field;
+}
+
+@JS()
+@anonymous
+class FieldData {
+  external factory FieldData({String Name, String DataType, List<ElementData> Path});
 
   external String get Name;
   external set Name(String value);
   external String get DataType;
   external set DataType(String value);
-  external List<Element> get Path;
-  external set Path(List<Element> value);
+  external List<ElementContainer> get Path;
+  external set Path(List<ElementContainer> value);
 }
 
 @JS()
 @anonymous
-class Element {
-  external factory Element({String Key, String DataType});
+class ElementContainer {
+  external factory ElementContainer({ElementData Element});
+  external ElementData get Element;
+}
+
+@JS()
+@anonymous
+class ElementData {
+  external factory ElementData({String Key, String DataType});
 
   external String get Key;
   external String get DataType;
@@ -55,7 +70,7 @@ String configToString(Config config) {
       if (needsDelimiter) {
         fieldsStr += ',';
       }
-      fieldsStr += '{Name="${field.Name}, DataType="${field.DataType}"}';
+      fieldsStr += '{Name="${field.Field.Name}, DataType="${field.Field.DataType}"}';
       needsDelimiter = true;
     }
     fieldsStr += ']';
@@ -67,15 +82,22 @@ String configToString(Config config) {
 @JS()
 @anonymous
 class ValidatedResponse {
-  external factory ValidatedResponse({ReturnValues, Error});
-  external List<ReturnValue> get ReturnValues;
+  external factory ValidatedResponse({List<ReturnValueContainer> ReturnValues, String Error});
+  external List<ReturnValueContainer> get ReturnValues;
   external String get Error;
 }
 
 @JS()
 @anonymous
-class ReturnValue {
-  external factory ReturnValue({String Name, String DataType});
+class ReturnValueContainer {
+  external factory ReturnValueContainer({ReturnValueData ReturnValue});
+  external ReturnValueData get ReturnValue;
+}
+
+@JS()
+@anonymous
+class ReturnValueData {
+  external factory ReturnValueData({String Name, String DataType});
 
   external String get Name;
   external String get DataType;

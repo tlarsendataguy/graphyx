@@ -8,11 +8,11 @@ import 'package:input/path_selector.dart';
 
 class FieldWidget extends StatefulWidget {
   FieldWidget(this.index) {
-    this.field = c.Configuration.Fields[index];
+    this.field = c.Configuration.Fields[index].Field;
     this.key = ObjectKey(field);
   }
   int index;
-  c.Field field;
+  c.FieldData field;
   Key key;
   State<StatefulWidget> createState() {
     return _FieldWidgetState();
