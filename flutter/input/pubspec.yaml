@@ -61,7 +61,7 @@ flutter:
   fonts:
     - family: JetBrains
       fonts:
-        - asset: assets/JetBrainsMono-Regular.ttf
+        - asset: fonts/JetBrainsMono-Regular.ttf
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

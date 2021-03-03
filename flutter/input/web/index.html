@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    Fore more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-  -->
-  <base href="/">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="UI for Neo4j input tool">
@@ -30,47 +18,64 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <!-- This script installs service_worker.js to provide PWA functionality to
-       application. For more information, see:
-       https://developers.google.com/web/fundamentals/primers/service-workers -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('flutter-first-frame', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js');
-      });
+  <script type="text/javascript">
+    // Mock window.Alteryx for testing outside of Alteryx
+    if (window.Alteryx === null){
+      window.Alteryx = {
+        JsEvent: function(eventStr) {}
+      }
+      window.customToolConfig = {
+        Configuration: {
+          ConnStr: 'http://localhost:7474',
+          Username: 'test',
+          Password: 'test',
+          Query: 'MATCH p=()-[r:ACTED_IN]->() RETURN p',
+          Fields: [],
+          LastValidatedResponse: {
+            Error: '',
+            ReturnValues: [
+              {ReturnValue: {'@Name': 'p', '@DataType': 'Path'}}
+            ]
+          }
+        }
+      }
+    }
+
+    // Tool-specific configuration settings
+    window.Alteryx.Gui = {
+      SetConfiguration: function(currentToolConfiguration) {
+        if (currentToolConfiguration && currentToolConfiguration.IsFirstConfig === false) {
+          window.customToolConfig = {
+            Configuration: currentToolConfiguration.Configuration.Configuration
+          }
+        } else {
+          window.customToolConfig = {
+            Configuration: {
+              ConnStr: '',
+              Username: '',
+              Password: '',
+              Query: '',
+              Fields: [],
+              LastValidatedResponse: {
+                Error: '',
+                ReturnValues: []
+              }
+            }
+          }
+        }
+        window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
+      },
+      GetConfiguration: function() {
+        window.Alteryx.JsEvent(JSON.stringify({
+          Event: 'GetConfiguration',
+          Configuration: {
+            Configuration: window.customToolConfig.Configuration,
+            Annotation: ''
+          }
+        }))
+      }
     }
   </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
-<script type="text/javascript">
-  // Mock window.Alteryx for testing outside of Alteryx
-  if (window.Alteryx == null){
-    window.Alteryx = {
-      JsEvent: function(eventStr) {}
-    }
-    window.customToolConfig = {
-      Configuration: {
-        'ConnStr': 'http://localhost:7474',
-        'Username': 'test',
-        'Password': 'test',
-        'Query': 'MATCH p=()-[r:ACTED_IN]->() RETURN p'
-      },
-      Annotation: '',
-    }
-  }
-
-  // Tool-specific configuration settings
-  window.Alteryx.Gui = {
-    SetConfiguration: function(currentToolConfig) {
-      window.CustomToolConfig = currentToolConfig
-      window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
-    },
-    GetConfiguration: function() {
-      window.Alteryx.JsEvent(JSON.stringify({
-        Event: 'GetConfiguration',
-        Configuration: window.CustomToolConfig
-      }))
-    }
-  }
-</script>
 </html>
