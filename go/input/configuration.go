@@ -19,14 +19,14 @@ type Configuration struct {
 }
 
 type Field struct {
-	Name     string    `xml:",attr"`
-	DataType string    `xml:",attr"`
+	Name     string
+	DataType string
 	Path     []Element `xml:"Path>Element"`
 }
 
 type Element struct {
-	Key      string `xml:",attr"`
-	DataType string `xml:",attr"`
+	Key      string
+	DataType string
 }
 
 func DecodeConfig(config string) (Configuration, error) {

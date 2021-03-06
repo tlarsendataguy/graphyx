@@ -42,7 +42,12 @@ func (i *Neo4jInput) OnComplete() {
 		return
 	}
 
-	driver, err := neo4j.NewDriver(i.config.ConnStr, neo4j.BasicAuth(i.config.Username, i.config.Password, ""))
+	boltUrl, err := getBoltUrl(i.config.ConnStr)
+	if err != nil {
+		i.provider.Io().Error(fmt.Sprintf(`error connecting to Neo4j: %v`, err.Error()))
+	}
+
+	driver, err := neo4j.NewDriver(boltUrl, neo4j.BasicAuth(i.config.Username, i.config.Password, ""))
 	if err != nil {
 		i.provider.Io().Error(fmt.Sprintf(`expected no error but got: %v`, err.Error()))
 		return

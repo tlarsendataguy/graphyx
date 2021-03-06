@@ -9,28 +9,80 @@ import (
 
 func TestInput(t *testing.T) {
 	config := `<Configuration>
-	<ConnStr>bolt://localhost:7687</ConnStr>
-	<Username>test</Username>
-	<Password>test</Password>
-	<Query>MATCH p=()-[r:ACTED_IN]->() RETURN p</Query>
-	<Fields>
-		<Field Name="Field1" DataType="Integer">
-			<Path>
-				<Element DataType="Path" Key="p" />
-				<Element DataType="List:Node" Key="Nodes" />
-				<Element DataType="Node" Key="First" />
-				<Element DataType="Integer" Key="ID" />
-			</Path>
-		</Field>
-		<Field Name="Field2" DataType="Integer">
-			<Path>
-				<Element DataType="Path" Key="p" />
-				<Element DataType="List:Relationship" Key="Relationships" />
-				<Element DataType="Relationship" Key="First" />
-				<Element DataType="Integer" Key="ID" />
-			</Path>
-		</Field>
-	</Fields>
+  <ConnStr>http://localhost:7474</ConnStr>
+  <Username>user</Username>
+  <Password>password</Password>
+  <Query>MATCH p=()-[r:ACTED_IN]-&gt;() RETURN p</Query>
+  <Fields>
+    <Field>
+      <Path>
+        <Element>
+          <Key>p</Key>
+          <DataType>Path</DataType>
+        </Element>
+      </Path>
+      <Path>
+        <Element>
+          <Key>Nodes</Key>
+          <DataType>List:Node</DataType>
+        </Element>
+      </Path>
+      <Path>
+        <Element>
+          <Key>First</Key>
+          <DataType>Node</DataType>
+        </Element>
+      </Path>
+      <Path>
+        <Element>
+          <Key>ID</Key>
+          <DataType>Integer</DataType>
+        </Element>
+      </Path>
+      <Name>Field1</Name>
+      <DataType>Integer</DataType>
+    </Field>
+  </Fields>
+  <Fields>
+    <Field>
+      <Path>
+        <Element>
+          <Key>p</Key>
+          <DataType>Path</DataType>
+        </Element>
+      </Path>
+      <Path>
+        <Element>
+          <Key>Relationships</Key>
+          <DataType>List:Relationship</DataType>
+        </Element>
+      </Path>
+      <Path>
+        <Element>
+          <Key>First</Key>
+          <DataType>Relationship</DataType>
+        </Element>
+      </Path>
+      <Path>
+        <Element>
+          <Key>Type</Key>
+          <DataType>String</DataType>
+        </Element>
+      </Path>
+      <Name>Field2</Name>
+      <DataType>String</DataType>
+    </Field>
+  </Fields>
+  <LastValidatedResponse>
+    <ReturnValues>
+      <ReturnValue>
+        <Name>p</Name>
+        <DataType>Path</DataType>
+      </ReturnValue>
+    </ReturnValues>
+    <Error>
+    </Error>
+  </LastValidatedResponse>
 </Configuration>`
 	plugin := &input.Neo4jInput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
