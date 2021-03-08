@@ -47,6 +47,12 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - images/delete.png
+    - images/arrow_drop_down.png
+    - images/chevron_right.png
+    - images/drag_handle.png
+    - images/close.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -59,7 +65,7 @@ flutter:
   # https://flutter.dev/assets-and-images/#from-packages
 
   fonts:
-    - family: JetBrains
+    - family: JetBrains Mono
       fonts:
         - asset: fonts/JetBrainsMono-Regular.ttf
   # To add custom fonts to your application, add a fonts section here,

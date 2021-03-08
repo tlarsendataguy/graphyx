@@ -12,8 +12,8 @@ void main(){
 
     var validatedResponse = validate(response);
     expect(validatedResponse, isNotNull);
-    expect(validatedResponse.Error, isNot(''));
-    print(validatedResponse.Error);
+    expect(validatedResponse.error, isNot(''));
+    print(validatedResponse.error);
   });
 
   test("normal response",(){
@@ -23,10 +23,10 @@ void main(){
 {"info":{}}''';
 
     var validatedResponse = validate(response);
-    expect(validatedResponse.Error, equals(''));
-    expect(validatedResponse.ReturnValues.length, equals(1));
-    expect(validatedResponse.ReturnValues[0].ReturnValue.Name, equals('p'));
-    expect(validatedResponse.ReturnValues[0].ReturnValue.DataType, equals('Path'));
+    expect(validatedResponse.error, equals(''));
+    expect(validatedResponse.returnValues.length, equals(1));
+    expect(validatedResponse.returnValues[0].name, equals('p'));
+    expect(validatedResponse.returnValues[0].dataType, equals('Path'));
   });
 
   test("multiple return values with a list",(){
@@ -36,11 +36,11 @@ void main(){
 {"info":{}}''';
 
     var validatedResponse = validate(response);
-    expect(validatedResponse.Error, equals(''));
-    expect(validatedResponse.ReturnValues.length, equals(2));
-    expect(validatedResponse.ReturnValues[0].ReturnValue.Name, equals('p'));
-    expect(validatedResponse.ReturnValues[0].ReturnValue.DataType, equals('Path'));
-    expect(validatedResponse.ReturnValues[1].ReturnValue.Name, equals('nodes(p)'));
-    expect(validatedResponse.ReturnValues[1].ReturnValue.DataType, equals('List:Node'));
+    expect(validatedResponse.error, equals(''));
+    expect(validatedResponse.returnValues.length, equals(2));
+    expect(validatedResponse.returnValues[0].name, equals('p'));
+    expect(validatedResponse.returnValues[0].dataType, equals('Path'));
+    expect(validatedResponse.returnValues[1].name, equals('nodes(p)'));
+    expect(validatedResponse.returnValues[1].dataType, equals('List:Node'));
   });
 }

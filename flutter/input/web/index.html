@@ -24,44 +24,40 @@
       window.Alteryx = {
         JsEvent: function(eventStr) {}
       }
-      window.customToolConfig = {
-        Configuration: {
-          ConnStr: 'http://localhost:7474',
-          Username: 'test',
-          Password: 'test',
-          Query: 'MATCH p=()-[r:ACTED_IN]->() RETURN p',
-          Fields: [],
-          LastValidatedResponse: {
-            Error: '',
-            ReturnValues: [
-              {ReturnValue: {Name: 'p', DataType: 'Path'}}
-            ]
-          }
+      let testConfig = {
+        "ConnStr": "http://localhost:7474",
+        "Username": "test",
+        "Password": "test",
+        "Query": "MATCH p=()-[r:ACTED_IN]->() RETURN p",
+        "Fields": [],
+        "LastValidatedResponse": {
+          "Error": "",
+          "ReturnValues": [
+            {"Name": "p", "DataType": "Path"}
+          ]
         }
       }
+      window.customToolConfig = JSON.stringify(testConfig)
     }
 
     // Tool-specific configuration settings
     window.Alteryx.Gui = {
       SetConfiguration: function(currentToolConfiguration) {
         if (currentToolConfiguration && currentToolConfiguration.IsFirstConfig === false) {
-          window.customToolConfig = {
-            Configuration: currentToolConfiguration.Configuration.Configuration
-          }
+          window.customToolConfig = currentToolConfiguration.Configuration.Configuration.JSON
         } else {
-          window.customToolConfig = {
-            Configuration: {
-              ConnStr: '',
-              Username: '',
-              Password: '',
-              Query: '',
-              Fields: [],
-              LastValidatedResponse: {
-                Error: '',
-                ReturnValues: []
-              }
+          let emptyConfig = {
+            ConnStr: '',
+            Username: '',
+            Password: '',
+            Query: '',
+            Fields: [],
+            LastValidatedResponse: {
+              Error: '',
+              ReturnValues: []
             }
           }
+          window.customToolConfig = JSON.stringify(emptyConfig)
         }
         window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
       },
@@ -69,7 +65,7 @@
         window.Alteryx.JsEvent(JSON.stringify({
           Event: 'GetConfiguration',
           Configuration: {
-            Configuration: window.customToolConfig.Configuration,
+            Configuration: {JSON: window.getCustomToolConfig()},
             Annotation: ''
           }
         }))

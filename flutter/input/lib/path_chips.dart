@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
-import 'package:input/configuration.dart' as c;
 import 'package:input/field_state.dart';
+import 'package:input/images.dart';
 
 class PathChips extends StatelessWidget {
   PathChips(this.field, this.index);
-  final c.FieldData field;
+  final Field field;
   final int index;
 
   Widget build(BuildContext context) {
@@ -14,10 +15,10 @@ class PathChips extends StatelessWidget {
       stream: fieldState.pathChanged,
       builder: (_, __){
         List<Widget> widgets = [];
-        if (field.Path != null) {
+        if (field.path != null) {
           var pathIndex = 0;
-          for (var container in field.Path) {
-            widgets.add(ElementChip('${container.Element.Key} (${container.Element.DataType})', pathIndex));
+          for (var container in field.path) {
+            widgets.add(ElementChip('${container.key} (${container.dataType})', pathIndex));
             pathIndex++;
           }
         }
@@ -40,7 +41,7 @@ class ElementChip extends StatelessWidget {
     var fieldState = BlocProvider.of<FieldState>(context);
     return Chip(
         label: Text(label),
-        deleteIcon: Icon(Icons.close),
+        deleteIcon: Image.asset(close),
         onDeleted: () {
           fieldState.truncatePathAtElement(index);
         }

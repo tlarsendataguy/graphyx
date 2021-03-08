@@ -1,33 +1,51 @@
 import 'dart:convert';
-import 'package:input/configuration.dart';
+
+class ValidatedResponse {
+  ValidatedResponse({this.error, this.returnValues});
+  final String error;
+  final List<ReturnValue> returnValues;
+
+  Map toJson(){
+    return {
+      'Error': error,
+      'ReturnValues': returnValues.map((e) => {'Name': e.name, 'DataType': e.dataType}).toList(),
+    };
+  }
+}
+
+class ReturnValue {
+  ReturnValue({this.name, this.dataType});
+  final String name;
+  final String dataType;
+}
 
 ValidatedResponse validate(String response) {
   try {
     var decoded = jsonDecode(response);
     if (decoded['errors'] != null) {
-      return ValidatedResponse(Error: decoded['errors'][0]['message']);
+      return ValidatedResponse(error: decoded['errors'][0]['message']);
     }
   } catch (_) {}
 
   var lines = response.split('\n');
   if (lines.length < 2) {
-    return ValidatedResponse(Error: 'A response with an unexpected format was returned.  Response was:\n$response');
+    return ValidatedResponse(error: 'A response with an unexpected format was returned.  Response was:\n$response');
   }
 
   var header = jsonDecode(lines[0]);
 
   if (header['error'] != null) {
-    return ValidatedResponse(Error: header['error']['errors'][0]['message']['U']);
+    return ValidatedResponse(error: header['error']['errors'][0]['message']['U']);
   }
 
   var data = jsonDecode(lines[1]);
   if (data['data'] == null) {
-    return ValidatedResponse(Error: 'The query was successful but no records were returned.  No metadata is available to generate output fields.');
+    return ValidatedResponse(error: 'The query was successful but no records were returned.  No metadata is available to generate output fields.');
   }
 
   var fields = header['header']['fields'];
   var dataTypes = data['data'];
-  List<ReturnValueContainer> returnValues = [];
+  List<ReturnValue> returnValues = [];
   var index = 0;
   for (var field in fields) {
     var dataType = List.from(dataTypes[index].keys)[0];
@@ -41,10 +59,10 @@ ValidatedResponse validate(String response) {
       default:
         fieldType = decodeNonListDataType(dataType);
     }
-    returnValues.add(ReturnValueContainer(ReturnValue: ReturnValueData(Name: field, DataType: fieldType)));
+    returnValues.add(ReturnValue(name: field, dataType: fieldType));
     index++;
   }
-  return ValidatedResponse(ReturnValues: returnValues, Error: '');
+  return ValidatedResponse(returnValues: returnValues, error: '');
 }
 
 String decodeNonListDataType(String dataType) {

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
+import 'package:input/configuration.dart';
 import 'package:input/controls.dart';
 
-void main() {
-  var appState = AppState();
+void main() async {
+  var appState = AppState(configuration);
+  registerSaveConfigCallback(appState.getConfig);
   runApp(BlocProvider<AppState>(
     child: Neo4jInputApp(),
     bloc: appState,
