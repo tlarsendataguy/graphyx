@@ -1,6 +1,7 @@
 package input
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
@@ -10,18 +11,22 @@ import (
 	"time"
 )
 
+type XmlJson struct {
+	JSON string `xml:",text"`
+}
+
 type Configuration struct {
 	ConnStr  string
 	Username string
 	Password string
 	Query    string
-	Fields   []Field `xml:"Fields>Field"`
+	Fields   []Field
 }
 
 type Field struct {
 	Name     string
 	DataType string
-	Path     []Element `xml:"Path>Element"`
+	Path     []Element
 }
 
 type Element struct {
@@ -30,8 +35,13 @@ type Element struct {
 }
 
 func DecodeConfig(config string) (Configuration, error) {
+	xmlDecoded := XmlJson{}
+	err := xml.Unmarshal([]byte(config), &xmlDecoded)
+	if err != nil {
+		return Configuration{}, err
+	}
 	decoded := Configuration{}
-	err := xml.Unmarshal([]byte(config), &decoded)
+	err = json.Unmarshal([]byte(xmlDecoded.JSON), &decoded)
 	return decoded, err
 }
 
