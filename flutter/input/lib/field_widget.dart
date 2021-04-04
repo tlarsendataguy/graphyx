@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/field_state.dart';
-import 'package:input/images.dart';
 import 'package:input/path_chips.dart';
 import 'package:input/path_selector.dart';
 
@@ -41,7 +40,7 @@ class _FieldWidgetState extends State<FieldWidget> {
           children: [
             Row(
               children: [
-                IconButton(icon: Image.asset(delete), onPressed: _deleteField),
+                IconButton(icon: Icon(Icons.delete), onPressed: _deleteField),
                 SizedBox(
                   width: 200,
                   child: TextField(controller: _name, onChanged: (value){
@@ -51,7 +50,7 @@ class _FieldWidgetState extends State<FieldWidget> {
                 Expanded(child: PathChips(widget.field, widget.index)),
                 ReorderableDragStartListener(
                   index: widget.index,
-                  child: Image.asset(dragHandle),
+                  child: Icon(Icons.drag_handle),
                 )
               ],
             ),

@@ -3,7 +3,6 @@ import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/dropdown.dart';
 import 'package:input/field_state.dart';
-import 'package:input/images.dart';
 import 'package:input/neo4j_response.dart';
 
 class PathSelector extends StatelessWidget {
@@ -200,7 +199,7 @@ class _SelectMapChildState extends State<SelectMapChild>{
           ),
         ),
         IconButton(
-          icon: Image.asset(chevronRight),
+          icon: Icon(Icons.chevron_right),
           onPressed: (){
             var fieldState = BlocProvider.of<FieldState>(context);
             fieldState.addElementToPath(PathElement(key: _property.text, dataType: _selectedType));

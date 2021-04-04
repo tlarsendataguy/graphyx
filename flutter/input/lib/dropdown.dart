@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:input/images.dart';
 
 class DropDown<T> extends StatelessWidget {
   DropDown({this.items, this.onChanged, this.hint, this.value});
@@ -9,6 +8,6 @@ class DropDown<T> extends StatelessWidget {
   final T value;
 
   Widget build(BuildContext context) {
-    return DropdownButton<T>(items: items, onChanged: onChanged, icon: Image.asset(arrowDropDown), hint: hint, value: value);
+    return DropdownButton<T>(items: items, onChanged: onChanged, hint: hint, value: value);
   }
 }

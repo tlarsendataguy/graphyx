@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/field_state.dart';
-import 'package:input/images.dart';
 
 class PathChips extends StatelessWidget {
   PathChips(this.field, this.index);
@@ -41,7 +40,7 @@ class ElementChip extends StatelessWidget {
     var fieldState = BlocProvider.of<FieldState>(context);
     return Chip(
         label: Text(label),
-        deleteIcon: Image.asset(close),
+        deleteIcon: Icon(Icons.close),
         onDeleted: () {
           fieldState.truncatePathAtElement(index);
         }
