@@ -28,7 +28,7 @@ func TestConnection(t *testing.T) {
 	}
 	defer driver.Close()
 
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: `Movie Database`})
 	defer session.Close()
 
 	//query := `MATCH (people:Person)-[relatedTo]-(:Movie {title: "Cloud Atlas"}) RETURN *`
@@ -56,4 +56,23 @@ func TestConnection(t *testing.T) {
 		return result.Consume()
 	})
 
+}
+
+func TestOutput(t *testing.T) {
+	uri := `bolt://localhost:7687`
+	username := `test`
+	password := `test`
+	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	defer driver.Close()
+
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: `Movie Database`})
+	defer session.Close()
+
+	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		tx.Run(``, nil)
+		return nil, nil
+	})
 }
