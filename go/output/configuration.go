@@ -52,6 +52,13 @@ func RelationshipQuery(config *RelationshipConfig) (string, error) {
 	if config.RightLabel == `` {
 		return ``, errors.New(`right node label cannot be blank`)
 	}
+	if len(config.LeftNeo4jFields) != len(config.LeftAlteryxFields) {
+		return ``, errors.New(`the number of left-node Neo4j fields does not match the number of left-node Alteryx fields`)
+	}
+	if len(config.RightNeo4jFields) != len(config.RightAlteryxFields) {
+		return ``, errors.New(`the number of right-node Neo4j fields does not match the number of right-node Alteryx fields`)
+	}
+
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	matchNode(builder, escapeName(config.LeftLabel), config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
