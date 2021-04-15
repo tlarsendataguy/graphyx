@@ -100,3 +100,25 @@ func TestGenerateRelationshipQuery(t *testing.T) {
 		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
 	}
 }
+
+func TestRelationshipQueryWithoutProperties(t *testing.T) {
+	config := &output.RelationshipConfig{
+		LeftLabel:          `TestLabel`,
+		RightLabel:         `TestLabel`,
+		LeftAlteryxFields:  []string{`left1`, `left2`},
+		LeftNeo4jFields:    []string{`id1`, `id2`},
+		RightAlteryxFields: []string{`right1`, `right2`},
+		RightNeo4jFields:   []string{`id1`, `id2`},
+		Label:              `TestRel`,
+		PropFields:         nil,
+	}
+	query := output.RelationshipQuery(config)
+	expected := "UNWIND $batch AS row\n" +
+		"MATCH (left:`TestLabel`{`id1`:row.`left1`,`id2`:row.`left2`})\n" +
+		"MATCH (right:`TestLabel`{`id1`:row.`right1`,`id2`:row.`right2`})\n" +
+		"MERGE (left)-[newRel:`TestRel`]->(right)\n"
+
+	if expected != query {
+		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
+	}
+}

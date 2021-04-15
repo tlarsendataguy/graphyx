@@ -44,6 +44,9 @@ func RelationshipQuery(config *RelationshipConfig) string {
 	matchNode(builder, config.LeftLabel, config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
 	matchNode(builder, config.RightLabel, config.RightAlteryxFields, config.RightNeo4jFields, `right`)
 	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`]->(right)\n", config.Label))
+	if len(config.PropFields) == 0 {
+		return builder.String()
+	}
 	onCreateSetQuery(builder, config.PropFields, `newRel`)
 	return builder.String()
 }
