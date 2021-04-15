@@ -223,3 +223,45 @@ func TestEscapeFieldsInRelationshipQueries(t *testing.T) {
 		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
 	}
 }
+
+func TestRelationshipQueryWithoutLeftLabel(t *testing.T) {
+	config := &output.RelationshipConfig{
+		LeftLabel:          ``,
+		RightLabel:         `TestLabel`,
+		LeftAlteryxFields:  []string{`left1`, `left2`},
+		LeftNeo4jFields:    []string{`id1`, `id2`},
+		RightAlteryxFields: []string{`right1`, `right2`},
+		RightNeo4jFields:   []string{`id1`, `id2`},
+		Label:              `TestRel`,
+		PropFields:         nil,
+	}
+	query, err := output.RelationshipQuery(config)
+	if query != `` {
+		t.Fatalf(`expected '' but got '%v'`, query)
+	}
+	if err == nil {
+		t.Fatalf(`expected error but got nil`)
+	}
+	t.Logf(`%v`, err.Error())
+}
+
+func TestRelationshipQueryWithoutRightLabel(t *testing.T) {
+	config := &output.RelationshipConfig{
+		LeftLabel:          `TestLabel`,
+		RightLabel:         ``,
+		LeftAlteryxFields:  []string{`left1`, `left2`},
+		LeftNeo4jFields:    []string{`id1`, `id2`},
+		RightAlteryxFields: []string{`right1`, `right2`},
+		RightNeo4jFields:   []string{`id1`, `id2`},
+		Label:              `TestRel`,
+		PropFields:         nil,
+	}
+	query, err := output.RelationshipQuery(config)
+	if query != `` {
+		t.Fatalf(`expected '' but got '%v'`, query)
+	}
+	if err == nil {
+		t.Fatalf(`expected error but got nil`)
+	}
+	t.Logf(`%v`, err.Error())
+}

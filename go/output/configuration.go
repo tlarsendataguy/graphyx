@@ -46,6 +46,12 @@ func RelationshipQuery(config *RelationshipConfig) (string, error) {
 	if config.Label == `` {
 		return ``, errors.New(`label cannot be blank`)
 	}
+	if config.LeftLabel == `` {
+		return ``, errors.New(`left node label cannot be blank`)
+	}
+	if config.RightLabel == `` {
+		return ``, errors.New(`right node label cannot be blank`)
+	}
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	matchNode(builder, escapeName(config.LeftLabel), config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
