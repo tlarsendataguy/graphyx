@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"github.com/tlarsen7572/graphyx/bolt_url"
 )
 
 type Neo4jInput struct {
@@ -42,7 +43,7 @@ func (i *Neo4jInput) OnComplete() {
 		return
 	}
 
-	boltUrl, err := getBoltUrl(i.config.ConnStr)
+	boltUrl, err := bolt_url.GetBoltUrl(i.config.ConnStr)
 	if err != nil {
 		i.provider.Io().Error(fmt.Sprintf(`error connecting to Neo4j: %v`, err.Error()))
 	}
