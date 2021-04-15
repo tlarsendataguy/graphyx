@@ -5,44 +5,13 @@ import (
 	"strings"
 )
 
-type ConfigStruct struct {
+type NodeConfig struct {
 	Label      string
 	IdFields   []string
 	PropFields []string
 }
 
-func mergeNodeClause(builder *strings.Builder, config *ConfigStruct) {
-	builder.WriteString(fmt.Sprintf("MERGE (newNode:`%v`{", config.Label))
-	for index, id := range config.IdFields {
-		if index > 0 {
-			builder.WriteString(",")
-		}
-		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", id, id))
-	}
-	builder.WriteString("})\n")
-}
-
-func createNodeClause(builder *strings.Builder, config *ConfigStruct) {
-	builder.WriteString(fmt.Sprintf("CREATE (newNode:`%v`{", config.Label))
-	for index, id := range config.PropFields {
-		if index > 0 {
-			builder.WriteString(",")
-		}
-		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", id, id))
-	}
-	builder.WriteString("})")
-}
-
-func buildSetProperties(builder *strings.Builder, config *ConfigStruct) {
-	for index, prop := range config.PropFields {
-		if index > 0 {
-			builder.WriteString(",")
-		}
-		builder.WriteString(fmt.Sprintf("newNode.`%v`=row.`%v`", prop, prop))
-	}
-}
-
-func NodeQuery(config *ConfigStruct) string {
+func NodeQuery(config *NodeConfig) string {
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	if len(config.IdFields) == 0 {
@@ -60,4 +29,42 @@ func NodeQuery(config *ConfigStruct) string {
 	buildSetProperties(builder, config)
 
 	return builder.String()
+}
+
+func mergeNodeClause(builder *strings.Builder, config *NodeConfig) {
+	builder.WriteString(fmt.Sprintf("MERGE (newNode:`%v`{", config.Label))
+	for index, id := range config.IdFields {
+		id = escapeName(id)
+		if index > 0 {
+			builder.WriteString(",")
+		}
+		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", id, id))
+	}
+	builder.WriteString("})\n")
+}
+
+func createNodeClause(builder *strings.Builder, config *NodeConfig) {
+	builder.WriteString(fmt.Sprintf("CREATE (newNode:`%v`{", config.Label))
+	for index, id := range config.PropFields {
+		id = escapeName(id)
+		if index > 0 {
+			builder.WriteString(",")
+		}
+		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", id, id))
+	}
+	builder.WriteString("})")
+}
+
+func buildSetProperties(builder *strings.Builder, config *NodeConfig) {
+	for index, prop := range config.PropFields {
+		prop = escapeName(prop)
+		if index > 0 {
+			builder.WriteString(",")
+		}
+		builder.WriteString(fmt.Sprintf("newNode.`%v`=row.`%v`", prop, prop))
+	}
+}
+
+func escapeName(name string) string {
+	return strings.Replace(name, "`", "``", -1)
 }
