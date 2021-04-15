@@ -41,32 +41,24 @@ func NodeQuery(config *NodeConfig) string {
 func RelationshipQuery(config *RelationshipConfig) string {
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
-
-	builder.WriteString(fmt.Sprintf("MATCH (left:`%v`{", config.LeftLabel))
-	for index, neo4jId := range config.LeftNeo4jFields {
-		neo4jId = escapeName(neo4jId)
-		alteryxId := escapeName(config.LeftAlteryxFields[index])
-		if index > 0 {
-			builder.WriteString(",")
-		}
-		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", neo4jId, alteryxId))
-	}
-	builder.WriteString("})\n")
-
-	builder.WriteString(fmt.Sprintf("MATCH (right:`%v`{", config.LeftLabel))
-	for index, neo4jId := range config.RightNeo4jFields {
-		neo4jId = escapeName(neo4jId)
-		alteryxId := escapeName(config.RightAlteryxFields[index])
-		if index > 0 {
-			builder.WriteString(",")
-		}
-		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", neo4jId, alteryxId))
-	}
-	builder.WriteString("})\n")
-
+	matchNode(builder, config.LeftLabel, config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
+	matchNode(builder, config.RightLabel, config.RightAlteryxFields, config.RightNeo4jFields, `right`)
 	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`]->(right)\n", config.Label))
 	onCreateSetQuery(builder, config.PropFields, `newRel`)
 	return builder.String()
+}
+
+func matchNode(builder *strings.Builder, label string, alteryxFields []string, neo4jFields []string, neo4jVariable string) {
+	builder.WriteString(fmt.Sprintf("MATCH (%v:`%v`{", neo4jVariable, label))
+	for index, neo4jId := range neo4jFields {
+		neo4jId = escapeName(neo4jId)
+		alteryxId := escapeName(alteryxFields[index])
+		if index > 0 {
+			builder.WriteString(",")
+		}
+		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", neo4jId, alteryxId))
+	}
+	builder.WriteString("})\n")
 }
 
 func mergeNodeClause(builder *strings.Builder, config *NodeConfig) {
