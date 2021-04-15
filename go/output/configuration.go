@@ -48,9 +48,9 @@ func RelationshipQuery(config *RelationshipConfig) (string, error) {
 	}
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
-	matchNode(builder, config.LeftLabel, config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
-	matchNode(builder, config.RightLabel, config.RightAlteryxFields, config.RightNeo4jFields, `right`)
-	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`]->(right)\n", config.Label))
+	matchNode(builder, escapeName(config.LeftLabel), config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
+	matchNode(builder, escapeName(config.RightLabel), config.RightAlteryxFields, config.RightNeo4jFields, `right`)
+	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`]->(right)\n", escapeName(config.Label)))
 	if len(config.PropFields) == 0 {
 		return builder.String(), nil
 	}
