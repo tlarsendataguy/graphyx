@@ -36,6 +36,9 @@ func NodeQuery(config *ConfigStruct) string {
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	buildMergeClause(builder, config)
+	if len(config.PropFields) == 0 {
+		return builder.String()
+	}
 	builder.WriteString("ON CREATE SET ")
 	buildSetProperties(builder, config)
 	builder.WriteString("\n")
@@ -56,6 +59,21 @@ func TestGenerateNodeQuery(t *testing.T) {
 		"MERGE (newNode:`TestLabel`{`id1`:row.`id1`,`id2`:row.`id2`})\n" +
 		"ON CREATE SET newNode.`prop1`=row.`prop1`,newNode.`prop2`=row.`prop2`\n" +
 		"ON MATCH SET newNode.`prop1`=row.`prop1`,newNode.`prop2`=row.`prop2`"
+
+	if expected != query {
+		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
+	}
+}
+
+func TestGenerateNodeQueryWithNoProperties(t *testing.T) {
+	config := &ConfigStruct{
+		Label:      `TestLabel`,
+		IdFields:   []string{`id1`, `id2`},
+		PropFields: nil,
+	}
+	query := NodeQuery(config)
+	expected := "UNWIND $batch AS row\n" +
+		"MERGE (newNode:`TestLabel`{`id1`:row.`id1`,`id2`:row.`id2`})\n"
 
 	if expected != query {
 		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
