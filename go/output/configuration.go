@@ -33,11 +33,7 @@ func NodeQuery(config *NodeConfig) string {
 	if len(config.PropFields) == 0 {
 		return builder.String()
 	}
-	builder.WriteString("ON CREATE SET ")
-	buildSetProperties(builder, config.PropFields, `newNode`)
-	builder.WriteString("\n")
-	builder.WriteString("ON MATCH SET ")
-	buildSetProperties(builder, config.PropFields, `newNode`)
+	onCreateSetQuery(builder, config.PropFields, `newNode`)
 
 	return builder.String()
 }
@@ -69,11 +65,7 @@ func RelationshipQuery(config *RelationshipConfig) string {
 	builder.WriteString("})\n")
 
 	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`]->(right)\n", config.Label))
-	builder.WriteString("ON CREATE SET ")
-	buildSetProperties(builder, config.PropFields, `newRel`)
-	builder.WriteString("\n")
-	builder.WriteString("ON MATCH SET ")
-	buildSetProperties(builder, config.PropFields, `newRel`)
+	onCreateSetQuery(builder, config.PropFields, `newRel`)
 	return builder.String()
 }
 
@@ -99,6 +91,14 @@ func createNodeClause(builder *strings.Builder, config *NodeConfig) {
 		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", id, id))
 	}
 	builder.WriteString("})")
+}
+
+func onCreateSetQuery(builder *strings.Builder, props []string, neo4jVariable string) {
+	builder.WriteString("ON CREATE SET ")
+	buildSetProperties(builder, props, neo4jVariable)
+	builder.WriteString("\n")
+	builder.WriteString("ON MATCH SET ")
+	buildSetProperties(builder, props, neo4jVariable)
 }
 
 func buildSetProperties(builder *strings.Builder, props []string, neo4jVariable string) {
