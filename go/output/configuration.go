@@ -72,7 +72,8 @@ func matchNode(builder *strings.Builder, label string, alteryxFields []string, n
 }
 
 func mergeNodeClause(builder *strings.Builder, config *NodeConfig) {
-	builder.WriteString(fmt.Sprintf("MERGE (newNode:`%v`{", config.Label))
+	label := escapeName(config.Label)
+	builder.WriteString(fmt.Sprintf("MERGE (newNode:`%v`{", label))
 	for index, id := range config.IdFields {
 		id = escapeName(id)
 		if index > 0 {
@@ -84,7 +85,8 @@ func mergeNodeClause(builder *strings.Builder, config *NodeConfig) {
 }
 
 func createNodeClause(builder *strings.Builder, config *NodeConfig) {
-	builder.WriteString(fmt.Sprintf("CREATE (newNode:`%v`{", config.Label))
+	label := escapeName(config.Label)
+	builder.WriteString(fmt.Sprintf("CREATE (newNode:`%v`{", label))
 	for index, id := range config.PropFields {
 		id = escapeName(id)
 		if index > 0 {

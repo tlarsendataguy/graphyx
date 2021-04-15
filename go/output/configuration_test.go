@@ -52,7 +52,7 @@ func TestGenerateNodesWithNoIds(t *testing.T) {
 	}
 }
 
-func TestEscapeBackspace(t *testing.T) {
+func TestEscapeBackquoteOnNodes(t *testing.T) {
 	config := &output.NodeConfig{
 		Label:      `TestLabel`,
 		IdFields:   []string{"id`1"},
@@ -71,6 +71,26 @@ func TestEscapeBackspace(t *testing.T) {
 	query, _ = output.NodeQuery(config)
 	expected = "UNWIND $batch AS row\n" +
 		"CREATE (newNode:`TestLabel`{`prop``1`:row.`prop``1`})"
+
+	if expected != query {
+		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
+	}
+
+	config.Label = "Test`Label"
+	query, _ = output.NodeQuery(config)
+	expected = "UNWIND $batch AS row\n" +
+		"CREATE (newNode:`Test``Label`{`prop``1`:row.`prop``1`})"
+
+	if expected != query {
+		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
+	}
+
+	config.IdFields = []string{"id`1"}
+	query, _ = output.NodeQuery(config)
+	expected = "UNWIND $batch AS row\n" +
+		"MERGE (newNode:`Test``Label`{`id``1`:row.`id``1`})\n" +
+		"ON CREATE SET newNode.`prop``1`=row.`prop``1`\n" +
+		"ON MATCH SET newNode.`prop``1`=row.`prop``1`"
 
 	if expected != query {
 		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
