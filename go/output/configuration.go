@@ -1,6 +1,7 @@
 package output
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -22,33 +23,39 @@ type RelationshipConfig struct {
 	PropFields         []string
 }
 
-func NodeQuery(config *NodeConfig) string {
+func NodeQuery(config *NodeConfig) (string, error) {
+	if config.Label == `` {
+		return ``, errors.New(`label cannot be blank`)
+	}
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	if len(config.IdFields) == 0 {
 		createNodeClause(builder, config)
-		return builder.String()
+		return builder.String(), nil
 	}
 	mergeNodeClause(builder, config)
 	if len(config.PropFields) == 0 {
-		return builder.String()
+		return builder.String(), nil
 	}
 	onCreateSetQuery(builder, config.PropFields, `newNode`)
 
-	return builder.String()
+	return builder.String(), nil
 }
 
-func RelationshipQuery(config *RelationshipConfig) string {
+func RelationshipQuery(config *RelationshipConfig) (string, error) {
+	if config.Label == `` {
+		return ``, errors.New(`label cannot be blank`)
+	}
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	matchNode(builder, config.LeftLabel, config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
 	matchNode(builder, config.RightLabel, config.RightAlteryxFields, config.RightNeo4jFields, `right`)
 	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`]->(right)\n", config.Label))
 	if len(config.PropFields) == 0 {
-		return builder.String()
+		return builder.String(), nil
 	}
 	onCreateSetQuery(builder, config.PropFields, `newRel`)
-	return builder.String()
+	return builder.String(), nil
 }
 
 func matchNode(builder *strings.Builder, label string, alteryxFields []string, neo4jFields []string, neo4jVariable string) {
