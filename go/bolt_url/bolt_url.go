@@ -1,4 +1,4 @@
-package input
+package bolt_url
 
 import (
 	"encoding/json"
@@ -7,11 +7,11 @@ import (
 	"net/http"
 )
 
-type boltInfo struct {
+type BoltInfo struct {
 	BoltUrl string `json:"bolt_direct"`
 }
 
-func getBoltUrl(httpEndpoint string) (string, error) {
+func GetBoltUrl(httpEndpoint string) (string, error) {
 	request, err := http.NewRequest(`GET`, httpEndpoint, nil)
 	if err != nil {
 		return ``, err
@@ -29,7 +29,7 @@ func getBoltUrl(httpEndpoint string) (string, error) {
 	if err != nil {
 		return ``, err
 	}
-	var bolt boltInfo
+	var bolt BoltInfo
 	err = json.Unmarshal(responseBytes, &bolt)
 	if err != nil {
 		return ``, err
