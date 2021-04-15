@@ -76,3 +76,27 @@ func TestEscapeBackspace(t *testing.T) {
 		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
 	}
 }
+
+func TestGenerateRelationshipQuery(t *testing.T) {
+	config := &output.RelationshipConfig{
+		LeftLabel:          `TestLabel`,
+		RightLabel:         `TestLabel`,
+		LeftAlteryxFields:  []string{`left1`, `left2`},
+		LeftNeo4jFields:    []string{`id1`, `id2`},
+		RightAlteryxFields: []string{`right1`, `right2`},
+		RightNeo4jFields:   []string{`id1`, `id2`},
+		Label:              `TestRel`,
+		PropFields:         []string{`prop1`, `prop2`},
+	}
+	query := output.RelationshipQuery(config)
+	expected := "UNWIND $batch AS row\n" +
+		"MATCH (left:`TestLabel`{`id1`:row.`left1`,`id2`:row.`left2`})\n" +
+		"MATCH (right:`TestLabel`{`id1`:row.`right1`,`id2`:row.`right2`})\n" +
+		"MERGE (left)-[newRel:`TestRel`]->(right)\n" +
+		"ON CREATE SET newRel.`prop1`=row.`prop1`,newRel.`prop2`=row.`prop2`\n" +
+		"ON MATCH SET newRel.`prop1`=row.`prop1`,newRel.`prop2`=row.`prop2`"
+
+	if expected != query {
+		t.Fatalf("expected\n\n%v\n\nbut got\n\n%v", expected, query)
+	}
+}
