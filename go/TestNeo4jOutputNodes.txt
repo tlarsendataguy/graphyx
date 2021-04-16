@@ -1,0 +1,5 @@
+ID   |Value
+Int64|V_WString;100
+1    |"Hello world"
+2    |"Something"
+3    |"Some text value"

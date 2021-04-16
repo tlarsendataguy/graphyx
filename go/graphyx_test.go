@@ -1,9 +1,11 @@
 package main_test
 
 import (
+	"encoding/json"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
 	"github.com/tlarsen7572/graphyx/input"
+	"github.com/tlarsen7572/graphyx/output"
 	"testing"
 )
 
@@ -75,4 +77,36 @@ func TestOutput(t *testing.T) {
 		tx.Run(``, nil)
 		return nil, nil
 	})
+}
+
+func TestOutputToolNodes(t *testing.T) {
+	config := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Node","NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["Value"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
+</Configuration>`
+	plugin := &output.Neo4jOutput{}
+	runner := sdk.RegisterToolTest(plugin, 1, config)
+	runner.ConnectInput(`Input`, `TestNeo4jOutputNodes.txt`)
+	runner.SimulateLifecycle()
+	configBytes, err := json.Marshal(plugin.Config())
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	t.Logf(string(configBytes))
+	t.Logf(plugin.Query())
+}
+
+func TestOutputToolRelationships(t *testing.T) {
+	config := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Relationship","NodeLabel":"","NodeIdFields":[],"NodePropFields":[],"RelLabel":"TestRel","RelPropFields":["Value"],"RelLeftLabel":"TestLabel","RelLeftFields":[{"LeftID":"ID"}],"RelRightLabel":"TestLabel","RelRightFields":[{"RightID":"ID"}]}</JSON>
+</Configuration>`
+	plugin := &output.Neo4jOutput{}
+	runner := sdk.RegisterToolTest(plugin, 1, config)
+	runner.ConnectInput(`Input`, `TestNeo4jOutputNodes.txt`)
+	runner.SimulateLifecycle()
+	configBytes, err := json.Marshal(plugin.Config())
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	t.Logf(string(configBytes))
+	t.Logf(plugin.Query())
 }

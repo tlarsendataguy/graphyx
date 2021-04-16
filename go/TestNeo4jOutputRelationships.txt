@@ -1,0 +1,5 @@
+LeftID|RightID|Value
+Int64 |Int64  |V_WString;100
+1     |2      |"Hello world"
+2     |1      |"Something"
+3     |3      |"Some text value"
