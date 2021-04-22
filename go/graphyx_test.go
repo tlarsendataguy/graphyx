@@ -93,6 +93,17 @@ func TestOutputToolNodes(t *testing.T) {
 	if size := len(plugin.OutputFields()); size != 2 {
 		t.Fatalf(`expected 2 fields but got %v`, size)
 	}
+	currentRecords := plugin.CurrentRecords()
+	if size := len(currentRecords); size != 3 {
+		t.Fatalf(`expected 3 records but got %v`, size)
+	}
+	t.Logf(`%v`, currentRecords)
+	if value, ok := currentRecords[2][`ID`]; !ok || value != 3 {
+		t.Fatalf(`expected 3, true but got %v, %v`, value, ok)
+	}
+	if value, ok := currentRecords[2][`Value`]; !ok || value != `Some text value` {
+		t.Fatalf(`expected 'Some text value', true but got '%v', %v`, value, ok)
+	}
 	configBytes, err := json.Marshal(plugin.Config())
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
@@ -107,13 +118,24 @@ func TestOutputToolRelationships(t *testing.T) {
 </Configuration>`
 	plugin := &output.Neo4jOutput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
-	runner.ConnectInput(`Input`, `TestNeo4jOutputNodes.txt`)
+	runner.ConnectInput(`Input`, `TestNeo4jOutputRelationships.txt`)
 	runner.SimulateLifecycle()
 	if size := len(plugin.Batch()); size != 10000 {
 		t.Fatalf(`expected 10000 but got %v`, size)
 	}
 	if size := len(plugin.OutputFields()); size != 3 {
 		t.Fatalf(`expected 3 fields but got %v`, size)
+	}
+	currentRecords := plugin.CurrentRecords()
+	if size := len(currentRecords); size != 3 {
+		t.Fatalf(`expected 3 records but got %v`, size)
+	}
+	t.Logf(`%v`, currentRecords)
+	if value, ok := currentRecords[0][`LeftID`]; !ok || value != 1 {
+		t.Fatalf(`expected 1, true but got %v, %v`, value, ok)
+	}
+	if value, ok := currentRecords[0][`RightID`]; !ok || value != 2 {
+		t.Fatalf(`expected 2, true but got %v, %v`, value, ok)
 	}
 	configBytes, err := json.Marshal(plugin.Config())
 	if err != nil {

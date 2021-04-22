@@ -47,22 +47,20 @@ func (o *Neo4jOutput) Init(provider sdk.Provider) {
 	if o.config.ExportObject == `Node` {
 		o.generateNodeQuery()
 		o.outputFields = append(o.config.NodeIdFields, o.config.NodePropFields...)
-		return
 	}
 	if o.config.ExportObject == `Relationship` {
 		o.generateRelationshipQuery()
 		for _, field := range o.config.RelLeftFields {
-			for key := range field {
-				o.outputFields = append(o.outputFields, key)
+			for ayxField := range field {
+				o.outputFields = append(o.outputFields, ayxField)
 			}
 		}
 		for _, field := range o.config.RelRightFields {
-			for key := range field {
-				o.outputFields = append(o.outputFields, key)
+			for ayxField := range field {
+				o.outputFields = append(o.outputFields, ayxField)
 			}
 		}
 		o.outputFields = append(o.outputFields, o.config.RelPropFields...)
-		return
 	}
 	outputFieldLen := len(o.outputFields)
 	for index := range o.batch {
@@ -70,12 +68,64 @@ func (o *Neo4jOutput) Init(provider sdk.Provider) {
 	}
 }
 
+func (o *Neo4jOutput) findFieldAndGenerateCopier(field string, incomingInfo sdk.IncomingRecordInfo) bool {
+	var copier CopyData
+	for _, incomingField := range incomingInfo.Fields() {
+		if field == incomingField.Name {
+			switch incomingField.Type {
+			case `Byte`, `Int16`, `Int32`, `Int64`:
+				intField, _ := incomingInfo.GetIntField(field)
+				getInt := intField.GetValue
+				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
+					value, isNull := getInt(copyFrom)
+					if isNull {
+						copyTo[field] = nil
+						return
+					}
+					copyTo[field] = value
+				}
+				o.copier = append(o.copier, copier)
+				return true
+			case `String`, `WString`, `V_String`, `V_WString`:
+				stringField, _ := incomingInfo.GetStringField(field)
+				getString := stringField.GetValue
+				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
+					value, isNull := getString(copyFrom)
+					if isNull {
+						copyTo[field] = nil
+						return
+					}
+					copyTo[field] = value
+				}
+				o.copier = append(o.copier, copier)
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
-	return
+	incomingInfo := connection.Metadata()
+	for _, field := range o.outputFields {
+		ok := o.findFieldAndGenerateCopier(field, incomingInfo)
+		if !ok {
+			o.provider.Io().Error(fmt.Sprintf(`field %v was not contained in the record`, field))
+			return
+		}
+	}
 }
 
 func (o *Neo4jOutput) OnRecordPacket(connection sdk.InputConnection) {
-	return
+	packet := connection.Read()
+	for packet.Next() {
+		copyFrom := packet.Record()
+		copyTo := o.batch[o.currentBatchSize]
+		for _, copyData := range o.copier {
+			copyData(copyFrom, copyTo)
+		}
+		o.currentBatchSize++
+	}
 }
 
 func (o *Neo4jOutput) OnComplete() {
@@ -145,6 +195,10 @@ func (o *Neo4jOutput) Batch() []map[string]interface{} {
 
 func (o *Neo4jOutput) OutputFields() []string {
 	return o.outputFields
+}
+
+func (o *Neo4jOutput) CurrentRecords() []map[string]interface{} {
+	return o.batch[:o.currentBatchSize]
 }
 
 func fieldsToAyxAndNeo4jLists(fields []map[string]interface{}) ([]string, []string, error) {
