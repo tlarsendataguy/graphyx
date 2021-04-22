@@ -81,12 +81,18 @@ func TestOutput(t *testing.T) {
 
 func TestOutputToolNodes(t *testing.T) {
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Node","NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["Value"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["Value"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
 </Configuration>`
 	plugin := &output.Neo4jOutput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
 	runner.ConnectInput(`Input`, `TestNeo4jOutputNodes.txt`)
 	runner.SimulateLifecycle()
+	if size := len(plugin.Batch()); size != 10000 {
+		t.Fatalf(`expected 10000 but got %v`, size)
+	}
+	if size := len(plugin.OutputFields()); size != 2 {
+		t.Fatalf(`expected 2 fields but got %v`, size)
+	}
 	configBytes, err := json.Marshal(plugin.Config())
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
@@ -97,12 +103,18 @@ func TestOutputToolNodes(t *testing.T) {
 
 func TestOutputToolRelationships(t *testing.T) {
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Relationship","NodeLabel":"","NodeIdFields":[],"NodePropFields":[],"RelLabel":"TestRel","RelPropFields":["Value"],"RelLeftLabel":"TestLabel","RelLeftFields":[{"LeftID":"ID"}],"RelRightLabel":"TestLabel","RelRightFields":[{"RightID":"ID"}]}</JSON>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Relationship","BatchSize":10000,"NodeLabel":"","NodeIdFields":[],"NodePropFields":[],"RelLabel":"TestRel","RelPropFields":["Value"],"RelLeftLabel":"TestLabel","RelLeftFields":[{"LeftID":"ID"}],"RelRightLabel":"TestLabel","RelRightFields":[{"RightID":"ID"}]}</JSON>
 </Configuration>`
 	plugin := &output.Neo4jOutput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
 	runner.ConnectInput(`Input`, `TestNeo4jOutputNodes.txt`)
 	runner.SimulateLifecycle()
+	if size := len(plugin.Batch()); size != 10000 {
+		t.Fatalf(`expected 10000 but got %v`, size)
+	}
+	if size := len(plugin.OutputFields()); size != 3 {
+		t.Fatalf(`expected 3 fields but got %v`, size)
+	}
 	configBytes, err := json.Marshal(plugin.Config())
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())

@@ -11,6 +11,7 @@ type Configuration struct {
 	Password       string
 	Database       string
 	ExportObject   string
+	BatchSize      int
 	NodeLabel      string
 	NodeIdFields   []string
 	NodePropFields []string
@@ -22,11 +23,16 @@ type Configuration struct {
 	RelRightFields []map[string]interface{}
 }
 
+type CopyData func(sdk.Record, map[string]interface{})
+
 type Neo4jOutput struct {
-	query    string
-	params   []map[string]interface{}
-	config   Configuration
-	provider sdk.Provider
+	query            string
+	config           Configuration
+	provider         sdk.Provider
+	copier           []CopyData
+	outputFields     []string
+	batch            []map[string]interface{}
+	currentBatchSize int
 }
 
 func (o *Neo4jOutput) Init(provider sdk.Provider) {
@@ -37,13 +43,30 @@ func (o *Neo4jOutput) Init(provider sdk.Provider) {
 		provider.Io().Error(err.Error())
 		return
 	}
+	o.batch = make([]map[string]interface{}, o.config.BatchSize)
 	if o.config.ExportObject == `Node` {
 		o.generateNodeQuery()
+		o.outputFields = append(o.config.NodeIdFields, o.config.NodePropFields...)
 		return
 	}
 	if o.config.ExportObject == `Relationship` {
 		o.generateRelationshipQuery()
+		for _, field := range o.config.RelLeftFields {
+			for key := range field {
+				o.outputFields = append(o.outputFields, key)
+			}
+		}
+		for _, field := range o.config.RelRightFields {
+			for key := range field {
+				o.outputFields = append(o.outputFields, key)
+			}
+		}
+		o.outputFields = append(o.outputFields, o.config.RelPropFields...)
 		return
+	}
+	outputFieldLen := len(o.outputFields)
+	for index := range o.batch {
+		o.batch[index] = make(map[string]interface{}, outputFieldLen)
 	}
 }
 
@@ -114,6 +137,14 @@ func (o *Neo4jOutput) generateRelationshipQuery() {
 		o.provider.Io().Error(err.Error())
 		return
 	}
+}
+
+func (o *Neo4jOutput) Batch() []map[string]interface{} {
+	return o.batch
+}
+
+func (o *Neo4jOutput) OutputFields() []string {
+	return o.outputFields
 }
 
 func fieldsToAyxAndNeo4jLists(fields []map[string]interface{}) ([]string, []string, error) {
