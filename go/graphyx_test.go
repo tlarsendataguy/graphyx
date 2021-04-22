@@ -144,3 +144,18 @@ func TestOutputToolRelationships(t *testing.T) {
 	t.Logf(string(configBytes))
 	t.Logf(plugin.Query())
 }
+
+func TestBatch(t *testing.T) {
+	config := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Relationship","BatchSize":2,"NodeLabel":"","NodeIdFields":[],"NodePropFields":[],"RelLabel":"TestRel","RelPropFields":["Value"],"RelLeftLabel":"TestLabel","RelLeftFields":[{"LeftID":"ID"}],"RelRightLabel":"TestLabel","RelRightFields":[{"RightID":"ID"}]}</JSON>
+</Configuration>`
+	plugin := &output.Neo4jOutput{}
+	runner := sdk.RegisterToolTest(plugin, 1, config)
+	runner.ConnectInput(`Input`, `TestNeo4jOutputRelationships.txt`)
+	runner.SimulateLifecycle()
+	currentRecords := plugin.CurrentRecords()
+	if size := len(currentRecords); size != 1 {
+		t.Fatalf(`expected 1 records but got %v`, size)
+	}
+	t.Logf(`%v`, currentRecords)
+}

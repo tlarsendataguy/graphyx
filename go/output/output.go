@@ -119,6 +119,9 @@ func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 func (o *Neo4jOutput) OnRecordPacket(connection sdk.InputConnection) {
 	packet := connection.Read()
 	for packet.Next() {
+		if o.currentBatchSize >= o.config.BatchSize {
+			o.currentBatchSize = 0
+		}
 		copyFrom := packet.Record()
 		copyTo := o.batch[o.currentBatchSize]
 		for _, copyData := range o.copier {
