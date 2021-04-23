@@ -2,6 +2,7 @@ package output
 
 import (
 	"fmt"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
 )
 
@@ -33,6 +34,8 @@ type Neo4jOutput struct {
 	outputFields     []string
 	batch            []map[string]interface{}
 	currentBatchSize int
+	driver           neo4j.Driver
+	session          neo4j.Session
 }
 
 func (o *Neo4jOutput) Init(provider sdk.Provider) {
@@ -91,6 +94,45 @@ func (o *Neo4jOutput) findFieldAndGenerateCopier(field string, incomingInfo sdk.
 				getString := stringField.GetValue
 				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
 					value, isNull := getString(copyFrom)
+					if isNull {
+						copyTo[field] = nil
+						return
+					}
+					copyTo[field] = value
+				}
+				o.copier = append(o.copier, copier)
+				return true
+			case `Bool`:
+				boolField, _ := incomingInfo.GetBoolField(field)
+				getBool := boolField.GetValue
+				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
+					value, isNull := getBool(copyFrom)
+					if isNull {
+						copyTo[field] = nil
+						return
+					}
+					copyTo[field] = value
+				}
+				o.copier = append(o.copier, copier)
+				return true
+			case `Date`, `DateTime`:
+				timeField, _ := incomingInfo.GetTimeField(field)
+				getTime := timeField.GetValue
+				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
+					value, isNull := getTime(copyFrom)
+					if isNull {
+						copyTo[field] = nil
+						return
+					}
+					copyTo[field] = value
+				}
+				o.copier = append(o.copier, copier)
+				return true
+			case `Float`, `Double`, `FixedDecimal`:
+				floatField, _ := incomingInfo.GetFloatField(field)
+				getFloat := floatField.GetValue
+				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
+					value, isNull := getFloat(copyFrom)
 					if isNull {
 						copyTo[field] = nil
 						return

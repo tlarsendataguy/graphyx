@@ -159,3 +159,21 @@ func TestBatch(t *testing.T) {
 	}
 	t.Logf(`%v`, currentRecords)
 }
+
+func TestDataTypesCopyCorrectly(t *testing.T) {
+	config := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"Movie Database","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["ByteField","Int16Field","Int32Field","StringField","WStringField","V_StringField","V_WStringField","DateField","DateTimeField","FloatField","DoubleField","FixedDecimalField","BoolField"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
+</Configuration>`
+	plugin := &output.Neo4jOutput{}
+	runner := sdk.RegisterToolTest(plugin, 1, config)
+	runner.ConnectInput(`Input`, `TestNeo4jOutputTypes.txt`)
+	runner.SimulateLifecycle()
+	currentRecords := plugin.CurrentRecords()
+	if size := len(currentRecords); size != 3 {
+		t.Fatalf(`expected 3 records but got %v`, size)
+	}
+	if size := len(currentRecords[0]); size != 14 {
+		t.Fatalf(`expected 14 fields but got %v`, size)
+	}
+	t.Logf(`%v`, currentRecords)
+}

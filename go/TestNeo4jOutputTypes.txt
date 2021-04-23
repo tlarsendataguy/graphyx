@@ -1,0 +1,5 @@
+ID   |ByteField|Int16Field|Int32Field|StringField|WStringField|V_StringField|V_WStringField|DateField |DateTimeField      |FloatField|DoubleField|FixedDecimalField|BoolField
+Int64|Byte     |Int16     |Int32     |String;20  |WString;20  |V_String;20  |V_WString;20  |Date      |DateTime           |Float     |Double     |FixedDecimal;12;2|Bool
+1    |4        |7         |10        |A          |D           |G            |J             |2020-01-01|2020-01-04 07:10:13|123.45    |678.9      |10.11            |true
+2    |5        |8         |11        |B          |E           |H            |K             |2020-01-02|2020-01-05 08:11:14|-23.45    |456.2      |88.34            |false
+3    |6        |9         |12        |C          |F           |I            |L             |2020-01-03|2020-01-06 09:12:15|563.34    |145.1      |14.23            |true
