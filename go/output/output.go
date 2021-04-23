@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"github.com/tlarsen7572/graphyx/bolt_url"
 )
 
 type Configuration struct {
@@ -36,6 +37,7 @@ type Neo4jOutput struct {
 	currentBatchSize int
 	driver           neo4j.Driver
 	session          neo4j.Session
+	doExport         bool
 }
 
 func (o *Neo4jOutput) Init(provider sdk.Provider) {
@@ -68,6 +70,10 @@ func (o *Neo4jOutput) Init(provider sdk.Provider) {
 	outputFieldLen := len(o.outputFields)
 	for index := range o.batch {
 		o.batch[index] = make(map[string]interface{}, outputFieldLen)
+	}
+
+	if !o.provider.Environment().UpdateOnly() {
+		o.doExport = true
 	}
 }
 
@@ -148,21 +154,40 @@ func (o *Neo4jOutput) findFieldAndGenerateCopier(field string, incomingInfo sdk.
 }
 
 func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
+	if !o.doExport {
+		return
+	}
+
+	url, err := bolt_url.GetBoltUrl(o.config.ConnStr)
+	if err != nil {
+		o.error(err.Error())
+		return
+	}
 	incomingInfo := connection.Metadata()
 	for _, field := range o.outputFields {
 		ok := o.findFieldAndGenerateCopier(field, incomingInfo)
 		if !ok {
-			o.provider.Io().Error(fmt.Sprintf(`field %v was not contained in the record`, field))
+			o.error(fmt.Sprintf(`field %v was not contained in the record`, field))
 			return
 		}
 	}
+	o.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(o.config.Username, o.config.Password, ""))
+	if err != nil {
+		o.error(err.Error())
+		return
+	}
+	o.session = o.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: o.config.Database})
 }
 
 func (o *Neo4jOutput) OnRecordPacket(connection sdk.InputConnection) {
+	if !o.doExport {
+		return
+	}
+
 	packet := connection.Read()
 	for packet.Next() {
 		if o.currentBatchSize >= o.config.BatchSize {
-			o.currentBatchSize = 0
+			o.sendBatch()
 		}
 		copyFrom := packet.Record()
 		copyTo := o.batch[o.currentBatchSize]
@@ -173,8 +198,32 @@ func (o *Neo4jOutput) OnRecordPacket(connection sdk.InputConnection) {
 	}
 }
 
+func (o *Neo4jOutput) sendBatch() {
+	_, err := o.session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		return tx.Run(o.query, map[string]interface{}{`batch`: o.batch[:o.currentBatchSize]})
+	})
+	if err != nil {
+		o.error(err.Error())
+		return
+	}
+	o.currentBatchSize = 0
+}
+
 func (o *Neo4jOutput) OnComplete() {
-	return
+	if o.currentBatchSize > 0 && o.doExport {
+		o.sendBatch()
+	}
+	if o.session != nil {
+		o.session.Close()
+	}
+	if o.driver != nil {
+		o.driver.Close()
+	}
+}
+
+func (o *Neo4jOutput) error(msg string) {
+	o.doExport = false
+	o.provider.Io().Error(msg)
 }
 
 func (o *Neo4jOutput) Config() Configuration {
