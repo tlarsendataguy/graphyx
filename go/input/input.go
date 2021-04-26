@@ -55,7 +55,7 @@ func (i *Neo4jInput) OnComplete() {
 	}
 	defer driver.Close()
 
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: i.config.Database})
 	defer session.Close()
 
 	_, err = session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {

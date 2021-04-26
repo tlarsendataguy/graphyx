@@ -10,7 +10,7 @@ import (
 
 func TestBasicConfig(t *testing.T) {
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"user","Password":"password","Query":"MATCH p=()-[r:ACTED_IN]-&gt;() RETURN p","LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"p","DataType":"Path"}]},"Fields":[{"Name":"Field1","DataType":"Integer","Path":[{"Key":"p","DataType":"Path"},{"Key":"Nodes","DataType":"List:Node"},{"Key":"First","DataType":"Node"},{"Key":"ID","DataType":"Integer"}]},{"Name":"Field2","DataType":"String","Path":[{"Key":"p","DataType":"Path"},{"Key":"Relationships","DataType":"List:Relationship"},{"Key":"First","DataType":"Relationship"},{"Key":"Type","DataType":"String"}]}]}</JSON>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"user","Password":"password","Database":"neo4j","Query":"MATCH p=()-[r:ACTED_IN]-&gt;() RETURN p","LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"p","DataType":"Path"}]},"Fields":[{"Name":"Field1","DataType":"Integer","Path":[{"Key":"p","DataType":"Path"},{"Key":"Nodes","DataType":"List:Node"},{"Key":"First","DataType":"Node"},{"Key":"ID","DataType":"Integer"}]},{"Name":"Field2","DataType":"String","Path":[{"Key":"p","DataType":"Path"},{"Key":"Relationships","DataType":"List:Relationship"},{"Key":"First","DataType":"Relationship"},{"Key":"Type","DataType":"String"}]}]}</JSON>
 </Configuration>`
 
 	decoded, err := input.DecodeConfig(config)
@@ -22,6 +22,7 @@ func TestBasicConfig(t *testing.T) {
 		ConnStr:  `http://localhost:7474`,
 		Username: `user`,
 		Password: `password`,
+		Database: `neo4j`,
 		Query:    `MATCH p=()-[r:ACTED_IN]->() RETURN p`,
 		Fields: []input.Field{
 			{

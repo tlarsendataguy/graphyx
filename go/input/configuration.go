@@ -20,6 +20,7 @@ type Configuration struct {
 	Username string
 	Password string
 	Query    string
+	Database string
 	Fields   []Field
 }
 
