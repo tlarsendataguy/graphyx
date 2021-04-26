@@ -13,10 +13,11 @@ enum updated {
 }
 
 class Configuration {
-  Configuration({this.connStr, this.username, this.password, this.query, this.lastValidatedResponse, this.fields});
+  Configuration({this.connStr, this.username, this.password, this.database, this.query, this.lastValidatedResponse, this.fields});
   String connStr;
   String username;
   String password;
+  String database;
   String query;
   ValidatedResponse lastValidatedResponse;
   List<Field> fields;
@@ -27,6 +28,7 @@ class Configuration {
       'Username': username,
       'Password': password,
       'Query': query,
+      'Database': database,
       'LastValidatedResponse': lastValidatedResponse.toJson(),
       'Fields': fields.map((e) => e.toJson()).toList(),
     };
@@ -70,6 +72,8 @@ class AppState extends BlocState {
   set password(String value) => _config.password = value;
   String get query => _config.query;
   set query(String value) => _config.query = value;
+  String get database => _config.database;
+  set database(String value) => _config.database = value;
 
   rx.BehaviorSubject<ValidatedResponse> _lastValidatedResponse;
   Stream get lastValidatedResponse => _lastValidatedResponse.stream;

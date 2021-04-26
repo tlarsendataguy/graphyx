@@ -16,6 +16,7 @@ class _ControlsState extends State<Controls> {
   TextEditingController userController;
   TextEditingController passwordController;
   TextEditingController queryController;
+  TextEditingController databaseController;
   String validationError = '';
   List<Widget> fieldWidgets = [];
   AppState state;
@@ -25,6 +26,7 @@ class _ControlsState extends State<Controls> {
     urlController = TextEditingController(text: state.connStr);
     userController = TextEditingController(text: state.username);
     passwordController = TextEditingController(text: state.password);
+    databaseController = TextEditingController(text: state.database);
     queryController = TextEditingController(text: state.query);
     super.initState();
   }
@@ -43,6 +45,10 @@ class _ControlsState extends State<Controls> {
 
   void queryChanged(value) {
     state.query = value;
+  }
+
+  void databaseChanged(value) {
+    state.database = value;
   }
 
   void generateFieldWidgets(List<Field> fields){
@@ -69,6 +75,7 @@ class _ControlsState extends State<Controls> {
         TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged),
         TextField(controller: this.userController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged),
         TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged),
+        TextField(controller: this.databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged),
         TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query"), onChanged: queryChanged, style: TextStyle(fontFamily: 'JetBrains Mono')),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),

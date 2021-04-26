@@ -11,6 +11,7 @@ Configuration decodeConfig(String configStr) {
       username: '',
       password: '',
       query: '',
+      database: '',
       lastValidatedResponse: ValidatedResponse(error: '', returnValues: []),
       fields: [],
     );
@@ -20,6 +21,7 @@ Configuration decodeConfig(String configStr) {
     connStr: decoded['ConnStr'] ?? '',
     username: decoded['Username'] ?? '',
     password: decoded['Password'] ?? '',
+    database: decoded['Database'] ?? '',
     query: decoded['Query'] ?? '',
     lastValidatedResponse: _decodeValidatedResponse(decoded['LastValidatedResponse']),
     fields: _decodeFields(decoded['Fields']),

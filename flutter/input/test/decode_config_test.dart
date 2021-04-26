@@ -1,17 +1,16 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:input/decode_config.dart';
 
 void main(){
   test('instantiate normal config', (){
-    var configStr = '{"ConnStr": "http://localhost:7474", "Username": "user", "Password": "password", "Query": "MATCH p=()-[r:ACTED_IN]->() RETURN p", "LastValidatedResponse": {"Error": "", "ReturnValues": [{"Name": "p", "DataType": "Path"}]}, "Fields": [{"Name": "Field1", "DataType": "Path", "Path": [{"Key": "p", "DataType": "Path"}]}]}';
+    var configStr = '{"ConnStr": "http://localhost:7474", "Username": "user", "Password": "password", "Database": "neo4j", "Query": "MATCH p=()-[r:ACTED_IN]->() RETURN p", "LastValidatedResponse": {"Error": "", "ReturnValues": [{"Name": "p", "DataType": "Path"}]}, "Fields": [{"Name": "Field1", "DataType": "Path", "Path": [{"Key": "p", "DataType": "Path"}]}]}';
     var decoded = decodeConfig(configStr);
     expect(decoded, isNotNull);
     expect(decoded.connStr, equals('http://localhost:7474'));
     expect(decoded.username, equals('user'));
     expect(decoded.password, equals('password'));
+    expect(decoded.database, equals('neo4j'));
     expect(decoded.query, equals('MATCH p=()-[r:ACTED_IN]->() RETURN p'));
     expect(decoded.lastValidatedResponse.error, equals(''));
     expect(decoded.lastValidatedResponse.returnValues.length, equals(1));
@@ -32,6 +31,7 @@ void main(){
     expect(decoded.username, equals(''));
     expect(decoded.password, equals(''));
     expect(decoded.query, equals(''));
+    expect(decoded.database, equals(''));
     expect(decoded.lastValidatedResponse.error, equals(''));
     expect(decoded.lastValidatedResponse.returnValues.length, equals(0));
     expect(decoded.fields.length, equals(0));
@@ -48,6 +48,7 @@ void main(){
       "ConnStr": "http://localhost:7474",
       "Username": "test",
       "Password": "test",
+      "Database": "neo4j",
       "Query": "MATCH p=()-[r:ACTED_IN]->() RETURN p",
       "Fields": [],
       "LastValidatedResponse": {
