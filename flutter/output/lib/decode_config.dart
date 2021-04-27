@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-class Configuration {
+import 'package:output/bloc.dart';
+
+class Configuration extends BlocState {
   Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields});
   String connStr;
   String username;
@@ -17,6 +19,33 @@ class Configuration {
   List<Map<String, String>> relLeftFields;
   String relRightLabel;
   List<Map<String, String>> relRightFields;
+
+  void dispose() {}
+  Future initialize() {}
+
+  String getConfig(){
+    return json.encode(toJson());
+  }
+
+  Map toJson() {
+    return {
+      "ConnStr": connStr,
+      "Username": username,
+      "Password": password,
+      "Database": database,
+      "ExportObject": exportObject,
+      "BatchSize": batchSize,
+      "NodeLabel": nodeLabel,
+      "NodeIdFields": nodeIdFields,
+      "NodePropFields": nodePropFields,
+      "RelLabel": relLabel,
+      "RelPropFields": relPropFields,
+      "RelLeftLabel": relLeftLabel,
+      "RelLeftFields": relLeftFields,
+      "RelRightLabel": relRightLabel,
+      "RelRightFields": relRightFields,
+    };
+  }
 }
 
 Configuration decodeConfig(String configStr) {
