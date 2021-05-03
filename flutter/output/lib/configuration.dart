@@ -17,3 +17,13 @@ external String get configuration;
 
 @JS('customToolConfig')
 external set configuration(String value);
+
+@JS('Alteryx.Gui.Manager.getIncomingFields')
+external List<FieldInfo> getIncomingFields();
+
+@JS()
+@anonymous
+class FieldInfo {
+  external String get strName;
+  external String get strType;
+}

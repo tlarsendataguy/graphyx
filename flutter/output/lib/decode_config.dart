@@ -1,9 +1,17 @@
 import 'dart:convert';
 
 import 'package:output/bloc.dart';
+import 'package:output/configuration.dart';
 
 class Configuration extends BlocState {
-  Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields});
+  Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields}){
+    incomingFields = [];
+    for (var field in getIncomingFields()) {
+      if (field.strType == 'Blob' || field.strType == 'SpatialObj') continue;
+      incomingFields.add(field.strName);
+    }
+  }
+
   String connStr;
   String username;
   String password;
@@ -19,6 +27,8 @@ class Configuration extends BlocState {
   List<Map<String, String>> relLeftFields;
   String relRightLabel;
   List<Map<String, String>> relRightFields;
+
+  List<String> incomingFields;
 
   void dispose() {}
   Future initialize() {}

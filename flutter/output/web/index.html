@@ -22,7 +22,17 @@
   // Mock window.Alteryx for testing outside of Alteryx
   if (window.Alteryx == null){
     window.Alteryx = {
-      JsEvent: function(eventStr) {}
+      JsEvent: function(eventStr) {},
+      Gui: {
+        Manager: {
+          getIncomingFields: function() {
+            return [
+              {strName: "Field1", strType: "String"},
+              {strName: "Field2", strType: "Int64"}
+            ];
+          }
+        }
+      }
     }
     let testConfig = {
       "ConnStr": "http://localhost:7474",
@@ -45,42 +55,40 @@
   }
 
   // Tool-specific configuration settings
-  window.Alteryx.Gui = {
-    SetConfiguration: function(currentToolConfiguration) {
-      if (currentToolConfiguration && currentToolConfiguration.IsFirstConfig === false) {
-        window.customToolConfig = currentToolConfiguration.Configuration.Configuration.JSON
-      } else {
-        let emptyConfig = {
-          ConnStr: '',
-          Username: '',
-          Password: '',
-          Database: '',
-          ExportObject: 'Node',
-          BatchSize: 10000,
-          NodeLabel: '',
-          NodeIdFields: [],
-          NodePropFields: [],
-          RelLabel: '',
-          RelPropFields: [],
-          RelLeftLabel: '',
-          RelLeftFields: [],
-          RelRightLabel: '',
-          RelRightFields: []
-        }
-        window.customToolConfig = JSON.stringify(emptyConfig)
+  window.Alteryx.Gui.SetConfiguration = function(currentToolConfiguration) {
+    if (currentToolConfiguration && currentToolConfiguration.IsFirstConfig === false) {
+      window.customToolConfig = currentToolConfiguration.Configuration.Configuration.JSON
+    } else {
+      let emptyConfig = {
+        ConnStr: '',
+        Username: '',
+        Password: '',
+        Database: '',
+        ExportObject: 'Node',
+        BatchSize: 10000,
+        NodeLabel: '',
+        NodeIdFields: [],
+        NodePropFields: [],
+        RelLabel: '',
+        RelPropFields: [],
+        RelLeftLabel: '',
+        RelLeftFields: [],
+        RelRightLabel: '',
+        RelRightFields: []
       }
-      window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
-    },
-    GetConfiguration: function() {
-      window.Alteryx.JsEvent(JSON.stringify({
-        Event: 'GetConfiguration',
-        Configuration: {
-          Configuration: {JSON: window.getCustomToolConfig()},
-          Annotation: ''
-        }
-      }))
+      window.customToolConfig = JSON.stringify(emptyConfig)
     }
-  }
+    window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
+  };
+  window.Alteryx.Gui.GetConfiguration = function() {
+    window.Alteryx.JsEvent(JSON.stringify({
+      Event: 'GetConfiguration',
+      Configuration: {
+        Configuration: {JSON: window.getCustomToolConfig()},
+        Annotation: ''
+      }
+    }))
+  };
 </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
