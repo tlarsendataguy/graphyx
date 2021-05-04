@@ -5,7 +5,12 @@ import 'package:output/configuration.dart';
 import 'package:output/decode_config.dart';
 
 void main() {
-  var appState = decodeConfig(configuration);
+  List<String> incomingFields = [];
+  for (var field in getIncomingFields()) {
+    if (field.strType == 'Blob' || field.strType == 'SpatialObj') continue;
+    incomingFields.add(field.strName);
+  }
+  var appState = decodeConfig(configuration, incomingFields);
   registerSaveConfigCallback(appState.getConfig);
   runApp(BlocProvider<Configuration>(
     child: MyApp(),
@@ -289,6 +294,7 @@ class _RelationshipConfigState extends State<RelationshipConfig> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(controller: relLabelController, decoration: InputDecoration(labelText: "relationship label"), onChanged: relLabelChanged),
+        FieldSelector(source: config.nodePropFields, label: "update the following relationship properties"),
         TextField(controller: relLeftLabelController, decoration: InputDecoration(labelText: "left node label"), onChanged: relLeftLabelChanged),
         TextField(controller: relRightLabelController, decoration: InputDecoration(labelText: "right node label"), onChanged: relRightLabelChanged),
       ],

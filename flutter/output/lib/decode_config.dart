@@ -1,16 +1,8 @@
 import 'dart:convert';
-
 import 'package:output/bloc.dart';
-import 'package:output/configuration.dart';
 
 class Configuration extends BlocState {
-  Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields}){
-    incomingFields = [];
-    for (var field in getIncomingFields()) {
-      if (field.strType == 'Blob' || field.strType == 'SpatialObj') continue;
-      incomingFields.add(field.strName);
-    }
-  }
+  Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.incomingFields});
 
   String connStr;
   String username;
@@ -24,14 +16,14 @@ class Configuration extends BlocState {
   String relLabel;
   List<String> relPropFields;
   String relLeftLabel;
-  List<Map<String, String>> relLeftFields;
+  List<MapEntry<String, String>> relLeftFields;
   String relRightLabel;
-  List<Map<String, String>> relRightFields;
+  List<MapEntry<String, String>> relRightFields;
 
   List<String> incomingFields;
 
   void dispose() {}
-  Future initialize() {}
+  Future initialize() async {}
 
   String getConfig(){
     return json.encode(toJson());
@@ -58,7 +50,7 @@ class Configuration extends BlocState {
   }
 }
 
-Configuration decodeConfig(String configStr) {
+Configuration decodeConfig(String configStr, List<String> incomingFields) {
   if (configStr == '' || configStr == null) {
     return Configuration(
       connStr: '',
@@ -76,6 +68,7 @@ Configuration decodeConfig(String configStr) {
       relLeftFields: [],
       relRightLabel: '',
       relRightFields: [],
+      incomingFields: incomingFields,
     );
   }
   var decoded = json.decode(configStr);
@@ -95,6 +88,7 @@ Configuration decodeConfig(String configStr) {
     relLeftFields: decodeFieldMapping(decoded['RelLeftFields']),
     relRightLabel: decoded['RelRightLabel'] ?? '',
     relRightFields: decodeFieldMapping(decoded['RelRightFields']),
+    incomingFields: incomingFields,
   );
 }
 
@@ -109,15 +103,16 @@ List<String> decodeStringList(dynamic strings) {
   return list;
 }
 
-List<Map<String, String>> decodeFieldMapping(dynamic jsonItem) {
-  List<Map<String, String>> fieldMap = [];
+List<MapEntry<String, String>> decodeFieldMapping(dynamic jsonItem) {
+  List<MapEntry<String, String>> fieldMap = [];
   if (jsonItem == null) {
     return fieldMap;
   }
   for (var entry in jsonItem) {
     var entryMap = entry as Map<String, dynamic>;
     for (var entry in entryMap.entries) {
-      fieldMap.add({entry.key: entry.value.toString()});
+      fieldMap.add(MapEntry(entry.key, entry.value.toString()));
+      break;
     }
   }
   return fieldMap;

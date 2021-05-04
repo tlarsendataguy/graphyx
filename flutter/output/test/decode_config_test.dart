@@ -4,7 +4,7 @@ import 'package:output/decode_config.dart';
 void main() {
   test('instantiate normal config',(){
     var configStr = '{"ConnStr":"http://localhost:7474","Username":"user","Password":"password","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"SomeNode","NodeIdFields":["NodeId1"],"NodePropFields":["NodeProp1","NodeProp2"],"RelLabel":"SomeRel","RelPropFields":["RelProp1"],"RelLeftLabel":"Left","RelLeftFields":[{"AyxField1":"Neo4jField1"}],"RelRightLabel":"Right","RelRightFields":[{"AyxField2":"Neo4jField2"},{"AyxField3":"Neo4jField3"}]}';
-    var decoded = decodeConfig(configStr);
+    var decoded = decodeConfig(configStr, []);
 
     expect(decoded, isNotNull);
     expect(decoded.connStr, equals('http://localhost:7474'));
@@ -22,13 +22,19 @@ void main() {
     expect(decoded.nodePropFields, equals(["NodeProp1","NodeProp2"]));
     expect(decoded.relPropFields, equals(["RelProp1"]));
 
-    expect(decoded.relLeftFields, equals([{"AyxField1":"Neo4jField1"}]));
-    expect(decoded.relRightFields, equals([{"AyxField2":"Neo4jField2"},{"AyxField3":"Neo4jField3"}]));
+    expect(decoded.relLeftFields.length, equals(1));
+    expect(decoded.relLeftFields[0].key, equals('AyxField1'));
+    expect(decoded.relLeftFields[0].value, equals('Neo4jField1'));
+    expect(decoded.relRightFields.length, equals(2));
+    expect(decoded.relRightFields[0].key, equals('AyxField2'));
+    expect(decoded.relRightFields[0].value, equals('Neo4jField2'));
+    expect(decoded.relRightFields[1].key, equals('AyxField3'));
+    expect(decoded.relRightFields[1].value, equals('Neo4jField3'));
   });
 
   test('instantiate empty config',(){
     var configStr = '';
-    var decoded = decodeConfig(configStr);
+    var decoded = decodeConfig(configStr, []);
 
     expect(decoded, isNotNull);
     expect(decoded.connStr, equals(''));
