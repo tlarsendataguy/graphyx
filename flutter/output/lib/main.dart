@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:output/bloc.dart';
 import 'package:output/configuration.dart';
 import 'package:output/decode_config.dart';
+import 'package:output/field_mapper.dart';
 import 'package:output/field_selector.dart';
 
 void main() {
@@ -214,7 +215,9 @@ class _RelationshipConfigState extends State<RelationshipConfig> {
         TextField(controller: relLabelController, decoration: InputDecoration(labelText: "relationship label"), onChanged: relLabelChanged),
         FieldSelector(source: config.nodePropFields, label: "update the following relationship properties"),
         TextField(controller: relLeftLabelController, decoration: InputDecoration(labelText: "left node label"), onChanged: relLeftLabelChanged),
+        FieldMapper(source: config.relLeftFields, label: "match the following properties of the left node"),
         TextField(controller: relRightLabelController, decoration: InputDecoration(labelText: "right node label"), onChanged: relRightLabelChanged),
+        FieldMapper(source: config.relRightFields, label: "match the following properties of the right node"),
       ],
     );
   }
