@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:output/decode_config.dart';
 
@@ -54,5 +56,29 @@ void main() {
 
     expect(decoded.relLeftFields, equals([]));
     expect(decoded.relRightFields, equals([]));
+  });
+
+  test("convert config to json", (){
+    var config = Configuration(
+      connStr: 'http://localhost:7474',
+      username: 'user',
+      password: 'password',
+      database: 'neo4j',
+      exportObject: 'Node',
+      batchSize: 10000,
+      nodeLabel: 'TestNode',
+      nodeIdFields: ['Node1'],
+      nodePropFields: ['Node2'],
+      relLabel: 'TestRel',
+      relPropFields: ['Rel1'],
+      relLeftLabel: 'TestLeftNode',
+      relLeftFields: [AyxToNeo4jMap('Ayx1', 'Neo4j1')],
+      relRightLabel: 'TestRightNode',
+      relRightFields: [AyxToNeo4jMap('Ayx2', 'Neo4j2')]
+    );
+
+    var jsonObj = config.toJson();
+    var jsonString = json.encode(jsonObj);
+    print(jsonString);
   });
 }

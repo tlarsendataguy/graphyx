@@ -5,6 +5,10 @@ class AyxToNeo4jMap {
   AyxToNeo4jMap(this.ayxField, this.neo4jField);
   String ayxField;
   String neo4jField;
+
+  Map toJson(){
+    return {ayxField: neo4jField};
+  }
 }
 class Configuration extends BlocState {
   Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.incomingFields});
@@ -48,9 +52,9 @@ class Configuration extends BlocState {
       "RelLabel": relLabel,
       "RelPropFields": relPropFields,
       "RelLeftLabel": relLeftLabel,
-      "RelLeftFields": relLeftFields,
+      "RelLeftFields": relLeftFields.map<Map>((e) => e.toJson()).toList(),
       "RelRightLabel": relRightLabel,
-      "RelRightFields": relRightFields,
+      "RelRightFields": relRightFields.map<Map>((e) => e.toJson()).toList(),
     };
   }
 }
