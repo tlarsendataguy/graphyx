@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:output/bloc.dart';
@@ -5,8 +7,17 @@ import 'package:output/configuration.dart';
 import 'package:output/decode_config.dart';
 import 'package:output/field_mapper.dart';
 import 'package:output/field_selector.dart';
+import 'package:output/material_icons.dart';
 
-void main() {
+Future<ByteData> fontFileToByteData(List<int> file) async {
+  return ByteData.sublistView(Uint8List.fromList(file));
+}
+
+void main() async {
+  var materialLoader = FontLoader("MaterialIcons");
+  materialLoader.addFont(fontFileToByteData(materialIcons));
+  await materialLoader.load();
+
   List<String> incomingFields = [];
   for (var field in getIncomingFields()) {
     if (field.strType == 'Blob' || field.strType == 'SpatialObj') continue;
