@@ -23,13 +23,13 @@ void main() {
     expect(decoded.relPropFields, equals(["RelProp1"]));
 
     expect(decoded.relLeftFields.length, equals(1));
-    expect(decoded.relLeftFields[0].key, equals('AyxField1'));
-    expect(decoded.relLeftFields[0].value, equals('Neo4jField1'));
+    expect(decoded.relLeftFields[0].ayxField, equals('AyxField1'));
+    expect(decoded.relLeftFields[0].neo4jField, equals('Neo4jField1'));
     expect(decoded.relRightFields.length, equals(2));
-    expect(decoded.relRightFields[0].key, equals('AyxField2'));
-    expect(decoded.relRightFields[0].value, equals('Neo4jField2'));
-    expect(decoded.relRightFields[1].key, equals('AyxField3'));
-    expect(decoded.relRightFields[1].value, equals('Neo4jField3'));
+    expect(decoded.relRightFields[0].ayxField, equals('AyxField2'));
+    expect(decoded.relRightFields[0].neo4jField, equals('Neo4jField2'));
+    expect(decoded.relRightFields[1].ayxField, equals('AyxField3'));
+    expect(decoded.relRightFields[1].neo4jField, equals('Neo4jField3'));
   });
 
   test('instantiate empty config',(){

@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'package:output/bloc.dart';
 
+class AyxToNeo4jMap {
+  AyxToNeo4jMap(this.ayxField, this.neo4jField);
+  String ayxField;
+  String neo4jField;
+}
 class Configuration extends BlocState {
   Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.incomingFields});
 
@@ -16,9 +21,9 @@ class Configuration extends BlocState {
   String relLabel;
   List<String> relPropFields;
   String relLeftLabel;
-  List<MapEntry<String, String>> relLeftFields;
+  List<AyxToNeo4jMap> relLeftFields;
   String relRightLabel;
-  List<MapEntry<String, String>> relRightFields;
+  List<AyxToNeo4jMap> relRightFields;
 
   List<String> incomingFields;
 
@@ -103,15 +108,15 @@ List<String> decodeStringList(dynamic strings) {
   return list;
 }
 
-List<MapEntry<String, String>> decodeFieldMapping(dynamic jsonItem) {
-  List<MapEntry<String, String>> fieldMap = [];
+List<AyxToNeo4jMap> decodeFieldMapping(dynamic jsonItem) {
+  List<AyxToNeo4jMap> fieldMap = [];
   if (jsonItem == null) {
     return fieldMap;
   }
   for (var entry in jsonItem) {
     var entryMap = entry as Map<String, dynamic>;
     for (var entry in entryMap.entries) {
-      fieldMap.add(MapEntry(entry.key, entry.value.toString()));
+      fieldMap.add(AyxToNeo4jMap(entry.key, entry.value.toString()));
       break;
     }
   }
