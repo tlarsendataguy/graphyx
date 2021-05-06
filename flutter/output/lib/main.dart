@@ -13,17 +13,21 @@ Future<ByteData> fontFileToByteData(List<int> file) async {
   return ByteData.sublistView(Uint8List.fromList(file));
 }
 
+List<String> lazyLoadIncomingFields(){
+  List<String> incomingFields = [];
+  for (var field in getIncomingFields) {
+    if (field.strType == 'Blob' || field.strType == 'SpatialObj') continue;
+    incomingFields.add(field.strName);
+  }
+  return incomingFields;
+}
+
 void main() async {
   var materialLoader = FontLoader("MaterialIcons");
   materialLoader.addFont(fontFileToByteData(materialIcons));
   await materialLoader.load();
 
-  List<String> incomingFields = [];
-  for (var field in getIncomingFields()) {
-    if (field.strType == 'Blob' || field.strType == 'SpatialObj') continue;
-    incomingFields.add(field.strName);
-  }
-  var appState = decodeConfig(configuration, incomingFields);
+  var appState = decodeConfig(configuration, lazyLoadIncomingFields);
   registerSaveConfigCallback(appState.getConfig);
   runApp(BlocProvider<Configuration>(
     child: MyApp(),

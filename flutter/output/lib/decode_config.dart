@@ -10,8 +10,11 @@ class AyxToNeo4jMap {
     return {ayxField: neo4jField};
   }
 }
+
+typedef List<String> LazyFieldLoader();
+
 class Configuration extends BlocState {
-  Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.incomingFields});
+  Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.loadFields});
 
   String connStr;
   String username;
@@ -28,8 +31,16 @@ class Configuration extends BlocState {
   List<AyxToNeo4jMap> relLeftFields;
   String relRightLabel;
   List<AyxToNeo4jMap> relRightFields;
+  LazyFieldLoader loadFields;
 
-  List<String> incomingFields;
+  List<String> get incomingFields {
+    if (_incomingFields == null) {
+      _incomingFields = loadFields();
+    }
+    return _incomingFields;
+  }
+
+  List<String> _incomingFields;
 
   void dispose() {}
   Future initialize() async {}
@@ -59,7 +70,7 @@ class Configuration extends BlocState {
   }
 }
 
-Configuration decodeConfig(String configStr, List<String> incomingFields) {
+Configuration decodeConfig(String configStr, LazyFieldLoader incomingFields) {
   if (configStr == '' || configStr == null) {
     return Configuration(
       connStr: '',
@@ -77,7 +88,7 @@ Configuration decodeConfig(String configStr, List<String> incomingFields) {
       relLeftFields: [],
       relRightLabel: '',
       relRightFields: [],
-      incomingFields: incomingFields,
+      loadFields: incomingFields,
     );
   }
   var decoded = json.decode(configStr);
@@ -97,7 +108,7 @@ Configuration decodeConfig(String configStr, List<String> incomingFields) {
     relLeftFields: decodeFieldMapping(decoded['RelLeftFields']),
     relRightLabel: decoded['RelRightLabel'] ?? '',
     relRightFields: decodeFieldMapping(decoded['RelRightFields']),
-    incomingFields: incomingFields,
+    loadFields: incomingFields,
   );
 }
 

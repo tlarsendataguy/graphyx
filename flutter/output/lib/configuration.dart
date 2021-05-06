@@ -18,8 +18,8 @@ external String get configuration;
 @JS('customToolConfig')
 external set configuration(String value);
 
-@JS('Alteryx.Gui.Manager.getIncomingFields')
-external List<FieldInfo> getIncomingFields();
+@JS('incomingFields')
+external List<FieldInfo> get getIncomingFields;
 
 @JS()
 @anonymous

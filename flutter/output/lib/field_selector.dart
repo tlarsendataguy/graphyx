@@ -14,10 +14,16 @@ class FieldSelector extends StatefulWidget {
 class _FieldSelectorState extends State<FieldSelector> {
 
   TextEditingController _fieldNameController;
-  List<PopupMenuItem<String>> incomingFields;
   FocusNode _fieldNameNode;
 
-  List<PopupMenuItem<String>> getPopUp(BuildContext context) => incomingFields;
+  List<PopupMenuItem<String>> getPopUp(BuildContext context) {
+    var config = BlocProvider.of<Configuration>(context);
+    List<PopupMenuItem<String>> incomingFields = [];
+    for (var field in config.incomingFields) {
+      incomingFields.add(PopupMenuItem<String>(value: field, child: Text(field)));
+    }
+    return incomingFields;
+  }
 
   void saveField(String field) {
     setState((){
@@ -36,18 +42,12 @@ class _FieldSelectorState extends State<FieldSelector> {
   }
 
   initState() {
-    incomingFields = [];
-    var config = BlocProvider.of<Configuration>(context);
-    for (var field in config.incomingFields) {
-      incomingFields.add(PopupMenuItem<String>(value: field, child: Text(field)));
-    }
     _fieldNameController = TextEditingController(text:"");
     _fieldNameNode = FocusNode();
     super.initState();
   }
 
   Widget build(BuildContext context) {
-    var config = BlocProvider.of<Configuration>(context);
     return SizedBox(
       height: widget.height,
       child: Column(
@@ -64,7 +64,6 @@ class _FieldSelectorState extends State<FieldSelector> {
               ),
             ),
             onSubmitted: saveField,
-            autofillHints: config.incomingFields,
           ),
           Expanded(
             child: ListView.builder(

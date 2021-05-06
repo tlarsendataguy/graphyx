@@ -6,7 +6,7 @@ import 'package:output/decode_config.dart';
 void main() {
   test('instantiate normal config',(){
     var configStr = '{"ConnStr":"http://localhost:7474","Username":"user","Password":"password","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"SomeNode","NodeIdFields":["NodeId1"],"NodePropFields":["NodeProp1","NodeProp2"],"RelLabel":"SomeRel","RelPropFields":["RelProp1"],"RelLeftLabel":"Left","RelLeftFields":[{"AyxField1":"Neo4jField1"}],"RelRightLabel":"Right","RelRightFields":[{"AyxField2":"Neo4jField2"},{"AyxField3":"Neo4jField3"}]}';
-    var decoded = decodeConfig(configStr, []);
+    var decoded = decodeConfig(configStr, ()=>[]);
 
     expect(decoded, isNotNull);
     expect(decoded.connStr, equals('http://localhost:7474'));
@@ -36,7 +36,7 @@ void main() {
 
   test('instantiate empty config',(){
     var configStr = '';
-    var decoded = decodeConfig(configStr, []);
+    var decoded = decodeConfig(configStr, ()=>[]);
 
     expect(decoded, isNotNull);
     expect(decoded.connStr, equals(''));
