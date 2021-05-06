@@ -1,95 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="output">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>output</title>
-  <link rel="manifest" href="manifest.json">
+  <title>Neo4j Output</title>
 </head>
 <body>
-<script type="text/javascript">
-  // Mock window.Alteryx for testing outside of Alteryx
-  if (window.Alteryx == null){
-    window.Alteryx = {
-      JsEvent: function(eventStr) {},
-      Gui: {
-        Manager: {
-          getIncomingFields: function() {
-            return [
-              {strName: "Field1", strType: "String"},
-              {strName: "Field2", strType: "Int64"}
-            ];
-          }
-        }
+  <script type="text/javascript">
+    // Mock window.Alteryx for testing outside of Alteryx
+    if (window.Alteryx == null){
+      window.Alteryx = {
+        JsEvent: function(eventStr) {}
       }
+      let testConfig = {
+        "ConnStr": "http://localhost:7474",
+        "Username": "test",
+        "Password": "test",
+        "Database": "neo4j",
+        "ExportObject": "Node",
+        "BatchSize": 10000,
+        "NodeLabel": "TestLabel",
+        "NodeIdFields": [],
+        "NodePropFields": [],
+        "RelLabel": "",
+        "RelPropFields": [],
+        "RelLeftLabel": "",
+        "RelLeftFields": [],
+        "RelRightLabel": "",
+        "RelRightFields": []
+      }
+      window.customToolConfig = JSON.stringify(testConfig);
+      window.incomingFields = [{strName: "Field1", strType: "Int64"}];
     }
-    let testConfig = {
-      "ConnStr": "http://localhost:7474",
-      "Username": "test",
-      "Password": "test",
-      "Database": "neo4j",
-      "ExportObject": "Node",
-      "BatchSize": 10000,
-      "NodeLabel": "TestLabel",
-      "NodeIdFields": [],
-      "NodePropFields": [],
-      "RelLabel": "",
-      "RelPropFields": [],
-      "RelLeftLabel": "",
-      "RelLeftFields": [],
-      "RelRightLabel": "",
-      "RelRightFields": []
-    }
-    window.customToolConfig = JSON.stringify(testConfig)
-  }
 
-  // Tool-specific configuration settings
-  window.Alteryx.Gui.SetConfiguration = function(currentToolConfiguration) {
-    if (currentToolConfiguration && currentToolConfiguration.IsFirstConfig === false) {
-      window.customToolConfig = currentToolConfiguration.Configuration.Configuration.JSON
-    } else {
-      let emptyConfig = {
-        ConnStr: '',
-        Username: '',
-        Password: '',
-        Database: '',
-        ExportObject: 'Node',
-        BatchSize: 10000,
-        NodeLabel: '',
-        NodeIdFields: [],
-        NodePropFields: [],
-        RelLabel: '',
-        RelPropFields: [],
-        RelLeftLabel: '',
-        RelLeftFields: [],
-        RelRightLabel: '',
-        RelRightFields: []
+    // Extract incoming field information from the current tool configuration provided by Alteryx
+    function generateIncomingFields(currentToolConfiguration) {
+      let metaInfo = currentToolConfiguration.MetaInfo[0].MetaInfo.RecordInfo.Field;
+      let inputFields = [];
+      for (let field of metaInfo) {
+        inputFields.push({strName: field['@name'], strType: field['@type']});
       }
-      window.customToolConfig = JSON.stringify(emptyConfig)
+      window.incomingFields = inputFields;
     }
-    window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
-  };
-  window.Alteryx.Gui.GetConfiguration = function() {
-    window.Alteryx.JsEvent(JSON.stringify({
-      Event: 'GetConfiguration',
-      Configuration: {
-        Configuration: {JSON: window.getCustomToolConfig()},
-        Annotation: ''
+
+    // Tool-specific configuration settings
+    window.Alteryx.Gui = {
+      SetConfiguration: function (currentToolConfiguration) {
+        generateIncomingFields(currentToolConfiguration)
+        if (currentToolConfiguration && currentToolConfiguration.IsFirstConfig === false) {
+          window.customToolConfig = currentToolConfiguration.Configuration.Configuration.JSON;
+        } else {
+          let emptyConfig = {
+            ConnStr: '',
+            Username: '',
+            Password: '',
+            Database: '',
+            ExportObject: 'Node',
+            BatchSize: 10000,
+            NodeLabel: '',
+            NodeIdFields: [],
+            NodePropFields: [],
+            RelLabel: '',
+            RelPropFields: [],
+            RelLeftLabel: '',
+            RelLeftFields: [],
+            RelRightLabel: '',
+            RelRightFields: []
+          }
+          window.customToolConfig = JSON.stringify(emptyConfig);
+        }
+        window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}));
+      },
+      GetConfiguration: function () {
+        window.Alteryx.JsEvent(JSON.stringify({
+          Event: 'GetConfiguration',
+          Configuration: {
+            Configuration: {JSON: window.getCustomToolConfig()},
+            Annotation: ''
+          }
+        }));
       }
-    }))
-  };
-</script>
+    }
+  </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>
