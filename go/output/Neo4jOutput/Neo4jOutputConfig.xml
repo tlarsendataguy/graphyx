@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="graphyx.dll" EngineDllEntryPoint="Neo4jOutput" SDKVersion="10.1" />
+  <GuiSettings Html="index.html" Icon="" Help="" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Neo4j Output</Name>
+      <Description>Output nodes and relationships to a Neo4j database</Description>
+      <CategoryName>Connectors</CategoryName>
+      <SearchTags>go, sdk, graph database, neo4j, cypher</SearchTags>
+      <ToolVersion>1.00</ToolVersion>
+      <Author>tlarsendataguy</Author>
+      <Company></Company>
+      <Copyright>2020</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
