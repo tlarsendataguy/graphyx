@@ -70,10 +70,14 @@
         window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}));
       },
       GetConfiguration: function () {
+        var config = window.customToolConfig;
+        if (window.getCustomToolConfig != null) {
+          config = window.getCustomToolConfig();
+        }
         window.Alteryx.JsEvent(JSON.stringify({
           Event: 'GetConfiguration',
           Configuration: {
-            Configuration: {JSON: window.getCustomToolConfig()},
+            Configuration: {JSON: config},
             Annotation: ''
           }
         }));

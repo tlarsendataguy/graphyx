@@ -23,12 +23,13 @@ List<String> lazyLoadIncomingFields(){
 }
 
 void main() async {
+  var appState = decodeConfig(configuration, lazyLoadIncomingFields);
+  registerSaveConfigCallback(appState.getConfig);
+
   var materialLoader = FontLoader("MaterialIcons");
   materialLoader.addFont(fontFileToByteData(materialIcons));
   await materialLoader.load();
 
-  var appState = decodeConfig(configuration, lazyLoadIncomingFields);
-  registerSaveConfigCallback(appState.getConfig);
   runApp(BlocProvider<Configuration>(
     child: MyApp(),
     bloc: appState,

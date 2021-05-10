@@ -14,6 +14,9 @@ Future<ByteData> fontFileToByteData(List<int> file) async {
 }
 
 void main() async {
+  var appState = AppState(configuration);
+  registerSaveConfigCallback(appState.getConfig);
+
   var monoLoader = FontLoader("JetBrains Mono");
   monoLoader.addFont(fontFileToByteData(monoFontFile));
   var monoFuture = monoLoader.load();
@@ -25,8 +28,6 @@ void main() async {
   await monoFuture;
   await materialFuture;
 
-  var appState = AppState(configuration);
-  registerSaveConfigCallback(appState.getConfig);
   runApp(BlocProvider<AppState>(
     child: Neo4jInputApp(),
     bloc: appState,
