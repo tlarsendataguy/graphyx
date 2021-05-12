@@ -19,6 +19,16 @@ class ReturnValue {
   final String dataType;
 }
 
+String cleanJsonLine(String raw) {
+  if (raw.length == 0) {
+    return raw;
+  }
+  if (raw[0] == '\u001E') {
+    return raw.substring(1);
+  }
+  return raw;
+}
+
 ValidatedResponse validate(String response) {
   try {
     var decoded = jsonDecode(response);
@@ -32,13 +42,13 @@ ValidatedResponse validate(String response) {
     return ValidatedResponse(error: 'A response with an unexpected format was returned.  Response was:\n$response', returnValues: []);
   }
 
-  var header = jsonDecode(lines[0]);
+  var header = jsonDecode(cleanJsonLine(lines[0]));
 
   if (header['error'] != null) {
     return ValidatedResponse(error: header['error']['errors'][0]['message']['U'], returnValues: []);
   }
 
-  var data = jsonDecode(lines[1]);
+  var data = jsonDecode(cleanJsonLine(lines[1]));
   if (data['data'] == null) {
     return ValidatedResponse(error: 'The query was successful but no records were returned.  No metadata is available to generate output fields.', returnValues: []);
   }

@@ -54,4 +54,20 @@ void main(){
     expect(validatedResponse, isNotNull);
     print(json.encode(validatedResponse.toJson()));
   });
+
+
+  test("normal response with record separators",(){
+    var response = '''\u001E{"header":{"fields":["p"]}}
+\u001E{"data":[{"..":[{"()":[8,["Person"],{"born":{"Z":"1978"},"name":{"U":"Emil Eifrem"}}]},{"->":[7,8,"ACTED_IN",0,{"roles":[{"U":"Emil"}]}]},{"()":[0,["Movie"],{"tagline":{"U":"Welcome to the Real World"},"title":{"U":"The Matrix"},"released":{"Z":"1999"}}]}]}]}
+\u001E{"summary":{}}
+\u001E{"info":{}}''';
+
+    var validatedResponse = validate(response);
+    expect(validatedResponse.error, equals(''));
+    expect(validatedResponse.returnValues.length, equals(1));
+    expect(validatedResponse.returnValues[0].name, equals('p'));
+    expect(validatedResponse.returnValues[0].dataType, equals('Path'));
+    print(json.encode(validatedResponse.toJson()));
+  });
+
 }
