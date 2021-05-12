@@ -23,24 +23,24 @@ ValidatedResponse validate(String response) {
   try {
     var decoded = jsonDecode(response);
     if (decoded['errors'] != null) {
-      return ValidatedResponse(error: decoded['errors'][0]['message']);
+      return ValidatedResponse(error: decoded['errors'][0]['message'], returnValues: []);
     }
-  } catch (_) {}
+  } catch (ex) {}
 
   var lines = response.split('\n');
   if (lines.length < 2) {
-    return ValidatedResponse(error: 'A response with an unexpected format was returned.  Response was:\n$response');
+    return ValidatedResponse(error: 'A response with an unexpected format was returned.  Response was:\n$response', returnValues: []);
   }
 
   var header = jsonDecode(lines[0]);
 
   if (header['error'] != null) {
-    return ValidatedResponse(error: header['error']['errors'][0]['message']['U']);
+    return ValidatedResponse(error: header['error']['errors'][0]['message']['U'], returnValues: []);
   }
 
   var data = jsonDecode(lines[1]);
   if (data['data'] == null) {
-    return ValidatedResponse(error: 'The query was successful but no records were returned.  No metadata is available to generate output fields.');
+    return ValidatedResponse(error: 'The query was successful but no records were returned.  No metadata is available to generate output fields.', returnValues: []);
   }
 
   var fields = header['header']['fields'];

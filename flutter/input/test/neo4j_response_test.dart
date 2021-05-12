@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:input/neo4j_response.dart';
 
@@ -27,6 +29,7 @@ void main(){
     expect(validatedResponse.returnValues.length, equals(1));
     expect(validatedResponse.returnValues[0].name, equals('p'));
     expect(validatedResponse.returnValues[0].dataType, equals('Path'));
+    print(json.encode(validatedResponse.toJson()));
   });
 
   test("multiple return values with a list",(){
@@ -42,5 +45,13 @@ void main(){
     expect(validatedResponse.returnValues[0].dataType, equals('Path'));
     expect(validatedResponse.returnValues[1].name, equals('nodes(p)'));
     expect(validatedResponse.returnValues[1].dataType, equals('List:Node'));
+    print(json.encode(validatedResponse.toJson()));
+  });
+
+  test("invalid json",(){
+    var response = '''invalid json''';
+    var validatedResponse = validate(response);
+    expect(validatedResponse, isNotNull);
+    print(json.encode(validatedResponse.toJson()));
   });
 }

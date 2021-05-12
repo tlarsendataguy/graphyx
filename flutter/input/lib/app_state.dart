@@ -109,7 +109,7 @@ class AppState extends BlocState {
       validated = validate(response.body);
     }
     catch (ex) {
-      validated = ValidatedResponse(error: 'Unable to connect to the Neo4j database.  Double-check the URL make sure you have a working network connection to the database.');
+      validated = ValidatedResponse(error: 'Unable to connect to the Neo4j database.  Double-check the URL make sure you have a working network connection to the database.', returnValues: []);
     }
     _config.lastValidatedResponse = validated;
     _lastValidatedResponse.add(validated);
