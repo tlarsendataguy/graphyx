@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <AlteryxJavaScriptPlugin>
   <EngineSettings EngineDll="graphyx.dll" EngineDllEntryPoint="Neo4jOutput" SDKVersion="10.1" />
-  <GuiSettings Html="index.html" Icon="" Help="" SDKVersion="10.1">
+  <GuiSettings Html="index.html" Icon="icon.png" Help="" SDKVersion="10.1">
     <InputConnections>
       <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
     </InputConnections>
