@@ -5,6 +5,7 @@
 </head>
 <body>
   <script type="text/javascript">
+    window.customToolConfigLoaded = false;
     // Mock window.Alteryx for testing outside of Alteryx
     if (window.Alteryx == null){
       window.Alteryx = {
@@ -29,6 +30,7 @@
       }
       window.customToolConfig = JSON.stringify(testConfig);
       window.incomingFields = [{strName: "Field1", strType: "Int64"}];
+      window.customToolConfigLoaded = true;
     }
 
     // Extract incoming field information from the current tool configuration provided by Alteryx
@@ -67,6 +69,7 @@
           }
           window.customToolConfig = JSON.stringify(emptyConfig);
         }
+        window.customToolConfigLoaded = true;
         window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}));
       },
       GetConfiguration: function () {

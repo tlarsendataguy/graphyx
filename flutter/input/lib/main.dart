@@ -14,6 +14,12 @@ Future<ByteData> fontFileToByteData(List<int> file) async {
 }
 
 void main() async {
+  while (true) {
+    if (configurationLoaded) {
+      break;
+    }
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
   var appState = AppState(configuration);
   registerSaveConfigCallback(appState.getConfig);
 

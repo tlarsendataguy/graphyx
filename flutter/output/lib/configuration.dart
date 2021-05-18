@@ -18,6 +18,9 @@ external String get configuration;
 @JS('customToolConfig')
 external set configuration(String value);
 
+@JS('customToolConfigLoaded')
+external bool get configurationLoaded;
+
 @JS('incomingFields')
 external List<FieldInfo> get getIncomingFields;
 

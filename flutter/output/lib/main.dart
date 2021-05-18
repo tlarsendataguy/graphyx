@@ -23,6 +23,12 @@ List<String> lazyLoadIncomingFields(){
 }
 
 void main() async {
+  while (true) {
+    if (configurationLoaded) {
+      break;
+    }
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
   var appState = decodeConfig(configuration, lazyLoadIncomingFields);
   registerSaveConfigCallback(appState.getConfig);
 

@@ -19,6 +19,7 @@
 </head>
 <body>
   <script type="text/javascript">
+    window.customToolConfigLoaded = false;
     // Mock window.Alteryx for testing outside of Alteryx
     if (window.Alteryx == null){
       window.Alteryx = {
@@ -39,6 +40,7 @@
         }
       }
       window.customToolConfig = JSON.stringify(testConfig)
+      window.customToolConfigLoaded = true;
     }
 
     // Tool-specific configuration settings
@@ -61,6 +63,7 @@
           }
           window.customToolConfig = JSON.stringify(emptyConfig)
         }
+        window.customToolConfigLoaded = true;
         window.Alteryx.JsEvent(JSON.stringify({Event: 'SetConfiguration'}))
       },
       GetConfiguration: function() {
