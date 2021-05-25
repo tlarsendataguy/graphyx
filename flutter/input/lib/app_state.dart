@@ -106,7 +106,11 @@ class AppState extends BlocState {
         },
         body: jsonEncode(body),
       );
-      validated = validate(response.body);
+      if (response.statusCode != 200) {
+        validated = ValidatedResponse(error: 'error ${response.statusCode} returned from server');
+      } else {
+        validated = validate(response.body);
+      }
     }
     catch (ex) {
       validated = ValidatedResponse(error: 'Unable to connect to the Neo4j database.  Double-check the URL make sure you have a working network connection to the database.', returnValues: []);

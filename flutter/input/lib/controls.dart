@@ -2,6 +2,7 @@ import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:input/field_widget.dart';
+import 'package:input/neo4j_response.dart';
 
 class Controls extends StatefulWidget {
   Controls({Key key}) : super(key: key);
@@ -17,9 +18,9 @@ class _ControlsState extends State<Controls> {
   TextEditingController passwordController;
   TextEditingController queryController;
   TextEditingController databaseController;
-  String validationError = '';
   List<Widget> fieldWidgets = [];
   AppState state;
+  bool isValidating = false;
 
   void initState(){
     state = BlocProvider.of<AppState>(context);
@@ -65,6 +66,12 @@ class _ControlsState extends State<Controls> {
     fieldWidgets = children;
   }
 
+  Future validateQuery() async {
+    setState(()=>isValidating=true);
+    await state.validateQuery();
+    setState(()=>isValidating=false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -79,11 +86,31 @@ class _ControlsState extends State<Controls> {
         TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query"), onChanged: queryChanged, style: TextStyle(fontFamily: 'JetBrains Mono')),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-          child: TextButton(onPressed: state.validateQuery, child: Text("Validate query")),
+          child: SizedBox(
+            height: 40,
+            child: TextButton(
+              onPressed: validateQuery,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Validate query"),
+                  isValidating ? CircularProgressIndicator(strokeWidth: 2) : SizedBox(width: 0),
+                ],
+              ),
+            ),
+          ),
         ),
-        validationError == '' ? SizedBox(height: 0) : SelectableText(
-          '$validationError',
-          style: TextStyle(color: Colors.red),
+        StreamBuilder<ValidatedResponse>(
+          stream: state.lastValidatedResponse,
+          builder: (_, AsyncSnapshot<ValidatedResponse> value){
+            if (value.hasData && value.data.error != '') {
+              return SelectableText(
+                '${value.data.error}',
+                style: TextStyle(color: Colors.red)
+              );
+            }
+            return SizedBox(height: 0);
+          },
         ),
         StreamBuilder<List<Field>>(
           stream: BlocProvider.of<AppState>(context).fields,
