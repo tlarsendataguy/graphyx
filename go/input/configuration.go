@@ -407,6 +407,15 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			return relationship.Props, nil
 		}
 		return mapTransferFunc(iterator, field, nodeFunc)
+	case `ToString`:
+		return func(record *neo4j.Record) (interface{}, error) {
+			relationship, err := relExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			str := ToString(relationship)
+			return str, nil
+		}, nil
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Relationship`, field.Name, element.Key)
 	}

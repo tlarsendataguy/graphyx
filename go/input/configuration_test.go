@@ -974,6 +974,43 @@ func TestRelationshipPropertiesToRecordInfo(t *testing.T) {
 	}
 }
 
+func TestRelationshipStringToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Relationship`},
+				{Key: `ToString`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Relationship{Props: map[string]interface{}{
+			`Something`: `hello world`,
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	expected := `[ {"Something":"hello world"}]`
+	if value != expected {
+		t.Fatalf(`expected '%v' but got '%v'`, expected, value)
+	}
+}
+
 func TestPathFirstNodeIdRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
