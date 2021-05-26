@@ -13,6 +13,14 @@ func ToString(value interface{}) string {
 	return builder.String()
 }
 
+type RelationshipEndType int
+
+const (
+	relInvalid RelationshipEndType = 0
+	relStartId RelationshipEndType = 1
+	relEndId   RelationshipEndType = 2
+)
+
 func recursiveToString(value interface{}, builder *strings.Builder) {
 	switch v := value.(type) {
 	case neo4j.Node:
@@ -53,57 +61,95 @@ func recursiveToString(value interface{}, builder *strings.Builder) {
 			nodeMap[node.Id] = ToString(node)
 		}
 
-		firstRel := v.Relationships[0]
-		firstNode, firstNodeOk := nodeMap[firstRel.StartId]
-		if !firstNodeOk {
-			return
-		}
-		builder.WriteString(firstNode)
+		priorEnd := relInvalid
+		var err error
 
 		for index, rel := range v.Relationships {
 			if index > 0 {
-				priorRel := v.Relationships[index-1]
-				if priorRel.EndId == rel.StartId {
-					node, ok := nodeMap[rel.EndId]
-					if !ok {
-						return
-					}
-					writeLeftToRight(builder, rel, node)
-					continue
-				}
-				if priorRel.EndId == rel.EndId {
-					node, ok := nodeMap[rel.StartId]
-					if !ok {
-						return
-					}
-					writeRightToLeft(builder, rel, node)
-					continue
-				}
-				node, ok := nodeMap[rel.StartId]
-				if !ok {
+				priorEnd, err = processNotFirstRelationship(builder, v, index, rel, priorEnd, nodeMap)
+				if err != nil {
 					return
 				}
-				writeSeparator(builder, node)
-
-				node, ok = nodeMap[rel.EndId]
-				if !ok {
-					return
-				}
-				writeLeftToRight(builder, rel, node)
 				continue
 			}
-
-			node, ok := nodeMap[rel.EndId]
-			if !ok {
+			priorEnd, err = processFirstRelationship(builder, v, rel, nodeMap)
+			if err != nil {
 				return
 			}
-			writeLeftToRight(builder, rel, node)
 		}
 	case string:
 		builder.WriteString(v)
 	default:
 		builder.WriteString(fmt.Sprintf(`%v`, value))
 	}
+}
+
+func processNotFirstRelationship(builder *strings.Builder, v neo4j.Path, index int, rel neo4j.Relationship, priorEnd RelationshipEndType, nodeMap map[int64]string) (RelationshipEndType, error) {
+	priorRel := v.Relationships[index-1]
+	priorEndId := priorRel.EndId
+	if priorEnd == relStartId {
+		priorEndId = priorRel.StartId
+	}
+	if priorEndId == rel.StartId {
+		node, ok := nodeMap[rel.EndId]
+		if !ok {
+			return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.EndId)
+		}
+		writeLeftToRight(builder, rel, node)
+		return relEndId, nil
+	}
+	if priorEndId == rel.EndId {
+		node, ok := nodeMap[rel.StartId]
+		if !ok {
+			return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.StartId)
+		}
+		writeRightToLeft(builder, rel, node)
+		return relStartId, nil
+	}
+	node, ok := nodeMap[rel.StartId]
+	if !ok {
+		return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.StartId)
+	}
+	writeSeparator(builder, node)
+
+	node, ok = nodeMap[rel.EndId]
+	if !ok {
+		return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.EndId)
+	}
+	writeLeftToRight(builder, rel, node)
+	return relEndId, nil
+}
+
+func processFirstRelationship(builder *strings.Builder, v neo4j.Path, rel neo4j.Relationship, nodeMap map[int64]string) (RelationshipEndType, error) {
+	if len(v.Relationships) > 1 {
+		relationship2 := v.Relationships[1]
+		if relationship2.StartId == rel.StartId {
+			node, ok := nodeMap[rel.EndId]
+			if !ok {
+				return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.EndId)
+			}
+			builder.WriteString(node)
+
+			node, ok = nodeMap[rel.StartId]
+			if !ok {
+				return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.StartId)
+			}
+			writeRightToLeft(builder, rel, node)
+			return relStartId, nil
+		}
+	}
+	node, ok := nodeMap[rel.StartId]
+	if !ok {
+		return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.StartId)
+	}
+	builder.WriteString(node)
+
+	node, ok = nodeMap[rel.EndId]
+	if !ok {
+		return relInvalid, fmt.Errorf(`could not find node with ID %v`, rel.EndId)
+	}
+	writeLeftToRight(builder, rel, node)
+	return relEndId, nil
 }
 
 func writeLeftToRight(builder *strings.Builder, rel neo4j.Relationship, node string) {

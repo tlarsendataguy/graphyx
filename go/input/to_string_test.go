@@ -208,7 +208,7 @@ func TestMultipleRelationshipsFromOneNode(t *testing.T) {
 		},
 	}
 	actual := input.ToString(path)
-	expected := `(:Person {"Key":5})-[:DIRECTED]->(:Movie {"Key":119})<-[:WROTE]-(:Person {"Key":5})`
+	expected := `(:Movie {"Key":119})<-[:DIRECTED]-(:Person {"Key":5})-[:WROTE]->(:Movie {"Key":119})`
 	if actual != expected {
 		t.Fatalf(`expected '%v' but got '%v'`, expected, actual)
 	}
@@ -228,6 +228,54 @@ func TestMergingPath(t *testing.T) {
 	}
 	actual := input.ToString(path)
 	expected := `(:Person {"Key":5})-[:DIRECTED]->(:Movie {"Key":119})<-[:WROTE]-(:Person {"Key":200})`
+	if actual != expected {
+		t.Fatalf(`expected '%v' but got '%v'`, expected, actual)
+	}
+}
+
+func TestAlternatingPath(t *testing.T) {
+	path := neo4j.Path{
+		Nodes: []neo4j.Node{
+			{Id: 5, Labels: []string{`Person`}, Props: map[string]interface{}{"Key": 5}},
+			{Id: 119, Labels: []string{`Movie`}, Props: map[string]interface{}{"Key": 119}},
+			{Id: 200, Labels: []string{`Person`}, Props: map[string]interface{}{"Key": 200}},
+			{Id: 321, Labels: []string{`Movie`}, Props: map[string]interface{}{"Key": 321}},
+			{Id: 432, Labels: []string{`Person`}, Props: map[string]interface{}{"Key": 432}},
+		},
+		Relationships: []neo4j.Relationship{
+			{Id: 4001, StartId: 5, EndId: 119, Type: `DIRECTED`},
+			{Id: 4002, StartId: 200, EndId: 119, Type: `WROTE`},
+			{Id: 4003, StartId: 200, EndId: 321, Type: `DIRECTED`},
+			{Id: 4004, StartId: 432, EndId: 321, Type: `ACTED_IN`},
+		},
+	}
+	actual := input.ToString(path)
+	expected := `(:Person {"Key":5})-[:DIRECTED]->(:Movie {"Key":119})<-[:WROTE]-(:Person {"Key":200})-[:DIRECTED]->(:Movie {"Key":321})<-[:ACTED_IN]-(:Person {"Key":432})`
+	if actual != expected {
+		t.Fatalf(`expected '%v' but got '%v'`, expected, actual)
+	}
+}
+
+func TestAlternatingPathStartingWithEndId(t *testing.T) {
+	path := neo4j.Path{
+		Nodes: []neo4j.Node{
+			{Id: 5, Labels: []string{`Person`}, Props: map[string]interface{}{"Key": 5}},
+			{Id: 119, Labels: []string{`Movie`}, Props: map[string]interface{}{"Key": 119}},
+			{Id: 200, Labels: []string{`Person`}, Props: map[string]interface{}{"Key": 200}},
+			{Id: 321, Labels: []string{`Movie`}, Props: map[string]interface{}{"Key": 321}},
+			{Id: 432, Labels: []string{`Person`}, Props: map[string]interface{}{"Key": 432}},
+			{Id: 543, Labels: []string{`Movie`}, Props: map[string]interface{}{"Key": 543}},
+		},
+		Relationships: []neo4j.Relationship{
+			{Id: 4001, StartId: 5, EndId: 543, Type: `DIRECTED`},
+			{Id: 4002, StartId: 5, EndId: 119, Type: `DIRECTED`},
+			{Id: 4003, StartId: 200, EndId: 119, Type: `WROTE`},
+			{Id: 4004, StartId: 200, EndId: 321, Type: `DIRECTED`},
+			{Id: 4005, StartId: 432, EndId: 321, Type: `ACTED_IN`},
+		},
+	}
+	actual := input.ToString(path)
+	expected := `(:Movie {"Key":543})<-[:DIRECTED]-(:Person {"Key":5})-[:DIRECTED]->(:Movie {"Key":119})<-[:WROTE]-(:Person {"Key":200})-[:DIRECTED]->(:Movie {"Key":321})<-[:ACTED_IN]-(:Person {"Key":432})`
 	if actual != expected {
 		t.Fatalf(`expected '%v' but got '%v'`, expected, actual)
 	}
