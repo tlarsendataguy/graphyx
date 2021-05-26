@@ -68,11 +68,7 @@ func recursiveToString(value interface{}, builder *strings.Builder) {
 					if !ok {
 						return
 					}
-					builder.WriteByte('-')
-					recursiveToString(rel, builder)
-					builder.WriteByte('-')
-					builder.WriteByte('>')
-					builder.WriteString(node)
+					writeLeftToRight(builder, rel, node)
 					continue
 				}
 				if priorRel.EndId == rel.EndId {
@@ -80,31 +76,20 @@ func recursiveToString(value interface{}, builder *strings.Builder) {
 					if !ok {
 						return
 					}
-					builder.WriteByte('<')
-					builder.WriteByte('-')
-					recursiveToString(rel, builder)
-					builder.WriteByte('-')
-					builder.WriteString(node)
+					writeRightToLeft(builder, rel, node)
 					continue
 				}
 				node, ok := nodeMap[rel.StartId]
 				if !ok {
 					return
 				}
-				builder.WriteByte(' ')
-				builder.WriteByte('|')
-				builder.WriteByte(' ')
-				builder.WriteString(node)
+				writeSeparator(builder, node)
 
 				node, ok = nodeMap[rel.EndId]
 				if !ok {
 					return
 				}
-				builder.WriteByte('-')
-				recursiveToString(rel, builder)
-				builder.WriteByte('-')
-				builder.WriteByte('>')
-				builder.WriteString(node)
+				writeLeftToRight(builder, rel, node)
 				continue
 			}
 
@@ -112,15 +97,34 @@ func recursiveToString(value interface{}, builder *strings.Builder) {
 			if !ok {
 				return
 			}
-			builder.WriteByte('-')
-			recursiveToString(rel, builder)
-			builder.WriteByte('-')
-			builder.WriteByte('>')
-			builder.WriteString(node)
+			writeLeftToRight(builder, rel, node)
 		}
 	case string:
 		builder.WriteString(v)
 	default:
 		builder.WriteString(fmt.Sprintf(`%v`, value))
 	}
+}
+
+func writeLeftToRight(builder *strings.Builder, rel neo4j.Relationship, node string) {
+	builder.WriteByte('-')
+	recursiveToString(rel, builder)
+	builder.WriteByte('-')
+	builder.WriteByte('>')
+	builder.WriteString(node)
+}
+
+func writeRightToLeft(builder *strings.Builder, rel neo4j.Relationship, node string) {
+	builder.WriteByte('<')
+	builder.WriteByte('-')
+	recursiveToString(rel, builder)
+	builder.WriteByte('-')
+	builder.WriteString(node)
+}
+
+func writeSeparator(builder *strings.Builder, node string) {
+	builder.WriteByte(' ')
+	builder.WriteByte('|')
+	builder.WriteByte(' ')
+	builder.WriteString(node)
 }
