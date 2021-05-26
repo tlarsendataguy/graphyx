@@ -331,7 +331,7 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			}
 			return node.Labels, nil
 		}
-		return stringListTransferFunc(iterator, field, nodeFunc)
+		return labelsTransferFunc(iterator, field, nodeFunc)
 	case `Properties`:
 		nodeFunc := func(record *neo4j.Record) (map[string]interface{}, error) {
 			node, err := nodeExtractor(record)
@@ -478,6 +478,14 @@ func relListTransferFunc(iterator *pathIterator, field Field, extractList extrac
 			return list[len(list)-1], nil
 		}
 		return relationshipTransferFunc(iterator, field, relFunc)
+	case `Count`:
+		return func(record *neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return 0, err
+			}
+			return int64(len(list)), nil
+		}, nil
 	default:
 		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
 			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:Relationship`, field.Name, element.Key)
@@ -534,6 +542,14 @@ func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extra
 			return list[len(list)-1], nil
 		}
 		return nodeTransferFunc(iterator, field, nodeFunc)
+	case `Count`:
+		return func(record *neo4j.Record) (interface{}, error) {
+			list, err := extractList(record)
+			if err != nil {
+				return 0, err
+			}
+			return int64(len(list)), nil
+		}, nil
 	default:
 		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
 			return nil, fmt.Errorf(`field %v has an invalid key '%v' for List:Node`, field.Name, element.Key)
@@ -556,9 +572,9 @@ func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extra
 	}
 }
 
-type extractStringList func(record *neo4j.Record) ([]string, error)
+type extractLabels func(record *neo4j.Record) ([]string, error)
 
-func stringListTransferFunc(iterator *pathIterator, field Field, extract extractStringList) (GetValueFunc, error) {
+func labelsTransferFunc(iterator *pathIterator, field Field, extract extractLabels) (GetValueFunc, error) {
 	element, ok := iterator.NextField()
 	if !ok {
 		return nil, fmt.Errorf(`the path for field %v ends in a list of strings and not in a property data type`, field.Name)
@@ -593,6 +609,14 @@ func stringListTransferFunc(iterator *pathIterator, field Field, extract extract
 				return nil, nil
 			}
 			return list[len(list)-1], nil
+		}, nil
+	case `Count`:
+		return func(record *neo4j.Record) (interface{}, error) {
+			list, err := extract(record)
+			if err != nil {
+				return 0, err
+			}
+			return int64(len(list)), nil
 		}, nil
 	default:
 		if len(element.Key) < 7 || element.Key[:6] != `Index:` {
@@ -662,6 +686,14 @@ func listTransferFunc(iterator *pathIterator, field Field, extract extractList) 
 				return nil, nil
 			}
 			return list[len(list)-1], nil
+		}, nil
+	case `Count`:
+		return func(record *neo4j.Record) (interface{}, error) {
+			list, err := extract(record)
+			if err != nil {
+				return 0, err
+			}
+			return int64(len(list)), nil
 		}, nil
 	default:
 		if len(element.Key) < 7 || element.Key[:6] != `Index:` {

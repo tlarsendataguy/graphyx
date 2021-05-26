@@ -493,6 +493,44 @@ func TestLastNodeLabelToRecordInfo(t *testing.T) {
 	}
 }
 
+func TestCountNodeLabelToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `Labels`, DataType: `List:String`},
+				{Key: `Count`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Node{Labels: []string{
+			`Label1`,
+			`Label2`,
+		}},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 2 {
+		t.Fatalf(`expected 2 but got %v`, value)
+	}
+}
+
 func TestLastNodeLabelZeroLabelsToRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
@@ -1101,6 +1139,47 @@ func TestPathIndexedNodeOutOfBoundsToRecordInfo(t *testing.T) {
 	}
 }
 
+func TestPathCountNodesRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Path`},
+				{Key: `Nodes`, DataType: `List:Node`},
+				{Key: `Count`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Path{
+			Nodes: []neo4j.Node{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
+			},
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 3 {
+		t.Fatalf(`expected 3 but got %v`, value)
+	}
+}
+
 func TestPathFirstRelationshipIdToRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
@@ -1227,6 +1306,47 @@ func TestPathIndexedRelationshipIdToRecordInfo(t *testing.T) {
 	}
 }
 
+func TestPathCountRelationshipsToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Path`},
+				{Key: `Relationships`, DataType: `List:Relationship`},
+				{Key: `Count`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Path{
+			Relationships: []neo4j.Relationship{
+				{Id: 234},
+				{Id: 534},
+				{Id: 9349},
+			},
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 3 {
+		t.Fatalf(`expected 3 but got %v`, value)
+	}
+}
+
 func TestFirstStringListToRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
@@ -1338,6 +1458,44 @@ func TestIndexedStringListToRecordInfo(t *testing.T) {
 	}
 	if value != `b` {
 		t.Fatalf(`expected 'b' but got %v`, value)
+	}
+}
+
+func TestStringListCountRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:String`},
+				{Key: `Count`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]interface{}{
+			`a`,
+			`b`,
+			`c`,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 3 {
+		t.Fatalf(`expected 3 but got %v`, value)
 	}
 }
 
@@ -1566,6 +1724,44 @@ func TestLastFloatListToRecordInfo(t *testing.T) {
 	}
 	if value != 3.3 {
 		t.Fatalf(`expected 3.3 but got %v`, value)
+	}
+}
+
+func TestCountFloatListToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `Integer`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `List:Float`},
+				{Key: `Count`, DataType: `Integer`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		[]interface{}{
+			1.1,
+			2.2,
+			3.3,
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.IntFields[`Field1`].GetCurrentInt()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != 3 {
+		t.Fatalf(`expected 3 but got %v`, value)
 	}
 }
 
