@@ -93,6 +93,7 @@ class SelectPathChild extends StatelessWidget {
       items: [
         DropdownMenuItem<SelectData>(child: Text("Nodes"), value: SelectData("Nodes", "List:Node")),
         DropdownMenuItem<SelectData>(child: Text("Relationships"), value: SelectData("Relationships", "List:Relationship")),
+        DropdownMenuItem<SelectData>(child: Text("To String"), value: SelectData("ToString", 'String')),
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
@@ -213,6 +214,7 @@ class SelectNodeChild extends StatelessWidget {
         DropdownMenuItem<SelectData>(child: Text("ID"), value: SelectData("ID", 'Integer')),
         DropdownMenuItem<SelectData>(child: Text("Labels"), value: SelectData("Labels", 'List:String')),
         DropdownMenuItem<SelectData>(child: Text("Properties"), value: SelectData("Properties", 'Map')),
+        DropdownMenuItem<SelectData>(child: Text("To String"), value: SelectData("ToString", 'String')),
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
@@ -234,6 +236,7 @@ class SelectRelationshipChild extends StatelessWidget {
         DropdownMenuItem<SelectData>(child: Text("EndId"), value: SelectData("EndId", 'Integer')),
         DropdownMenuItem<SelectData>(child: Text("Type"), value: SelectData("Type", 'String')),
         DropdownMenuItem<SelectData>(child: Text("Properties"), value: SelectData("Properties", 'Map')),
+        DropdownMenuItem<SelectData>(child: Text("To String"), value: SelectData("ToString", 'String')),
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
