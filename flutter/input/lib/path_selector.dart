@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/dropdown.dart';
@@ -99,6 +102,74 @@ class SelectPathChild extends StatelessWidget {
   }
 }
 
+class IndexDialog extends StatefulWidget {
+  State<StatefulWidget> createState() => _IndexDialogState();
+}
+
+class _IndexDialogState extends State<IndexDialog> {
+  TextEditingController _controller;
+  FocusNode _node;
+
+  initState(){
+    _controller = TextEditingController(text: '');
+    _node = FocusNode();
+    _node.requestFocus();
+    super.initState();
+  }
+
+  void cancel(){
+    Navigator.of(context).pop(null);
+  }
+
+  void submit(){
+    if (_controller.text == '') {
+      return;
+    }
+    var index = int.parse(_controller.text);
+    Navigator.of(context).pop(index);
+  }
+
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        padding: EdgeInsets.all(8.0),
+        width: 200,
+        height: 120,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: "index"),
+              controller: _controller,
+              focusNode: _node,
+              onSubmitted: (_)=>submit(),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: cancel,
+                    child: Text("Cancel"),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: submit,
+                    child: Text("Submit"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class SelectListChild extends StatelessWidget {
   SelectListChild(this.field, this.itemType);
   final Field field;
@@ -109,8 +180,21 @@ class SelectListChild extends StatelessWidget {
       items: [
         DropdownMenuItem<SelectData>(child: Text("First"), value: SelectData("First", itemType)),
         DropdownMenuItem<SelectData>(child: Text("Last"), value: SelectData("Last", itemType)),
+        DropdownMenuItem<SelectData>(child: Text("Index"), value: SelectData("Index", itemType)),
       ],
-      onChanged: (e){
+      onChanged: (e) async {
+        if (e.name == 'Index') {
+          var index = await showDialog<int>(
+            context: context,
+            builder: (context) => IndexDialog(),
+          );
+          if (index == null){
+            return;
+          }
+          var fieldState = BlocProvider.of<FieldState>(context);
+          fieldState.addElementToPath(PathElement(key: "Index:$index", dataType: e.dataType));
+          return;
+        }
         var fieldState = BlocProvider.of<FieldState>(context);
         fieldState.addElementToPath(PathElement(key: e.name, dataType: e.dataType));
       },
