@@ -121,7 +121,7 @@ func addFieldToEditor(field Field, editor *sdk.EditingRecordInfo) (string, error
 	case `DateTime`:
 		return editor.AddDateTimeField(field.Name, source), nil
 	case `String`:
-		return editor.AddV_StringField(field.Name, source, 2147483648), nil
+		return editor.AddV_WStringField(field.Name, source, 2147483648), nil
 	default:
 		return ``, fmt.Errorf(`field %v is invalid type %v`, field.Name, field.DataType)
 	}
