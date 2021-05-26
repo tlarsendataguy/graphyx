@@ -347,6 +347,40 @@ func TestNodeIdRecordInfo(t *testing.T) {
 	}
 }
 
+func TestNodeStringRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Node`},
+				{Key: `ToString`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Node{Id: 23},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `()` {
+		t.Fatalf(`expected '()' but got '%v'`, value)
+	}
+}
+
 func TestConcatenatedNodeLabelsToRecordInfo(t *testing.T) {
 	fields := []input.Field{
 		{
@@ -1381,6 +1415,48 @@ func TestPathCountRelationshipsToRecordInfo(t *testing.T) {
 	}
 	if value != 3 {
 		t.Fatalf(`expected 3 but got %v`, value)
+	}
+}
+
+func TestPathStringToRecordInfo(t *testing.T) {
+	fields := []input.Field{
+		{
+			Name:     `Field1`,
+			DataType: `String`,
+			Path: []input.Element{
+				{Key: `value`, DataType: `Path`},
+				{Key: `ToString`, DataType: `String`},
+			},
+		},
+	}
+	record := NewMockRecord([]string{`value`}, []interface{}{
+		neo4j.Path{
+			Nodes: []neo4j.Node{
+				{Id: 1},
+				{Id: 2},
+			},
+			Relationships: []neo4j.Relationship{
+				{Id: 234},
+			},
+		},
+	})
+	outgoingStuff, err := input.CreateOutgoingObjects(fields)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if count := len(outgoingStuff.TransferFuncs); count != 1 {
+		t.Fatalf(`expected 1 transfer func but got %v`, count)
+	}
+	err = outgoingStuff.TransferFuncs[0](record)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	value, isNull := outgoingStuff.RecordInfo.StringFields[`Field1`].GetCurrentString()
+	if isNull {
+		t.Fatalf(`expected non-null but got null`)
+	}
+	if value != `()-[]-()` {
+		t.Fatalf(`expected '()-[]-()' but got '%v'`, value)
 	}
 }
 

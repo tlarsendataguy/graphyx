@@ -341,6 +341,15 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			return node.Props, nil
 		}
 		return mapTransferFunc(iterator, field, nodeFunc)
+	case `ToString`:
+		return func(record *neo4j.Record) (interface{}, error) {
+			node, err := nodeExtractor(record)
+			if err != nil {
+				return nil, err
+			}
+			str := ToString(node)
+			return str, nil
+		}, nil
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Node`, field.Name, element.Key)
 	}
@@ -448,6 +457,15 @@ func pathTransferFunc(iterator *pathIterator, field Field, extract extractPath) 
 			return extractedPath.Relationships, nil
 		}
 		return relListTransferFunc(iterator, field, relsFunc)
+	case `ToString`:
+		return func(record *neo4j.Record) (interface{}, error) {
+			extractedPath, err := extract(record)
+			if err != nil {
+				return nil, err
+			}
+			str := ToString(extractedPath)
+			return str, nil
+		}, nil
 	default:
 		return nil, fmt.Errorf(`field %v has an invalid key '%v' for Path`, field.Name, element.Key)
 	}
