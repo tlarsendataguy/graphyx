@@ -181,6 +181,7 @@ class SelectListChild extends StatelessWidget {
         DropdownMenuItem<SelectData>(child: Text("First"), value: SelectData("First", itemType)),
         DropdownMenuItem<SelectData>(child: Text("Last"), value: SelectData("Last", itemType)),
         DropdownMenuItem<SelectData>(child: Text("Index"), value: SelectData("Index", itemType)),
+        DropdownMenuItem<SelectData>(child: Text("Count"), value: SelectData("Count", "Integer")),
       ],
       onChanged: (e) async {
         if (e.name == 'Index') {
