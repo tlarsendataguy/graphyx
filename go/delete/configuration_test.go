@@ -48,23 +48,23 @@ func TestDeleteNodeWithBackticks(t *testing.T) {
 	}
 }
 
-/*
 func TestDeleteRelationship(t *testing.T) {
-	relType := `IS_RELATED`
-	relFields := []string{`Prop`}
-	leftNodeLabel := `Customer`
-	leftNodeAlteryxFields := []string{`LeftKey`}
-	leftNodeNeo4jFields := []string{`Key`}
-	rightNodeLabel := `Customer`
-	rightNodeAlteryxFields := []string{`RightKey`}
-	rightNodeNeo4jFields := []string{`Key`}
+	props := delete.DeleteRelationshipsProperties{
+		RelType:                `IS_RELATED`,
+		RelFields:              []string{`Prop`},
+		LeftNodeLabel:          `Customer`,
+		LeftNodeAlteryxFields:  []string{`LeftKey`},
+		LeftNodeNeo4jFields:    []string{`Key`},
+		RightNodeLabel:         `Customer`,
+		RightNodeAlteryxFields: []string{`RightKey`},
+		RightNodeNeo4jFields:   []string{`Key`},
+	}
 
-	query := delete.GenerateDeleteRelationships(label, idFields)
+	query := delete.GenerateDeleteRelationships(props)
 	expected := "UNWIND $batch AS row\n" +
-		"MATCH (d:`Customer`{`Key`:row.`Key`}) DETACH DELETE d"
+		"MATCH (:`Customer` {`Key`:row.`LeftKey`})-[r:`IS_RELATED`]-(:`Customer` {`Key`:row.`RightKey`}) DELETE r"
 
 	if query != expected {
 		t.Fatalf("expected\n%v\nbut got\n%v", expected, query)
 	}
 }
-*/
