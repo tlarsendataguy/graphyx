@@ -7,21 +7,28 @@ type DeleteNodesProperties struct {
 	IdFields []string
 }
 
-func GenerateDeleteNodes(props DeleteNodesProperties) string {
+func (p *DeleteNodesProperties) escape() {
+	p.Label = escapeName(p.Label)
+	for index, idField := range p.IdFields {
+		p.IdFields[index] = escapeName(idField)
+	}
+}
+
+func GenerateDeleteNodes(props *DeleteNodesProperties) string {
+	props.escape()
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	builder.WriteString("MATCH (d:`")
-	builder.WriteString(escapeName(props.Label))
+	builder.WriteString(props.Label)
 	builder.WriteString("`{")
 	for index, idField := range props.IdFields {
 		if index > 0 {
 			builder.WriteByte(',')
 		}
-		escaped := escapeName(idField)
 		builder.WriteByte('`')
-		builder.WriteString(escaped)
+		builder.WriteString(idField)
 		builder.WriteString("`:row.`")
-		builder.WriteString(escaped)
+		builder.WriteString(idField)
 		builder.WriteByte('`')
 	}
 	builder.WriteString("}) DETACH DELETE d")

@@ -4,7 +4,7 @@ import "testing"
 import "github.com/tlarsen7572/graphyx/delete"
 
 func TestDeleteNode(t *testing.T) {
-	props := delete.DeleteNodesProperties{
+	props := &delete.DeleteNodesProperties{
 		Label:    `Customer`,
 		IdFields: []string{`Key`},
 	}
@@ -19,7 +19,7 @@ func TestDeleteNode(t *testing.T) {
 }
 
 func TestDeleteNodeUsingMultipleProperties(t *testing.T) {
-	props := delete.DeleteNodesProperties{
+	props := &delete.DeleteNodesProperties{
 		Label:    `Customer`,
 		IdFields: []string{`Key1`, `Key2`},
 	}
@@ -34,7 +34,7 @@ func TestDeleteNodeUsingMultipleProperties(t *testing.T) {
 }
 
 func TestDeleteNodeWithBackticks(t *testing.T) {
-	props := delete.DeleteNodesProperties{
+	props := &delete.DeleteNodesProperties{
 		Label:    "Cust`omer",
 		IdFields: []string{"Ke`y"},
 	}
