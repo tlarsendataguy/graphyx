@@ -2,13 +2,18 @@ package delete
 
 import "strings"
 
-func GenerateDeleteNodes(label string, idFields []string) string {
+type DeleteNodesProperties struct {
+	Label    string
+	IdFields []string
+}
+
+func GenerateDeleteNodes(props DeleteNodesProperties) string {
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	builder.WriteString("MATCH (d:`")
-	builder.WriteString(escapeName(label))
+	builder.WriteString(escapeName(props.Label))
 	builder.WriteString("`{")
-	for index, idField := range idFields {
+	for index, idField := range props.IdFields {
 		if index > 0 {
 			builder.WriteByte(',')
 		}
