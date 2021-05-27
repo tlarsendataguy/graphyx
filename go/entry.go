@@ -3,6 +3,7 @@ package main
 import "C"
 import (
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"github.com/tlarsen7572/graphyx/delete"
 	"github.com/tlarsen7572/graphyx/input"
 	"github.com/tlarsen7572/graphyx/output"
 	"unsafe"
@@ -17,6 +18,12 @@ func Neo4jInput(toolId C.int, xmlProperties unsafe.Pointer, engineInterface unsa
 //export Neo4jOutput
 func Neo4jOutput(toolId C.int, xmlProperties unsafe.Pointer, engineInterface unsafe.Pointer, pluginInterface unsafe.Pointer) C.long {
 	plugin := &output.Neo4jOutput{}
+	return C.long(sdk.RegisterTool(plugin, int(toolId), xmlProperties, engineInterface, pluginInterface))
+}
+
+//export Neo4jDelete
+func Neo4jDelete(toolId C.int, xmlProperties unsafe.Pointer, engineInterface unsafe.Pointer, pluginInterface unsafe.Pointer) C.long {
+	plugin := &delete.Neo4jDelete{}
 	return C.long(sdk.RegisterTool(plugin, int(toolId), xmlProperties, engineInterface, pluginInterface))
 }
 
