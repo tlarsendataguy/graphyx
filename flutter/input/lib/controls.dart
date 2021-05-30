@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:flutter/material.dart';
@@ -76,14 +78,13 @@ class _ControlsState extends State<Controls> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged),
-        TextField(controller: this.userController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged),
-        TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged),
-        TextField(controller: this.databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged),
-        TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query"), onChanged: queryChanged, style: TextStyle(fontFamily: 'JetBrains Mono')),
+        TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged, autocorrect: false),
+        TextField(controller: this.userController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged, autocorrect: false),
+        TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged, autocorrect: false),
+        TextField(controller: this.databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged, autocorrect: false),
+        TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query"), onChanged: queryChanged, style: TextStyle(fontFamily: 'JetBrains Mono'), minLines: 1, maxLines: 10, autocorrect: false),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
           child: SizedBox(
@@ -112,6 +113,7 @@ class _ControlsState extends State<Controls> {
             return SizedBox(height: 0);
           },
         ),
+        ElevatedButton(onPressed: state.addField, child: Text("Add field")),
         StreamBuilder<List<Field>>(
           stream: BlocProvider.of<AppState>(context).fields,
           builder: (_, AsyncSnapshot<List<Field>> value) {
@@ -125,7 +127,6 @@ class _ControlsState extends State<Controls> {
             );
           },
         ),
-        ElevatedButton(onPressed: state.addField, child: Text("Add field")),
       ],
     );
   }
