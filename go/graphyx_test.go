@@ -226,49 +226,6 @@ func TestEndToEnd(t *testing.T) {
 	}
 }
 
-func deleteTestStuff() error {
-	uri := `bolt://localhost:7687`
-	database := `neo4j`
-	username := `test`
-	password := `test`
-	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
-	if err != nil {
-		return err
-	}
-	defer driver.Close()
-
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: database})
-	defer session.Close()
-
-	deleteRelationships := `MATCH ()-[r:TestRel]-() DELETE r`
-	deleteNodes := `MATCH (n:TestLabel) DELETE n`
-
-	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-		result, txErr := tx.Run(deleteRelationships, nil)
-		if txErr != nil {
-			return nil, txErr
-		}
-		if txErr = result.Err(); txErr != nil {
-			return nil, txErr
-		}
-		_, txErr = result.Consume()
-		if txErr != nil {
-			return nil, txErr
-		}
-
-		result, txErr = tx.Run(deleteNodes, nil)
-		if txErr != nil {
-			return nil, txErr
-		}
-		if txErr = result.Err(); txErr != nil {
-			return nil, txErr
-		}
-		return result.Consume()
-	})
-
-	return err
-}
-
 func checkNumberOfItems(query string) (int, error) {
 	uri := `bolt://localhost:7687`
 	database := `neo4j`
@@ -300,4 +257,87 @@ func checkNumberOfItems(query string) (int, error) {
 	})
 
 	return int(result.(int64)), err
+}
+
+func TestEndToEndDelete(t *testing.T) {
+	err := deleteTestStuff()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	err = addStuffForDeletion()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+
+}
+
+func addStuffForDeletion() error {
+	uri := `bolt://localhost:7687`
+	database := `neo4j`
+	username := `test`
+	password := `test`
+	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	if err != nil {
+		return err
+	}
+	defer driver.Close()
+
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: database})
+	defer session.Close()
+
+	createQuery := `CREATE (n1:DELETE {Id:1});
+CREATE (n2:DELETE {Id:2});
+CREATE (n3:DELETE {Id:3});
+MATCH (n1:DELETE), (n2:DELETE) WHERE n1.Id=1 AND n2.Id=2
+CREATE (n1)-[:Relates_To]->(n2);
+MATCH (n2:DELETE), (n3:DELETE) WHERE n2.Id=2 AND n3.Id=3
+CREATE (n2)-[:Relates_To]->(n3);`
+
+	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		result, txErr := tx.Run(createQuery, nil)
+		if txErr != nil {
+			return nil, txErr
+		}
+		if txErr = result.Err(); txErr != nil {
+			return nil, txErr
+		}
+		_, txErr = result.Consume()
+		if txErr != nil {
+			return nil, txErr
+		}
+		return nil, nil
+	})
+
+	return err
+}
+
+func deleteTestStuff() error {
+	uri := `bolt://localhost:7687`
+	database := `neo4j`
+	username := `test`
+	password := `test`
+	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	if err != nil {
+		return err
+	}
+	defer driver.Close()
+
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: database})
+	defer session.Close()
+
+	deleteNodes := `MATCH (n:TestLabel) DETACH DELETE n;
+MATCH (n:DELETE) DETACH DELETE n`
+
+	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		result, txErr := tx.Run(deleteNodes, nil)
+		if txErr != nil {
+			return nil, txErr
+		}
+		if txErr = result.Err(); txErr != nil {
+			return nil, txErr
+		}
+		return result.Consume()
+	})
+
+	return err
 }
