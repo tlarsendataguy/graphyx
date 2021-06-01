@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
+	"github.com/tlarsen7572/graphyx/delete"
 	"github.com/tlarsen7572/graphyx/input"
 	"github.com/tlarsen7572/graphyx/output"
+	"strings"
 	"testing"
 )
 
@@ -269,6 +271,26 @@ func TestEndToEndDelete(t *testing.T) {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
 
+	configNodes := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Node","BatchSize":10000,"NodeLabel":"DELETE","NodeIdFields":["Id"]}</JSON>
+</Configuration>`
+	pluginNodes := &delete.Neo4jDelete{}
+	runnerNodes := sdk.RegisterToolTest(pluginNodes, 1, configNodes)
+	runnerNodes.ConnectInput(`Input`, `TestNeo4jOutputNodes.txt`)
+	runnerNodes.SimulateLifecycle()
+
+	nodes, err := checkNumberOfItems(`MATCH (n:DELETE) RETURN count(n)`)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if nodes != 0 {
+		t.Fatalf(`expected 0 but got %v`, nodes)
+	}
+
+	err = deleteTestStuff()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
 }
 
 func addStuffForDeletion() error {
@@ -294,16 +316,22 @@ MATCH (n2:DELETE), (n3:DELETE) WHERE n2.Id=2 AND n3.Id=3
 CREATE (n2)-[:Relates_To]->(n3);`
 
 	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-		result, txErr := tx.Run(createQuery, nil)
-		if txErr != nil {
-			return nil, txErr
-		}
-		if txErr = result.Err(); txErr != nil {
-			return nil, txErr
-		}
-		_, txErr = result.Consume()
-		if txErr != nil {
-			return nil, txErr
+		queries := strings.Split(createQuery, `;`)
+		for _, query := range queries {
+			if query == `` {
+				continue
+			}
+			result, txErr := tx.Run(query, nil)
+			if txErr != nil {
+				return nil, txErr
+			}
+			if txErr = result.Err(); txErr != nil {
+				return nil, txErr
+			}
+			_, txErr = result.Consume()
+			if txErr != nil {
+				return nil, txErr
+			}
 		}
 		return nil, nil
 	})
@@ -326,17 +354,27 @@ func deleteTestStuff() error {
 	defer session.Close()
 
 	deleteNodes := `MATCH (n:TestLabel) DETACH DELETE n;
-MATCH (n:DELETE) DETACH DELETE n`
+MATCH (n:DELETE) DETACH DELETE n;`
 
 	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-		result, txErr := tx.Run(deleteNodes, nil)
-		if txErr != nil {
-			return nil, txErr
+		queries := strings.Split(deleteNodes, `;`)
+		for _, query := range queries {
+			if query == `` {
+				continue
+			}
+			result, txErr := tx.Run(query, nil)
+			if txErr != nil {
+				return nil, txErr
+			}
+			if txErr = result.Err(); txErr != nil {
+				return nil, txErr
+			}
+			_, txErr = result.Consume()
+			if txErr != nil {
+				return nil, txErr
+			}
 		}
-		if txErr = result.Err(); txErr != nil {
-			return nil, txErr
-		}
-		return result.Consume()
+		return nil, nil
 	})
 
 	return err

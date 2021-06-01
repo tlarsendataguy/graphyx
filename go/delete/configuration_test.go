@@ -77,7 +77,7 @@ func TestDeleteNodeWithoutLabel(t *testing.T) {
 }
 
 func TestDeleteRelationship(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                `IS_RELATED`,
 		RelFields:              []string{`Prop`},
 		LeftNodeLabel:          `Customer`,
@@ -98,7 +98,7 @@ func TestDeleteRelationship(t *testing.T) {
 }
 
 func TestDeleteRelationshipsWithBackticks(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                "IS_`RELATED",
 		RelFields:              []string{"Pro`p"},
 		LeftNodeLabel:          "Cust`omer",
@@ -119,7 +119,7 @@ func TestDeleteRelationshipsWithBackticks(t *testing.T) {
 }
 
 func TestDeleteRelationshipWithoutLeftFields(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                `IS_RELATED`,
 		RelFields:              []string{`Prop`},
 		LeftNodeLabel:          `Customer`,
@@ -138,7 +138,7 @@ func TestDeleteRelationshipWithoutLeftFields(t *testing.T) {
 }
 
 func TestDeleteRelationshipWithoutRightFields(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:               `IS_RELATED`,
 		RelFields:             []string{`Prop`},
 		LeftNodeLabel:         `Customer`,
@@ -157,7 +157,7 @@ func TestDeleteRelationshipWithoutRightFields(t *testing.T) {
 }
 
 func TestDeleteRelationshipWithoutRelationshipFields(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                `IS_RELATED`,
 		LeftNodeLabel:          `Customer`,
 		LeftNodeAlteryxFields:  []string{`LeftKey`},
@@ -177,7 +177,7 @@ func TestDeleteRelationshipWithoutRelationshipFields(t *testing.T) {
 }
 
 func TestDeleteRelationshipWithoutLeftLabel(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                `IS_RELATED`,
 		RelFields:              []string{`Prop`},
 		LeftNodeAlteryxFields:  []string{`LeftKey`},
@@ -197,7 +197,7 @@ func TestDeleteRelationshipWithoutLeftLabel(t *testing.T) {
 }
 
 func TestDeleteRelationshipWithoutRelationshipType(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelFields:              []string{`Prop`},
 		LeftNodeLabel:          `Customer`,
 		LeftNodeAlteryxFields:  []string{`LeftKey`},
@@ -217,7 +217,7 @@ func TestDeleteRelationshipWithoutRelationshipType(t *testing.T) {
 }
 
 func TestDeleteRelationshipWithoutRightLabel(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                `IS_RELATED`,
 		RelFields:              []string{`Prop`},
 		LeftNodeLabel:          `Customer`,
@@ -237,7 +237,7 @@ func TestDeleteRelationshipWithoutRightLabel(t *testing.T) {
 }
 
 func TestDeleteRelationshipMismatchedLeftFields(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                `IS_RELATED`,
 		RelFields:              []string{`Prop`},
 		LeftNodeLabel:          `Customer`,
@@ -258,7 +258,7 @@ func TestDeleteRelationshipMismatchedLeftFields(t *testing.T) {
 }
 
 func TestDeleteRelationshipMismatchedRightFields(t *testing.T) {
-	props := delete.DeleteRelationshipsProperties{
+	props := &delete.DeleteRelationshipsProperties{
 		RelType:                `IS_RELATED`,
 		RelFields:              []string{`Prop`},
 		LeftNodeLabel:          `Customer`,

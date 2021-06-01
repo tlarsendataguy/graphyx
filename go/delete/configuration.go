@@ -54,7 +54,7 @@ func (p *DeleteRelationshipsProperties) escape() {
 	}
 }
 
-func GenerateDeleteRelationships(props DeleteRelationshipsProperties) (string, error) {
+func GenerateDeleteRelationships(props *DeleteRelationshipsProperties) (string, error) {
 	if len(props.LeftNodeAlteryxFields) != len(props.LeftNodeNeo4jFields) {
 		return ``, errors.New(`the number of left node Alteryx fields does not match the number of left node Neo4j fields`)
 	}
