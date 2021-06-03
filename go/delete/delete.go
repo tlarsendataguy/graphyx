@@ -15,22 +15,20 @@ type xmlConfig struct {
 }
 
 type Configuration struct {
-	ConnStr             string
-	Username            string
-	Password            string
-	Database            string
-	DeleteObject        string
-	BatchSize           int
-	NodeLabel           string
-	NodeIdFields        []string
-	RelType             string
-	RelFields           []string
-	RelLeftLabel        string
-	RelLeftAyxFields    []string
-	RelLeftNeo4jFields  []string
-	RelRightLabel       string
-	RelRightAyxFields   []string
-	RelRightNeo4jFields []string
+	ConnStr        string
+	Username       string
+	Password       string
+	Database       string
+	DeleteObject   string
+	BatchSize      int
+	NodeLabel      string
+	NodeIdFields   []string
+	RelType        string
+	RelFields      []string
+	RelLeftLabel   string
+	RelLeftFields  []map[string]interface{}
+	RelRightLabel  string
+	RelRightFields []map[string]interface{}
 }
 
 type Neo4jDelete struct {
@@ -69,22 +67,25 @@ func (d *Neo4jDelete) Init(provider sdk.Provider) {
 		d.requiredFields = d.config.NodeIdFields
 	case `Relationship`:
 		d.query, err = GenerateDeleteRelationships(&DeleteRelationshipsProperties{
-			RelType:                d.config.RelType,
-			RelFields:              d.config.RelFields,
-			LeftNodeLabel:          d.config.RelLeftLabel,
-			LeftNodeAlteryxFields:  d.config.RelLeftAyxFields,
-			LeftNodeNeo4jFields:    d.config.RelLeftNeo4jFields,
-			RightNodeLabel:         d.config.RelRightLabel,
-			RightNodeAlteryxFields: d.config.RelRightAyxFields,
-			RightNodeNeo4jFields:   d.config.RelRightNeo4jFields,
+			RelType:         d.config.RelType,
+			RelFields:       d.config.RelFields,
+			LeftNodeLabel:   d.config.RelLeftLabel,
+			LeftNodeFields:  d.config.RelLeftFields,
+			RightNodeLabel:  d.config.RelRightLabel,
+			RightNodeFields: d.config.RelRightFields,
 		})
 		if err != nil {
 			d.error(err.Error())
 			return
 		}
-		for _, fieldLists := range [][]string{d.config.RelFields, d.config.RelLeftAyxFields, d.config.RelRightAyxFields} {
-			for _, field := range fieldLists {
-				d.requiredFields = append(d.requiredFields, field)
+		for _, field := range d.config.RelFields {
+			d.requiredFields = append(d.requiredFields, field)
+		}
+		for _, fieldLists := range [][]map[string]interface{}{d.config.RelLeftFields, d.config.RelRightFields} {
+			for _, fieldList := range fieldLists {
+				for key := range fieldList {
+					d.requiredFields = append(d.requiredFields, key)
+				}
 			}
 		}
 	default:

@@ -78,14 +78,12 @@ func TestDeleteNodeWithoutLabel(t *testing.T) {
 
 func TestDeleteRelationship(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                `IS_RELATED`,
-		RelFields:              []string{`Prop`},
-		LeftNodeLabel:          `Customer`,
-		LeftNodeAlteryxFields:  []string{`LeftKey`},
-		LeftNodeNeo4jFields:    []string{`Key`},
-		RightNodeLabel:         `Customer`,
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key`},
+		RelType:         `IS_RELATED`,
+		RelFields:       []string{`Prop`},
+		LeftNodeLabel:   `Customer`,
+		LeftNodeFields:  []map[string]interface{}{{`LeftKey`: `Key`}},
+		RightNodeLabel:  `Customer`,
+		RightNodeFields: []map[string]interface{}{{`RightKey`: `Key`}},
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -99,14 +97,12 @@ func TestDeleteRelationship(t *testing.T) {
 
 func TestDeleteRelationshipsWithBackticks(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                "IS_`RELATED",
-		RelFields:              []string{"Pro`p"},
-		LeftNodeLabel:          "Cust`omer",
-		LeftNodeAlteryxFields:  []string{"LeftKe`y"},
-		LeftNodeNeo4jFields:    []string{"Ke`y"},
-		RightNodeLabel:         "Cust`omer",
-		RightNodeAlteryxFields: []string{"RightKe`y"},
-		RightNodeNeo4jFields:   []string{"Ke`y"},
+		RelType:         "IS_`RELATED",
+		RelFields:       []string{"Pro`p"},
+		LeftNodeLabel:   "Cust`omer",
+		LeftNodeFields:  []map[string]interface{}{{"LeftKe`y": "Ke`y"}},
+		RightNodeLabel:  "Cust`omer",
+		RightNodeFields: []map[string]interface{}{{"RightKe`y": "Ke`y"}},
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -120,12 +116,11 @@ func TestDeleteRelationshipsWithBackticks(t *testing.T) {
 
 func TestDeleteRelationshipWithoutLeftFields(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                `IS_RELATED`,
-		RelFields:              []string{`Prop`},
-		LeftNodeLabel:          `Customer`,
-		RightNodeLabel:         `Customer`,
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key`},
+		RelType:         `IS_RELATED`,
+		RelFields:       []string{`Prop`},
+		LeftNodeLabel:   `Customer`,
+		RightNodeLabel:  `Customer`,
+		RightNodeFields: []map[string]interface{}{{"RightKey": "Key"}},
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -139,12 +134,11 @@ func TestDeleteRelationshipWithoutLeftFields(t *testing.T) {
 
 func TestDeleteRelationshipWithoutRightFields(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:               `IS_RELATED`,
-		RelFields:             []string{`Prop`},
-		LeftNodeLabel:         `Customer`,
-		LeftNodeAlteryxFields: []string{"LeftKey"},
-		LeftNodeNeo4jFields:   []string{"Key"},
-		RightNodeLabel:        `Customer`,
+		RelType:        `IS_RELATED`,
+		RelFields:      []string{`Prop`},
+		LeftNodeLabel:  `Customer`,
+		LeftNodeFields: []map[string]interface{}{{"LeftKey": "Key"}},
+		RightNodeLabel: `Customer`,
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -158,13 +152,11 @@ func TestDeleteRelationshipWithoutRightFields(t *testing.T) {
 
 func TestDeleteRelationshipWithoutRelationshipFields(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                `IS_RELATED`,
-		LeftNodeLabel:          `Customer`,
-		LeftNodeAlteryxFields:  []string{`LeftKey`},
-		LeftNodeNeo4jFields:    []string{`Key`},
-		RightNodeLabel:         `Customer`,
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key`},
+		RelType:         `IS_RELATED`,
+		LeftNodeLabel:   `Customer`,
+		LeftNodeFields:  []map[string]interface{}{{"LeftKey": "Key"}},
+		RightNodeLabel:  `Customer`,
+		RightNodeFields: []map[string]interface{}{{"RightKey": "Key"}},
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -178,13 +170,11 @@ func TestDeleteRelationshipWithoutRelationshipFields(t *testing.T) {
 
 func TestDeleteRelationshipWithoutLeftLabel(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                `IS_RELATED`,
-		RelFields:              []string{`Prop`},
-		LeftNodeAlteryxFields:  []string{`LeftKey`},
-		LeftNodeNeo4jFields:    []string{`Key`},
-		RightNodeLabel:         `Customer`,
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key`},
+		RelType:         `IS_RELATED`,
+		RelFields:       []string{`Prop`},
+		LeftNodeFields:  []map[string]interface{}{{"LeftKey": "Key"}},
+		RightNodeLabel:  `Customer`,
+		RightNodeFields: []map[string]interface{}{{"RightKey": "Key"}},
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -198,13 +188,11 @@ func TestDeleteRelationshipWithoutLeftLabel(t *testing.T) {
 
 func TestDeleteRelationshipWithoutRelationshipType(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelFields:              []string{`Prop`},
-		LeftNodeLabel:          `Customer`,
-		LeftNodeAlteryxFields:  []string{`LeftKey`},
-		LeftNodeNeo4jFields:    []string{`Key`},
-		RightNodeLabel:         `Customer`,
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key`},
+		RelFields:       []string{`Prop`},
+		LeftNodeLabel:   `Customer`,
+		LeftNodeFields:  []map[string]interface{}{{"LeftKey": "Key"}},
+		RightNodeLabel:  `Customer`,
+		RightNodeFields: []map[string]interface{}{{"RightKey": "Key"}},
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -218,13 +206,11 @@ func TestDeleteRelationshipWithoutRelationshipType(t *testing.T) {
 
 func TestDeleteRelationshipWithoutRightLabel(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                `IS_RELATED`,
-		RelFields:              []string{`Prop`},
-		LeftNodeLabel:          `Customer`,
-		LeftNodeAlteryxFields:  []string{`LeftKey`},
-		LeftNodeNeo4jFields:    []string{`Key`},
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key`},
+		RelType:         `IS_RELATED`,
+		RelFields:       []string{`Prop`},
+		LeftNodeLabel:   `Customer`,
+		LeftNodeFields:  []map[string]interface{}{{"LeftKey": "Key"}},
+		RightNodeFields: []map[string]interface{}{{"RightKey": "Key"}},
 	}
 
 	query, _ := delete.GenerateDeleteRelationships(props)
@@ -238,14 +224,12 @@ func TestDeleteRelationshipWithoutRightLabel(t *testing.T) {
 
 func TestDeleteRelationshipMismatchedLeftFields(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                `IS_RELATED`,
-		RelFields:              []string{`Prop`},
-		LeftNodeLabel:          `Customer`,
-		LeftNodeAlteryxFields:  []string{`LeftKey`},
-		LeftNodeNeo4jFields:    []string{`Key1`, `Key2`},
-		RightNodeLabel:         `Customer`,
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key`},
+		RelType:         `IS_RELATED`,
+		RelFields:       []string{`Prop`},
+		LeftNodeLabel:   `Customer`,
+		LeftNodeFields:  []map[string]interface{}{{"LeftKey": "Key"}, {"LeftKey2": 12345}},
+		RightNodeLabel:  `Customer`,
+		RightNodeFields: []map[string]interface{}{{"RightKey": "Key"}},
 	}
 
 	query, err := delete.GenerateDeleteRelationships(props)
@@ -259,14 +243,12 @@ func TestDeleteRelationshipMismatchedLeftFields(t *testing.T) {
 
 func TestDeleteRelationshipMismatchedRightFields(t *testing.T) {
 	props := &delete.DeleteRelationshipsProperties{
-		RelType:                `IS_RELATED`,
-		RelFields:              []string{`Prop`},
-		LeftNodeLabel:          `Customer`,
-		LeftNodeAlteryxFields:  []string{`LeftKey`},
-		LeftNodeNeo4jFields:    []string{`Key`},
-		RightNodeLabel:         `Customer`,
-		RightNodeAlteryxFields: []string{`RightKey`},
-		RightNodeNeo4jFields:   []string{`Key1`, `Key2`},
+		RelType:         `IS_RELATED`,
+		RelFields:       []string{`Prop`},
+		LeftNodeLabel:   `Customer`,
+		LeftNodeFields:  []map[string]interface{}{{"LeftKey": "Key"}},
+		RightNodeLabel:  `Customer`,
+		RightNodeFields: []map[string]interface{}{{"RightKey": "Key"}, {"RightKey2": 12345}},
 	}
 
 	query, err := delete.GenerateDeleteRelationships(props)

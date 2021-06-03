@@ -261,7 +261,7 @@ func checkNumberOfItems(query string) (int, error) {
 	return int(result.(int64)), err
 }
 
-func TestEndToEndDelete(t *testing.T) {
+func TestEndToEndDeleteNodes(t *testing.T) {
 	err := deleteTestStuff()
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
@@ -291,6 +291,40 @@ func TestEndToEndDelete(t *testing.T) {
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
+}
+
+func TestEndToEndDeleteRelationships(t *testing.T) {
+	err := deleteTestStuff()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	err = addStuffForDeletion()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+
+	configNodes := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Relationship","BatchSize":10000,"RelType":"Relates_To","RelFields":[],"RelLeftLabel":"DELETE","RelLeftFields":[{"LeftId":"Id"}],"RelRightLabel":"DELETE","RelRightFields":[{"RightId":"Id"}]}</JSON>
+</Configuration>`
+	pluginNodes := &delete.Neo4jDelete{}
+	runnerNodes := sdk.RegisterToolTest(pluginNodes, 1, configNodes)
+	runnerNodes.ConnectInput(`Input`, `TestNeo4jDeleteRelationships.txt`)
+	runnerNodes.SimulateLifecycle()
+
+	nodes, err := checkNumberOfItems(`MATCH (:DELETE)-[r:Relates_To]-(:DELETE) RETURN count(r)`)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if nodes != 0 {
+		t.Fatalf(`expected 0 but got %v`, nodes)
+	}
+
+	/*
+		err = deleteTestStuff()
+		if err != nil {
+			t.Fatalf(`expected no error but got: %v`, err.Error())
+		}
+	*/
 }
 
 func addStuffForDeletion() error {

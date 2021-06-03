@@ -1,0 +1,4 @@
+LeftId|RightId
+Int64 |Int64
+1     |2
+2     |3

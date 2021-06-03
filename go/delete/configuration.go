@@ -1,7 +1,7 @@
 package delete
 
 import (
-	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -36,41 +36,62 @@ type DeleteRelationshipsProperties struct {
 	RelType                string
 	RelFields              []string
 	LeftNodeLabel          string
-	LeftNodeAlteryxFields  []string
-	LeftNodeNeo4jFields    []string
+	LeftNodeFields         []map[string]interface{}
 	RightNodeLabel         string
-	RightNodeAlteryxFields []string
-	RightNodeNeo4jFields   []string
+	RightNodeFields        []map[string]interface{}
+	leftNodeAlteryxFields  []string
+	leftNodeNeo4jFields    []string
+	rightNodeAlteryxFields []string
+	rightNodeNeo4jFields   []string
 }
 
-func (p *DeleteRelationshipsProperties) escape() {
+func (p *DeleteRelationshipsProperties) escape() error {
 	p.RelType = escapeName(p.RelType)
 	p.LeftNodeLabel = escapeName(p.LeftNodeLabel)
 	p.RightNodeLabel = escapeName(p.RightNodeLabel)
-	for _, strList := range [][]string{p.RelFields, p.LeftNodeAlteryxFields, p.LeftNodeNeo4jFields, p.RightNodeAlteryxFields, p.RightNodeNeo4jFields} {
-		for index, item := range strList {
-			strList[index] = escapeName(item)
+
+	for _, maps := range p.LeftNodeFields {
+		for key, value := range maps {
+			p.leftNodeAlteryxFields = append(p.leftNodeAlteryxFields, escapeName(key))
+			valueStr, ok := value.(string)
+			if !ok {
+				return fmt.Errorf(`the Neo4j field mapping for Alteryx field '%v' in the left fields list is not a string`, key)
+			}
+			p.leftNodeNeo4jFields = append(p.leftNodeNeo4jFields, escapeName(valueStr))
 		}
 	}
+
+	for _, maps := range p.RightNodeFields {
+		for key, value := range maps {
+			p.rightNodeAlteryxFields = append(p.rightNodeAlteryxFields, escapeName(key))
+			valueStr, ok := value.(string)
+			if !ok {
+				return fmt.Errorf(`the Neo4j field mapping for Alteryx field '%v' in the right fields list is not a string`, key)
+			}
+			p.rightNodeNeo4jFields = append(p.rightNodeNeo4jFields, escapeName(valueStr))
+		}
+	}
+
+	for index, item := range p.RelFields {
+		p.RelFields[index] = escapeName(item)
+	}
+	return nil
 }
 
 func GenerateDeleteRelationships(props *DeleteRelationshipsProperties) (string, error) {
-	if len(props.LeftNodeAlteryxFields) != len(props.LeftNodeNeo4jFields) {
-		return ``, errors.New(`the number of left node Alteryx fields does not match the number of left node Neo4j fields`)
-	}
-	if len(props.RightNodeAlteryxFields) != len(props.RightNodeNeo4jFields) {
-		return ``, errors.New(`the number of right node Alteryx fields does not match the number of right node Neo4j fields`)
+	err := props.escape()
+	if err != nil {
+		return ``, err
 	}
 
-	props.escape()
 	builder := &strings.Builder{}
 	builder.WriteString("UNWIND $batch AS row\n")
 	builder.WriteString("MATCH (")
 	if props.LeftNodeLabel != `` {
 		writeLabel(builder, props.LeftNodeLabel)
 	}
-	if len(props.LeftNodeNeo4jFields) > 0 {
-		writeProperties(builder, props.LeftNodeNeo4jFields, props.LeftNodeAlteryxFields)
+	if len(props.leftNodeNeo4jFields) > 0 {
+		writeProperties(builder, props.leftNodeNeo4jFields, props.leftNodeAlteryxFields)
 	}
 	builder.WriteString(")-[r")
 	if props.RelType != `` {
@@ -83,8 +104,8 @@ func GenerateDeleteRelationships(props *DeleteRelationshipsProperties) (string, 
 	if props.RightNodeLabel != `` {
 		writeLabel(builder, props.RightNodeLabel)
 	}
-	if len(props.RightNodeNeo4jFields) > 0 {
-		writeProperties(builder, props.RightNodeNeo4jFields, props.RightNodeAlteryxFields)
+	if len(props.rightNodeNeo4jFields) > 0 {
+		writeProperties(builder, props.rightNodeNeo4jFields, props.rightNodeAlteryxFields)
 	}
 	builder.WriteString(") DELETE r")
 	return builder.String(), nil
