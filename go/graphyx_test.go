@@ -170,7 +170,7 @@ func TestDataTypesCopyCorrectly(t *testing.T) {
 	}
 }
 
-func TestDoNotRunIfUpdateOnly(t *testing.T) {
+func TestDoNotRunOutputIfUpdateOnly(t *testing.T) {
 	err := deleteTestStuff()
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
@@ -319,12 +319,36 @@ func TestEndToEndDeleteRelationships(t *testing.T) {
 		t.Fatalf(`expected 0 but got %v`, nodes)
 	}
 
-	/*
-		err = deleteTestStuff()
-		if err != nil {
-			t.Fatalf(`expected no error but got: %v`, err.Error())
-		}
-	*/
+	err = deleteTestStuff()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+}
+
+func TestDoNotRunDeleteIfUpdateOnly(t *testing.T) {
+	err := deleteTestStuff()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	err = addStuffForDeletion()
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+
+	configNodes := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Node","BatchSize":10000,"NodeLabel":"DELETE","NodeIdFields":["Id"]}</JSON>
+</Configuration>`
+	plugin := &output.Neo4jOutput{}
+	runner := sdk.RegisterToolTest(plugin, 1, configNodes, sdk.UpdateOnly(true))
+	runner.ConnectInput(`Input`, `TestNeo4jDeleteNodes.txt`)
+	runner.SimulateLifecycle()
+	records, err := checkNumberOfItems(`MATCH (n:DELETE) RETURN count(n)`)
+	if err != nil {
+		t.Fatalf(`expected no error but got: %v`, err.Error())
+	}
+	if records == 0 {
+		t.Fatalf(`expected more than 0 records but got 0`)
+	}
 }
 
 func addStuffForDeletion() error {
