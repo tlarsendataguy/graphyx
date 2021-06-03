@@ -106,7 +106,7 @@ class _ControlsState extends State<Controls> {
         TextField(controller: usernameController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged),
         TextField(controller: passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged),
         TextField(controller: databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged),
-        TextField(controller: batchSizeController, decoration: InputDecoration(labelText: "batch  size"), onChanged: batchSizeChanged, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))]),
+        TextField(controller: batchSizeController, decoration: InputDecoration(labelText: "batch size"), onChanged: batchSizeChanged, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))]),
         ExportObjectSelector(),
       ],
     );
@@ -235,7 +235,7 @@ class _RelationshipConfigState extends State<RelationshipConfig> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(controller: relLabelController, decoration: InputDecoration(labelText: "relationship label"), onChanged: relLabelChanged),
-        FieldSelector(source: config.nodePropFields, label: "update the following relationship properties"),
+        FieldSelector(source: config.relPropFields, label: "update the following relationship properties"),
         TextField(controller: relLeftLabelController, decoration: InputDecoration(labelText: "left node label"), onChanged: relLeftLabelChanged),
         FieldMapper(source: config.relLeftFields, label: "match the following properties of the left node"),
         TextField(controller: relRightLabelController, decoration: InputDecoration(labelText: "right node label"), onChanged: relRightLabelChanged),
