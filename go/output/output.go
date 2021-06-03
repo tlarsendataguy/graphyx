@@ -5,6 +5,7 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsen7572/goalteryx/sdk"
 	"github.com/tlarsen7572/graphyx/bolt_url"
+	"github.com/tlarsen7572/graphyx/util"
 )
 
 type Configuration struct {
@@ -25,13 +26,11 @@ type Configuration struct {
 	RelRightFields []map[string]interface{}
 }
 
-type CopyData func(sdk.Record, map[string]interface{})
-
 type Neo4jOutput struct {
 	query            string
 	config           Configuration
 	provider         sdk.Provider
-	copier           []CopyData
+	copier           []util.CopyData
 	outputFields     []string
 	batch            []map[string]interface{}
 	currentBatchSize int
@@ -77,82 +76,6 @@ func (o *Neo4jOutput) Init(provider sdk.Provider) {
 	}
 }
 
-func (o *Neo4jOutput) findFieldAndGenerateCopier(field string, incomingInfo sdk.IncomingRecordInfo) bool {
-	var copier CopyData
-	for _, incomingField := range incomingInfo.Fields() {
-		if field == incomingField.Name {
-			switch incomingField.Type {
-			case `Byte`, `Int16`, `Int32`, `Int64`:
-				intField, _ := incomingInfo.GetIntField(field)
-				getInt := intField.GetValue
-				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
-					value, isNull := getInt(copyFrom)
-					if isNull {
-						copyTo[field] = nil
-						return
-					}
-					copyTo[field] = value
-				}
-				o.copier = append(o.copier, copier)
-				return true
-			case `String`, `WString`, `V_String`, `V_WString`:
-				stringField, _ := incomingInfo.GetStringField(field)
-				getString := stringField.GetValue
-				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
-					value, isNull := getString(copyFrom)
-					if isNull {
-						copyTo[field] = nil
-						return
-					}
-					copyTo[field] = value
-				}
-				o.copier = append(o.copier, copier)
-				return true
-			case `Bool`:
-				boolField, _ := incomingInfo.GetBoolField(field)
-				getBool := boolField.GetValue
-				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
-					value, isNull := getBool(copyFrom)
-					if isNull {
-						copyTo[field] = nil
-						return
-					}
-					copyTo[field] = value
-				}
-				o.copier = append(o.copier, copier)
-				return true
-			case `Date`, `DateTime`:
-				timeField, _ := incomingInfo.GetTimeField(field)
-				getTime := timeField.GetValue
-				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
-					value, isNull := getTime(copyFrom)
-					if isNull {
-						copyTo[field] = nil
-						return
-					}
-					copyTo[field] = value
-				}
-				o.copier = append(o.copier, copier)
-				return true
-			case `Float`, `Double`, `FixedDecimal`:
-				floatField, _ := incomingInfo.GetFloatField(field)
-				getFloat := floatField.GetValue
-				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) {
-					value, isNull := getFloat(copyFrom)
-					if isNull {
-						copyTo[field] = nil
-						return
-					}
-					copyTo[field] = value
-				}
-				o.copier = append(o.copier, copier)
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 	if !o.doExport {
 		return
@@ -163,13 +86,16 @@ func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 		o.error(err.Error())
 		return
 	}
+
+	var copier util.CopyData
 	incomingInfo := connection.Metadata()
 	for _, field := range o.outputFields {
-		ok := o.findFieldAndGenerateCopier(field, incomingInfo)
-		if !ok {
+		copier, err = util.FindFieldAndGenerateCopier(field, incomingInfo)
+		if err != nil {
 			o.error(fmt.Sprintf(`field %v was not contained in the record`, field))
 			return
 		}
+		o.copier = append(o.copier, copier)
 	}
 	o.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(o.config.Username, o.config.Password, ""))
 	if err != nil {

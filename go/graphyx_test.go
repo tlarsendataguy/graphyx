@@ -276,7 +276,7 @@ func TestEndToEndDelete(t *testing.T) {
 </Configuration>`
 	pluginNodes := &delete.Neo4jDelete{}
 	runnerNodes := sdk.RegisterToolTest(pluginNodes, 1, configNodes)
-	runnerNodes.ConnectInput(`Input`, `TestNeo4jOutputNodes.txt`)
+	runnerNodes.ConnectInput(`Input`, `TestNeo4jDeleteNodes.txt`)
 	runnerNodes.SimulateLifecycle()
 
 	nodes, err := checkNumberOfItems(`MATCH (n:DELETE) RETURN count(n)`)
