@@ -35,7 +35,15 @@
 
     // Extract incoming field information from the current tool configuration provided by Alteryx
     function generateIncomingFields(currentToolConfiguration) {
+      if (currentToolConfiguration.MetaInfo[0] === null) {
+        window.incomingFields = [];
+        return;
+      }
       let metaInfo = currentToolConfiguration.MetaInfo[0].MetaInfo.RecordInfo.Field;
+      if (!Array.isArray(metaInfo)) {
+        window.incomingFields = [{strName: metaInfo['@name'], strType: metaInfo['@type']}];
+        return;
+      }
       let inputFields = [];
       for (let field of metaInfo) {
         inputFields.push({strName: field['@name'], strType: field['@type']});
