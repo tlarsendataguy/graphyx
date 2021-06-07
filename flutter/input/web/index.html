@@ -23,7 +23,13 @@
     // Mock window.Alteryx for testing outside of Alteryx
     if (window.Alteryx == null){
       window.Alteryx = {
-        JsEvent: function(eventStr) {}
+        JsEvent: function(eventStr) {
+          let parsedEvent = JSON.parse(eventStr);
+          if (parsedEvent.Event === 'Encrypt' || parsedEvent.Event === 'Decrypt') {
+            let callback = window[parsedEvent.callback];
+            callback(parsedEvent.text);
+          }
+        }
       }
       let testConfig = {
         "ConnStr": "http://localhost:7474",

@@ -12,6 +12,16 @@ void registerSaveConfigCallback(GenerateConfig generator) {
   setProperty(window, 'getCustomToolConfig', allowInterop(generator));
 }
 
+typedef void PasswordFunc(String value);
+
+void registerEncryptCallback(PasswordFunc f) {
+  setProperty(window, 'encryptPasswordCallback', allowInterop(f));
+}
+
+void registerDecryptCallback(PasswordFunc f) {
+  setProperty(window, 'decryptPasswordCallback', allowInterop(f));
+}
+
 @JS('customToolConfig')
 external String get configuration;
 
@@ -20,3 +30,6 @@ external set configuration(String value);
 
 @JS('customToolConfigLoaded')
 external bool get configurationLoaded;
+
+@JS('Alteryx.JsEvent')
+external void JsEvent(String eventStr);

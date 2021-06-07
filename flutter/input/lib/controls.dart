@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:flutter/material.dart';
@@ -23,15 +21,21 @@ class _ControlsState extends State<Controls> {
   List<Widget> fieldWidgets = [];
   AppState state;
   bool isValidating = false;
+  Future futurePassword;
 
-  void initState(){
+  void initState() {
     state = BlocProvider.of<AppState>(context);
+    futurePassword = getPassword();
     urlController = TextEditingController(text: state.connStr);
     userController = TextEditingController(text: state.username);
-    passwordController = TextEditingController(text: state.password);
     databaseController = TextEditingController(text: state.database);
     queryController = TextEditingController(text: state.query);
     super.initState();
+  }
+
+  Future getPassword() async {
+    var password = await state.getPassword();
+    passwordController = TextEditingController(text: password);
   }
 
   void urlChanged(value) {
@@ -76,58 +80,65 @@ class _ControlsState extends State<Controls> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged, autocorrect: false),
-        TextField(controller: this.userController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged, autocorrect: false),
-        TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged, autocorrect: false),
-        TextField(controller: this.databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged, autocorrect: false),
-        TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query"), onChanged: queryChanged, style: TextStyle(fontFamily: 'JetBrains Mono'), minLines: 1, maxLines: 10, autocorrect: false),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-          child: SizedBox(
-            height: 40,
-            child: TextButton(
-              onPressed: validateQuery,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Validate query"),
-                  isValidating ? CircularProgressIndicator(strokeWidth: 2) : SizedBox(width: 0),
-                ],
+    return FutureBuilder(
+      future: futurePassword,
+      builder: (context, snapshot){
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged, autocorrect: false),
+            TextField(controller: this.userController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged, autocorrect: false),
+            TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password"), autocorrect: false, obscureText: true, onChanged: passwordChanged),
+            TextField(controller: this.databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged, autocorrect: false),
+            TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query"), onChanged: queryChanged, style: TextStyle(fontFamily: 'JetBrains Mono'), minLines: 1, maxLines: 10, autocorrect: false),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+              child: SizedBox(
+                height: 40,
+                child: TextButton(
+                  onPressed: validateQuery,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Validate query"),
+                      isValidating ? CircularProgressIndicator(strokeWidth: 2) : SizedBox(width: 0),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        StreamBuilder<ValidatedResponse>(
-          stream: state.lastValidatedResponse,
-          builder: (_, AsyncSnapshot<ValidatedResponse> value){
-            if (value.hasData && value.data.error != '') {
-              return SelectableText(
-                '${value.data.error}',
-                style: TextStyle(color: Colors.red)
-              );
-            }
-            return SizedBox(height: 0);
-          },
-        ),
-        ElevatedButton(onPressed: state.addField, child: Text("Add field")),
-        StreamBuilder<List<Field>>(
-          stream: BlocProvider.of<AppState>(context).fields,
-          builder: (_, AsyncSnapshot<List<Field>> value) {
-            generateFieldWidgets(value.data);
-            return Expanded(
-              child: ReorderableListView(
-                onReorder: state.moveField,
-                children: fieldWidgets,
-                buildDefaultDragHandles: false,
-              ),
-            );
-          },
-        ),
-      ],
-    );
+            StreamBuilder<ValidatedResponse>(
+              stream: state.lastValidatedResponse,
+              builder: (_, AsyncSnapshot<ValidatedResponse> value){
+                if (value.hasData && value.data.error != '') {
+                  return SelectableText(
+                      '${value.data.error}',
+                      style: TextStyle(color: Colors.red)
+                  );
+                }
+                return SizedBox(height: 0);
+              },
+            ),
+            ElevatedButton(onPressed: state.addField, child: Text("Add field")),
+            StreamBuilder<List<Field>>(
+              stream: BlocProvider.of<AppState>(context).fields,
+              builder: (_, AsyncSnapshot<List<Field>> value) {
+                generateFieldWidgets(value.data);
+                return Expanded(
+                  child: ReorderableListView(
+                    onReorder: state.moveField,
+                    children: fieldWidgets,
+                    buildDefaultDragHandles: false,
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+    });
   }
 }

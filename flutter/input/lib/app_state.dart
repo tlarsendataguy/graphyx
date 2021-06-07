@@ -1,7 +1,7 @@
-
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:input/bloc.dart';
+import 'package:input/configuration.dart';
 import 'package:input/decode_config.dart';
 import 'package:input/neo4j_response.dart';
 import 'package:rxdart/rxdart.dart' as rx;
@@ -64,12 +64,33 @@ class AppState extends BlocState {
   }
 
   Configuration _config;
+  String _decrypted;
+  bool _decrypting = false;
   String get connStr => _config.connStr;
   set connStr(String value) => _config.connStr = value;
   String get username => _config.username;
   set username(String value) => _config.username = value;
-  String get password => _config.password;
-  set password(String value) => _config.password = value;
+
+  Future<String> getPassword() async {
+    _decrypting = true;
+    var event = json.encode({"Event": "Decrypt", "text": _config.password, "callback": "decryptPasswordCallback"});
+    JsEvent(event);
+    while (true) {
+      if (_decrypting) {
+        await Future.delayed(Duration(milliseconds: 10));
+        continue;
+      }
+      break;
+    }
+    return _decrypted;
+  }
+
+  set password(String value) {
+    _decrypted = value;
+    var event = json.encode({"Event": "Encrypt", "text": value, "encryptionMode": "", "callback": "encryptPasswordCallback"});
+    JsEvent(event);
+  }
+
   String get query => _config.query;
   set query(String value) => _config.query = value;
   String get database => _config.database;
@@ -79,6 +100,15 @@ class AppState extends BlocState {
   Stream get lastValidatedResponse => _lastValidatedResponse.stream;
   rx.BehaviorSubject<List<Field>> _fields;
   Stream get fields => _fields.stream;
+
+  void useDecryptedPassword(String value) {
+    _decrypted = value;
+    _decrypting = false;
+  }
+
+  void useEncryptedPassword(String value) {
+    _config.password = value;
+  }
 
   Future validateQuery() async {
     var query = _config.query;
@@ -96,18 +126,19 @@ class AppState extends BlocState {
           },
         ],
       };
+      var password = await getPassword();
       var response = await http.post(
         '${_config.connStr}/db/neo4j/tx/commit',
         headers: {
           'Accept': 'application/vnd.neo4j.jolt+json-seq;strict=true',
           'Content-Type': 'application/json',
           'Authorization': 'Basic ' + base64Encode(
-              utf8.encode('${_config.username}:${_config.password}')),
+              utf8.encode('${_config.username}:$password')),
         },
         body: jsonEncode(body),
       );
       if (response.statusCode != 200) {
-        validated = ValidatedResponse(error: 'error ${response.statusCode} returned from server');
+        validated = ValidatedResponse(error: 'error ${response.statusCode} returned from server', returnValues: []);
       } else {
         validated = validate(response.body);
       }

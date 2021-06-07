@@ -22,6 +22,8 @@ void main() async {
   }
   var appState = AppState(configuration);
   registerSaveConfigCallback(appState.getConfig);
+  registerDecryptCallback(appState.useDecryptedPassword);
+  registerEncryptCallback(appState.useEncryptedPassword);
 
   var monoLoader = FontLoader("JetBrains Mono");
   monoLoader.addFont(fontFileToByteData(monoFontFile));
