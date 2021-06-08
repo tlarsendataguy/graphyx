@@ -31,6 +31,8 @@ void main() async {
   }
   var appState = decodeConfig(configuration, lazyLoadIncomingFields);
   registerSaveConfigCallback(appState.getConfig);
+  registerDecryptCallback(appState.callbackDecryptedPassword);
+  registerEncryptCallback(appState.callbackEncryptedPassword);
 
   var materialLoader = FontLoader("MaterialIcons");
   materialLoader.addFont(fontFileToByteData(materialIcons));
@@ -76,10 +78,11 @@ class _ControlsState extends State<Controls> {
   TextEditingController passwordController;
   TextEditingController databaseController;
   TextEditingController batchSizeController;
+  Future passwordFuture;
 
   void urlChanged(String value) => config.connStr = value;
   void usernameChanged (String value) => config.username = value;
-  void passwordChanged (String value) => config.password = value;
+  void passwordChanged (String value) => config.encryptPassword(value);
   void databaseChanged (String value) => config.database = value;
   void batchSizeChanged (String value) {
     var intValue = int.tryParse(value);
@@ -91,6 +94,7 @@ class _ControlsState extends State<Controls> {
 
   void initState() {
     config = BlocProvider.of<Configuration>(context);
+    passwordFuture = getPassword();
     urlController = TextEditingController(text: config.connStr);
     usernameController = TextEditingController(text: config.username);
     passwordController = TextEditingController(text: config.password);
@@ -99,16 +103,30 @@ class _ControlsState extends State<Controls> {
     super.initState();
   }
 
+  Future getPassword() async {
+    var password = await config.decryptPassword();
+    passwordController = TextEditingController(text: password);
+  }
+
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        TextField(controller: urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged),
-        TextField(controller: usernameController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged),
-        TextField(controller: passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged),
-        TextField(controller: databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged),
-        TextField(controller: batchSizeController, decoration: InputDecoration(labelText: "batch  size"), onChanged: batchSizeChanged, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))]),
-        ExportObjectSelector(),
-      ],
+    return FutureBuilder(
+      future: passwordFuture,
+      builder: (context, snapshot){
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        return ListView(
+          children: [
+            TextField(controller: urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged),
+            TextField(controller: usernameController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged),
+            TextField(controller: passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged, obscureText: true),
+            TextField(controller: databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged),
+            TextField(controller: batchSizeController, decoration: InputDecoration(labelText: "batch  size"), onChanged: batchSizeChanged, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))]),
+            ExportObjectSelector(),
+          ],
+        );
+      },
     );
   }
 }

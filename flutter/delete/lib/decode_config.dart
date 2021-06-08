@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:delete/bloc.dart';
+import 'package:delete/configuration.dart';
 
 class AyxToNeo4jMap {
   AyxToNeo4jMap(this.ayxField, this.neo4jField);
@@ -32,6 +33,9 @@ class Configuration extends BlocState {
   List<AyxToNeo4jMap> relRightFields;
   LazyFieldLoader loadFields;
 
+  bool _decrypting = false;
+  String _decrypted;
+
   List<String> get incomingFields {
     if (_incomingFields == null) {
       _incomingFields = loadFields();
@@ -40,6 +44,35 @@ class Configuration extends BlocState {
   }
 
   List<String> _incomingFields;
+
+  void encryptPassword(String value) {
+    _decrypted = value;
+    var event = json.encode({"Event": "Encrypt", "text": value, "encryptionMode": "", "callback": "encryptPasswordCallback"});
+    JsEvent(event);
+  }
+
+  Future<String> decryptPassword() async {
+    _decrypting = true;
+    var event = json.encode({"Event": "Decrypt", "text": password, "callback": "decryptPasswordCallback"});
+    JsEvent(event);
+    while (true) {
+      if (_decrypting) {
+        await Future.delayed(Duration(milliseconds: 10));
+        continue;
+      }
+      break;
+    }
+    return _decrypted;
+  }
+
+  void callbackDecryptedPassword(String value) {
+    _decrypted = value;
+    _decrypting = false;
+  }
+
+  void callbackEncryptedPassword(String value) {
+    password = value;
+  }
 
   void dispose() {}
   Future initialize() async {}
