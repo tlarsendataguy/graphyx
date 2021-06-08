@@ -97,7 +97,9 @@ func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 		}
 		o.copier = append(o.copier, copier)
 	}
-	o.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(o.config.Username, o.config.Password, ""))
+
+	password := o.provider.Io().DecryptPassword(o.config.Password)
+	o.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(o.config.Username, password, ""))
 	if err != nil {
 		o.error(err.Error())
 		return

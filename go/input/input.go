@@ -48,7 +48,8 @@ func (i *Neo4jInput) OnComplete() {
 		i.provider.Io().Error(fmt.Sprintf(`error connecting to Neo4j: %v`, err.Error()))
 	}
 
-	driver, err := neo4j.NewDriver(boltUrl, neo4j.BasicAuth(i.config.Username, i.config.Password, ""))
+	password := i.provider.Io().DecryptPassword(i.config.Password)
+	driver, err := neo4j.NewDriver(boltUrl, neo4j.BasicAuth(i.config.Username, password, ""))
 	if err != nil {
 		i.provider.Io().Error(fmt.Sprintf(`expected no error but got: %v`, err.Error()))
 		return

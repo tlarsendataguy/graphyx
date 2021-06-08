@@ -122,7 +122,9 @@ func (d *Neo4jDelete) OnInputConnectionOpened(connection sdk.InputConnection) {
 		}
 		d.copiers = append(d.copiers, copier)
 	}
-	d.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(d.config.Username, d.config.Password, ""))
+
+	password := d.provider.Io().DecryptPassword(d.config.Password)
+	d.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(d.config.Username, password, ""))
 	if err != nil {
 		d.error(err.Error())
 		return
