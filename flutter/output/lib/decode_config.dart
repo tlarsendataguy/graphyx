@@ -15,13 +15,14 @@ class AyxToNeo4jMap {
 typedef List<String> LazyFieldLoader();
 
 class Configuration extends BlocState {
-  Configuration({this.connStr, this.username, this.password, this.database, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.loadFields});
+  Configuration({this.connStr, this.username, this.password, this.database, this.urlCollapsed, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.loadFields});
 
   String connStr;
   String username;
   String password;
   String database;
   String exportObject;
+  bool urlCollapsed;
   int batchSize;
   String nodeLabel;
   List<String> nodeIdFields;
@@ -88,6 +89,7 @@ class Configuration extends BlocState {
       "Username": username,
       "Password": password,
       "Database": database,
+      "UrlCollapsed": urlCollapsed,
       "ExportObject": exportObject,
       "BatchSize": batchSize,
       "NodeLabel": nodeLabel,
@@ -110,6 +112,7 @@ Configuration decodeConfig(String configStr, LazyFieldLoader incomingFields) {
       username: '',
       password: '',
       database: '',
+      urlCollapsed: false,
       exportObject: 'Node',
       batchSize: 10000,
       nodeLabel: '',
@@ -130,6 +133,7 @@ Configuration decodeConfig(String configStr, LazyFieldLoader incomingFields) {
     username: decoded['Username'] ?? '',
     password: decoded['Password'] ?? '',
     database: decoded['Database'] ?? '',
+    urlCollapsed: decoded['UrlCollapsed'] ?? false,
     exportObject: decoded['ExportObject'] ?? 'Node',
     batchSize: decoded['BatchSize'] ?? 10000,
     nodeLabel: decoded['NodeLabel'] ?? '',

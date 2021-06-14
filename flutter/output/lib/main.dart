@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:output/bloc.dart';
 import 'package:output/configuration.dart';
+import 'package:output/connection_controls.dart';
 import 'package:output/decode_config.dart';
 import 'package:output/field_mapper.dart';
 import 'package:output/field_selector.dart';
@@ -73,17 +74,8 @@ class Controls extends StatefulWidget {
 
 class _ControlsState extends State<Controls> {
   Configuration config;
-  TextEditingController urlController;
-  TextEditingController usernameController;
-  TextEditingController passwordController;
-  TextEditingController databaseController;
   TextEditingController batchSizeController;
-  Future passwordFuture;
 
-  void urlChanged(String value) => config.connStr = value;
-  void usernameChanged (String value) => config.username = value;
-  void passwordChanged (String value) => config.encryptPassword(value);
-  void databaseChanged (String value) => config.database = value;
   void batchSizeChanged (String value) {
     var intValue = int.tryParse(value);
     if (intValue == null) {
@@ -94,45 +86,36 @@ class _ControlsState extends State<Controls> {
 
   void initState() {
     config = BlocProvider.of<Configuration>(context);
-    passwordFuture = getPassword();
-    urlController = TextEditingController(text: config.connStr);
-    usernameController = TextEditingController(text: config.username);
-    passwordController = TextEditingController(text: config.password);
-    databaseController = TextEditingController(text: config.database);
     batchSizeController = TextEditingController(text: config.batchSize.toString());
     super.initState();
   }
-  
-  Future getPassword() async {
-    var password = await config.decryptPassword();
-    passwordController = TextEditingController(text: password);
-  }
 
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: passwordFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        
-        return ListView(
-          children: [
-            TextField(controller: urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged),
-            TextField(controller: usernameController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged),
-            TextField(controller: passwordController, decoration: InputDecoration(labelText: "password"), onChanged: passwordChanged, obscureText: true),
-            TextField(controller: databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged),
-            TextField(controller: batchSizeController, decoration: InputDecoration(labelText: "batch size"), onChanged: batchSizeChanged, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))]),
-            ExportObjectSelector(),
-          ],
-        );
-      }
+    return ListView(
+      children: [
+        ConnectionControls(),
+        Card(
+          elevation: 12,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(controller: batchSizeController, decoration: InputDecoration(labelText: "batch size"), onChanged: batchSizeChanged, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))]),
+                ExportObjectSelector(()=>setState((){})),
+              ],
+            ),
+          ),
+        ),
+        NodeOrRelationshipConfig(config.exportObject),
+      ],
     );
   }
 }
 
 class ExportObjectSelector extends StatefulWidget {
-  ExportObjectSelector();
+  ExportObjectSelector(this.onChanged);
+  final VoidCallback onChanged;
 
   createState() => _ExportObjectSelectorState();
 }
@@ -142,7 +125,7 @@ class _ExportObjectSelectorState extends State<ExportObjectSelector> {
 
   void exportObjectChanged (String value) {
     config.exportObject = value;
-    setState(() {});
+    setState(widget.onChanged);
   }
 
   initState() {
@@ -152,7 +135,6 @@ class _ExportObjectSelectorState extends State<ExportObjectSelector> {
 
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(height: 20),
@@ -166,7 +148,6 @@ class _ExportObjectSelectorState extends State<ExportObjectSelector> {
           value: config.exportObject,
           onChanged: exportObjectChanged,
         ),
-        NodeOrRelationshipConfig(config.exportObject),
       ],
     );
   }
@@ -206,14 +187,19 @@ class _NodeConfigState extends State<NodeConfig> {
   }
 
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(controller: nodeLabelController, decoration: InputDecoration(labelText: "node label"), onChanged: nodeLabelChanged),
-        FieldSelector(source: config.nodeIdFields, label: "node ID fields"),
-        FieldSelector(source: config.nodePropFields, label: "update the following properties"),
-      ],
+    return Card(
+      elevation: 12,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(controller: nodeLabelController, decoration: InputDecoration(labelText: "node label"), onChanged: nodeLabelChanged),
+            FieldSelector(source: config.nodeIdFields, label: "node ID fields"),
+            FieldSelector(source: config.nodePropFields, label: "update the following properties"),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -252,12 +238,45 @@ class _RelationshipConfigState extends State<RelationshipConfig> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(controller: relLabelController, decoration: InputDecoration(labelText: "relationship label"), onChanged: relLabelChanged),
-        FieldSelector(source: config.relPropFields, label: "update the following relationship properties"),
-        TextField(controller: relLeftLabelController, decoration: InputDecoration(labelText: "left node label"), onChanged: relLeftLabelChanged),
-        FieldMapper(source: config.relLeftFields, label: "match the following properties of the left node"),
-        TextField(controller: relRightLabelController, decoration: InputDecoration(labelText: "right node label"), onChanged: relRightLabelChanged),
-        FieldMapper(source: config.relRightFields, label: "match the following properties of the right node"),
+        Card(
+          elevation: 12,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(controller: relLabelController, decoration: InputDecoration(labelText: "relationship label"), onChanged: relLabelChanged),
+                FieldSelector(source: config.relPropFields, label: "update the following relationship properties"),
+              ],
+            ),
+          ),
+        ),
+        Card(
+          elevation: 12,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(controller: relLeftLabelController, decoration: InputDecoration(labelText: "left node label"), onChanged: relLeftLabelChanged),
+                FieldMapper(source: config.relLeftFields, label: "match the following properties of the left node"),
+              ],
+            ),
+          ),
+        ),
+        Card(
+          elevation: 12,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(controller: relRightLabelController, decoration: InputDecoration(labelText: "right node label"), onChanged: relRightLabelChanged),
+                FieldMapper(source: config.relRightFields, label: "match the following properties of the right node"),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
