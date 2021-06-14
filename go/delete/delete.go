@@ -98,7 +98,10 @@ func (d *Neo4jDelete) Init(provider sdk.Provider) {
 	for index := range d.batch {
 		d.batch[index] = make(map[string]interface{}, numFields)
 	}
-	d.doExport = true
+
+	if !d.provider.Environment().UpdateOnly() {
+		d.doExport = true
+	}
 }
 
 func (d *Neo4jDelete) OnInputConnectionOpened(connection sdk.InputConnection) {
