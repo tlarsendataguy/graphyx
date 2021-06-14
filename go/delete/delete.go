@@ -129,8 +129,12 @@ func (d *Neo4jDelete) OnInputConnectionOpened(connection sdk.InputConnection) {
 		d.error(err.Error())
 		return
 	}
+	err = d.driver.VerifyConnectivity()
+	if err != nil {
+		d.error(err.Error())
+		return
+	}
 	d.session = d.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: d.config.Database})
-
 }
 
 func (d *Neo4jDelete) OnRecordPacket(connection sdk.InputConnection) {
