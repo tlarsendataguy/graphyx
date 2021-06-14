@@ -1,61 +1,44 @@
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:input/connection_controls.dart';
 import 'package:input/field_widget.dart';
 import 'package:input/neo4j_response.dart';
 
-class Controls extends StatefulWidget {
+class Controls extends StatelessWidget {
   Controls({Key key}) : super(key: key);
 
-  @override
-  _ControlsState createState() => _ControlsState();
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        ConnectionControls(),
+        Expanded(
+          child: QueryControls(),
+        )
+      ],
+    );
+  }
 }
 
-class _ControlsState extends State<Controls> {
-  String connStr;
-  TextEditingController urlController;
-  TextEditingController userController;
-  TextEditingController passwordController;
+class QueryControls extends StatefulWidget {
+  createState() => _QueryControlsState();
+}
+
+class _QueryControlsState extends State<QueryControls> {
   TextEditingController queryController;
-  TextEditingController databaseController;
   List<Widget> fieldWidgets = [];
   AppState state;
   bool isValidating = false;
-  Future futurePassword;
 
   void initState() {
     state = BlocProvider.of<AppState>(context);
-    futurePassword = getPassword();
-    urlController = TextEditingController(text: state.connStr);
-    userController = TextEditingController(text: state.username);
-    databaseController = TextEditingController(text: state.database);
     queryController = TextEditingController(text: state.query);
     super.initState();
   }
 
-  Future getPassword() async {
-    var password = await state.getPassword();
-    passwordController = TextEditingController(text: password);
-  }
-
-  void urlChanged(value) {
-    state.connStr = value;
-  }
-
-  void usernameChanged(value) {
-    state.username = value;
-  }
-
-  void passwordChanged(value) {
-    state.password = value;
-  }
-
   void queryChanged(value) {
     state.query = value;
-  }
-
-  void databaseChanged(value) {
-    state.database = value;
   }
 
   void generateFieldWidgets(List<Field> fields){
@@ -80,20 +63,13 @@ class _ControlsState extends State<Controls> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: futurePassword,
-      builder: (context, snapshot){
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        return Column(
-          mainAxisSize: MainAxisSize.min,
+    return Card(
+      elevation: 12,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged, autocorrect: false),
-            TextField(controller: this.userController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged, autocorrect: false),
-            TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password"), autocorrect: false, obscureText: true, onChanged: passwordChanged),
-            TextField(controller: this.databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged, autocorrect: false),
+          children: [
             TextField(controller: this.queryController, decoration: InputDecoration(labelText: "query"), onChanged: queryChanged, style: TextStyle(fontFamily: 'JetBrains Mono'), minLines: 1, maxLines: 10, autocorrect: false),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
@@ -138,7 +114,8 @@ class _ControlsState extends State<Controls> {
               },
             ),
           ],
-        );
-    });
+        ),
+      ),
+    );
   }
 }

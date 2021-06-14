@@ -12,6 +12,7 @@ Configuration decodeConfig(String configStr) {
       password: '',
       query: '',
       database: '',
+      urlCollapsed: false,
       lastValidatedResponse: ValidatedResponse(error: '', returnValues: []),
       fields: [],
     );
@@ -22,6 +23,7 @@ Configuration decodeConfig(String configStr) {
     username: decoded['Username'] ?? '',
     password: decoded['Password'] ?? '',
     database: decoded['Database'] ?? '',
+    urlCollapsed: decoded['UrlCollapsed'] ?? false,
     query: decoded['Query'] ?? '',
     lastValidatedResponse: _decodeValidatedResponse(decoded['LastValidatedResponse']),
     fields: _decodeFields(decoded['Fields']),
