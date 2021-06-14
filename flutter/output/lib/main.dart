@@ -92,6 +92,7 @@ class _ControlsState extends State<Controls> {
 
   Widget build(BuildContext context) {
     return ListView(
+      clipBehavior: Clip.none,
       children: [
         ConnectionControls(),
         Card(

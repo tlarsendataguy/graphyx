@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Neo4j Output',
+      title: 'Neo4j Delete',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         accentColor: Colors.green,
@@ -92,6 +92,7 @@ class _ControlsState extends State<Controls> {
 
   Widget build(BuildContext context) {
     return ListView(
+      clipBehavior: Clip.none,
       children: [
         ConnectionControls(),
         Card(
