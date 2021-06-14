@@ -105,6 +105,10 @@ func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 		return
 	}
 	o.session = o.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: o.config.Database})
+	err = o.driver.VerifyConnectivity()
+	if err != nil {
+		o.error(err.Error())
+	}
 }
 
 func (o *Neo4jOutput) OnRecordPacket(connection sdk.InputConnection) {

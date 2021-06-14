@@ -54,6 +54,11 @@ func (i *Neo4jInput) OnComplete() {
 		i.provider.Io().Error(fmt.Sprintf(`expected no error but got: %v`, err.Error()))
 		return
 	}
+	err = driver.VerifyConnectivity()
+	if err != nil {
+		i.provider.Io().Error(err.Error())
+		return
+	}
 	defer driver.Close()
 
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: i.config.Database})
@@ -82,4 +87,7 @@ func (i *Neo4jInput) OnComplete() {
 
 		return result.Consume()
 	})
+	if err != nil {
+		i.provider.Io().Error(err.Error())
+	}
 }
