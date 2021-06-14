@@ -15,12 +15,13 @@ class AyxToNeo4jMap {
 typedef List<String> LazyFieldLoader();
 
 class Configuration extends BlocState {
-  Configuration({this.connStr, this.username, this.password, this.database, this.deleteObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.relType, this.relFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.loadFields});
+  Configuration({this.connStr, this.username, this.password, this.database, this.urlCollapsed, this.deleteObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.relType, this.relFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.loadFields});
 
   String connStr;
   String username;
   String password;
   String database;
+  bool urlCollapsed;
   String deleteObject;
   int batchSize;
   String nodeLabel;
@@ -87,6 +88,7 @@ class Configuration extends BlocState {
       "Username": username,
       "Password": password,
       "Database": database,
+      "UrlCollapsed": urlCollapsed,
       "DeleteObject": deleteObject,
       "BatchSize": batchSize,
       "NodeLabel": nodeLabel,
@@ -108,6 +110,7 @@ Configuration decodeConfig(String configStr, LazyFieldLoader incomingFields) {
       username: '',
       password: '',
       database: '',
+      urlCollapsed: false,
       deleteObject: 'Node',
       batchSize: 10000,
       nodeLabel: '',
@@ -127,6 +130,7 @@ Configuration decodeConfig(String configStr, LazyFieldLoader incomingFields) {
     username: decoded['Username'] ?? '',
     password: decoded['Password'] ?? '',
     database: decoded['Database'] ?? '',
+    urlCollapsed: decoded['UrlCollapsed'] ?? false,
     deleteObject: decoded['DeleteObject'] ?? 'Node',
     batchSize: decoded['BatchSize'] ?? 10000,
     nodeLabel: decoded['NodeLabel'] ?? '',
