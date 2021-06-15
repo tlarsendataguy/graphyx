@@ -74,6 +74,36 @@ Sometimes, you don't want to spend a lot of time extracting information out of n
 
 <img src="https://github.com/tlarsen7572/graphyx/blob/main/go/output/Neo4jOutput/icon.png" width="100" />
 
+The Neo4j Output tool is used to export nodes and relationships to a Neo4j database.
+
+### Overview
+
+There are two different screens for the output tool, depending on how it is configured. The default screen is for exporting nodes and looks like this:
+
+<img src="https://github.com/tlarsen7572/graphyx/blob/main/readme_images/output_01.png" />
+
+The top panel contains information needed to connect to the Neo4j database. It can be minimized by clicking the top of the panel.
+* url: The HTTP endpoint for the Neo4j database. By default, this will be port 7474. Do not use any endpoint other than the HTTP endpoint. The engine uses the bolt endpoint, but it obtains the exact address by first calling into the HTTP endpoint.
+* username: The username to run the query as.
+* password: The password to authenticate the user with.
+* database: If blank, the default database will be used. Database can be ignored for Community editions of Neo4j. Users connected to the Enterprise edition of Neo4j can use this database field to select which database to import from.
+
+The middle panel defines the batch size and the type of object to export (nodes or relationships).
+
+The bottom panel is used to define how nodes are exported to Neo4j. By default, the export tool is an upsert tool. Nodes that already exist in the database are updated and nodes that do not exist are created. The 'node ID fields' section contains the properties the output tool will use to identify whether a node already exists in the database. If no ID fields are provided, the tool will only create new nodes.
+
+The 'update the following properties' section determines which properties of nodes are created/updated.
+
+The screen for exporting relationships looks like this:
+
+<img src="https://github.com/tlarsen7572/graphyx/blob/main/readme_images/output_02.png" />
+
+The top two panels are the same as the export node screen. The third panel defines the relationship label and any properties that should be created/updated on the relationship.
+
+The fourth panel tells the output tool how to match the left node in the relationship. The bottom panel tells the output tool how to match the right node in the relationship.
+
+Just as with the export node screen, exporting relationships is an upsert operation by default.
+
 [Back to top](#graphyx)
 
 ## Neo4j Delete
