@@ -98,7 +98,7 @@ The screen for exporting relationships looks like this:
 
 <img src="https://github.com/tlarsen7572/graphyx/blob/main/readme_images/output_02.png" />
 
-The top two panels are the same as the export node screen. The third panel defines the relationship label and any properties that should be created/updated on the relationship.
+The top two panels are the same as the export node screen. The third panel defines the relationship type and any properties that should be created/updated on the relationship.
 
 The fourth panel tells the output tool how to match the left node in the relationship. The bottom panel tells the output tool how to match the right node in the relationship.
 
@@ -109,5 +109,33 @@ Just as with the export node screen, exporting relationships is an upsert operat
 ## Neo4j Delete
 
 <img src="https://github.com/tlarsen7572/graphyx/blob/main/go/delete/Neo4jDelete/icon.png" width="100" />
+
+The Neo4j Delete tool is used to delete nodes and relationships from a Neo4j database.
+
+### Overview
+
+There are two different screens for the delete tool, depending on how it is configured. The default screen is for deleting nodes and looks like this:
+
+<img src="https://github.com/tlarsen7572/graphyx/blob/main/readme_images/delete_01.png" />
+
+The top panel contains information needed to connect to the Neo4j database. It can be minimized by clicking the top of the panel.
+* url: The HTTP endpoint for the Neo4j database. By default, this will be port 7474. Do not use any endpoint other than the HTTP endpoint. The engine uses the bolt endpoint, but it obtains the exact address by first calling into the HTTP endpoint.
+* username: The username to run the query as.
+* password: The password to authenticate the user with.
+* database: If blank, the default database will be used. Database can be ignored for Community editions of Neo4j. Users connected to the Enterprise edition of Neo4j can use this database field to select which database to import from.
+
+The middle panel defines the batch size and the type of object to delete (nodes or relationships).
+
+The bottom panel is used to define how nodes are deleted from Neo4j. Neither the label nor the ID fields are required. Providing a label and no ID fields will delete all nodes with that label. Providing ID fields but no label will delete any type of node with matching properties. Providing neither will delete all nodes from the database. When the tool deletes nodes, it will also delete any relationships attached to those nodes.
+
+The screen for deleting relationships looks like this:
+
+<img src="https://github.com/tlarsen7572/graphyx/blob/main/readme_images/delete_02.png" />
+
+The top two panels are the same as the delete node screen. The third panel defines the relationship type and any properties that should be matched when deleting relationships.
+
+The fourth panel tells the output tool how to match the left node in the relationship. The bottom panel tells the output tool how to match the right node in the relationship.
+
+As with the delete node screen, the labels, types, and properties are all optional. This provides a lot of flexibility to precisely define how relationships should be deleted, but also makes it easier to mistaklenly delete relationships. Use with caution.
 
 [Back to top](#graphyx)
