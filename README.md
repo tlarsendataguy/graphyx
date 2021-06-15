@@ -13,9 +13,10 @@ The user interfaces were built using [Flutter](https://github.com/flutter/flutte
 ## Table of contents
 
 1. [Installation](#Installation)
-2. [Neo4j Input](#Neo4j-Input)
-3. [Neo4j Output](#Neo4j-Output)
-4. [Neo4j Delete](#Neo4j-Delete)
+2. [Feedback](#Feedback)
+3. [Neo4j Input](#Neo4j-Input)
+4. [Neo4j Output](#Neo4j-Output)
+5. [Neo4j Delete](#Neo4j-Delete)
 
 ## Installation
 
@@ -25,6 +26,12 @@ The user interfaces were built using [Flutter](https://github.com/flutter/flutte
 4. Copy graphyx.dll to your Alteryx plugins folder. For an admin installation of Alteryx, the path is typically `C:\Program Files\Alteryx\bin\Plugins`. For a user-specific installation, the path is typically `C:\Users\YourUsername\AppData\Local\Alteryx\bin\Plugins`. This step installs the engine for the connectors.
 
 Graphyx is now installed. You can find the new connectors in the Connectors tab in Designer.
+
+[Back to top](#graphyx)
+
+## Feedback
+
+Submit any bugs or feature requests using [GitHub Issues](https://github.com/tlarsen7572/graphyx/issues).
 
 [Back to top](#graphyx)
 
