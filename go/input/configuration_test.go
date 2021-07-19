@@ -1436,7 +1436,7 @@ func TestPathStringToRecordInfo(t *testing.T) {
 				{Id: 2},
 			},
 			Relationships: []neo4j.Relationship{
-				{Id: 234},
+				{Id: 234, StartId: 1, EndId: 2},
 			},
 		},
 	})
@@ -1455,8 +1455,8 @@ func TestPathStringToRecordInfo(t *testing.T) {
 	if isNull {
 		t.Fatalf(`expected non-null but got null`)
 	}
-	if value != `()-[]-()` {
-		t.Fatalf(`expected '()-[]-()' but got '%v'`, value)
+	if value != `()-[]->()` {
+		t.Fatalf(`expected '()-[]->()' but got '%v'`, value)
 	}
 }
 
