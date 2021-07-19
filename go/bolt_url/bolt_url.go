@@ -8,7 +8,8 @@ import (
 )
 
 type BoltInfo struct {
-	BoltUrl string `json:"bolt_direct"`
+	BoltUrlV4 string `json:"bolt_direct"`
+	BoltUrlV3 string `json:"bolt"`
 }
 
 func GetBoltUrl(httpEndpoint string) (string, error) {
@@ -29,10 +30,17 @@ func GetBoltUrl(httpEndpoint string) (string, error) {
 	if err != nil {
 		return ``, err
 	}
+	return parseResponse(responseBytes)
+}
+
+func parseResponse(response []byte) (string, error) {
 	var bolt BoltInfo
-	err = json.Unmarshal(responseBytes, &bolt)
+	err := json.Unmarshal(response, &bolt)
 	if err != nil {
 		return ``, err
 	}
-	return bolt.BoltUrl, nil
+	if bolt.BoltUrlV4 != `` {
+		return bolt.BoltUrlV4, nil
+	}
+	return bolt.BoltUrlV3, nil
 }
