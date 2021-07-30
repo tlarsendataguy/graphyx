@@ -1,23 +1,11 @@
 import 'dart:convert';
 
-class ValidatedResponse {
-  ValidatedResponse({this.error, this.returnValues});
-  final String error;
-  final List<ReturnValue> returnValues;
+import 'package:input/validated_response.dart';
 
-  Map toJson(){
-    return {
-      'Error': error,
-      'ReturnValues': returnValues.map((e) => {'Name': e.name, 'DataType': e.dataType}).toList(),
-    };
-  }
+abstract class Validator {
+  Future<ValidatedResponse> validate();
 }
 
-class ReturnValue {
-  ReturnValue({this.name, this.dataType});
-  final String name;
-  final String dataType;
-}
 
 String cleanJsonLine(String raw) {
   if (raw.length == 0) {

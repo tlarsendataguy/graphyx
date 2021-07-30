@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:input/bloc.dart';
 import 'package:input/configuration.dart';
 import 'package:input/decode_config.dart';
-import 'package:input/neo4j_response.dart';
+import 'package:input/validated_response.dart';
+import 'package:input/validate.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:http/http.dart' as http;
 

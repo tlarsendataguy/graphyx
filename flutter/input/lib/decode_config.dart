@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 import 'package:input/app_state.dart';
-import 'package:input/neo4j_response.dart';
+import 'package:input/validated_response.dart';
 
 Configuration decodeConfig(String configStr) {
   if (configStr == null) {

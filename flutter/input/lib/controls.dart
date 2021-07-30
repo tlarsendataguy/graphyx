@@ -3,7 +3,7 @@ import 'package:input/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:input/connection_controls.dart';
 import 'package:input/field_widget.dart';
-import 'package:input/neo4j_response.dart';
+import 'package:input/validated_response.dart';
 
 class Controls extends StatelessWidget {
   Controls({Key key}) : super(key: key);

@@ -1,12 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/dropdown.dart';
 import 'package:input/field_state.dart';
-import 'package:input/neo4j_response.dart';
+import 'package:input/validated_response.dart';
 
 class PathSelector extends StatelessWidget {
   PathSelector(this.field);

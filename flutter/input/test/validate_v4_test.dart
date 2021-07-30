@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:input/neo4j_response.dart';
+import 'package:input/validate.dart';
 
 void main(){
   test("error response",(){
