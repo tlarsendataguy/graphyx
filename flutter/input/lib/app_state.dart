@@ -145,8 +145,7 @@ class AppState extends BlocState {
       if (response.statusCode != 200) {
         validated = ValidatedResponse(error: 'error ${response.statusCode} returned from server', returnValues: []);
       } else {
-        var validator = ValidateV4();
-        validated = validator.validateResponse(response.body);
+        validated = validateV4Response(response.body);
       }
     }
     catch (ex) {

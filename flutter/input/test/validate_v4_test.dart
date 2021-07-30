@@ -12,8 +12,7 @@ void main(){
   } ]
 }''';
 
-    var validator = ValidateV4();
-    var validatedResponse = validator.validateResponse(response);
+    var validatedResponse = validateV4Response(response);
     expect(validatedResponse, isNotNull);
     expect(validatedResponse.error, isNot(''));
     print(validatedResponse.error);
@@ -25,8 +24,7 @@ void main(){
 {"summary":{}}
 {"info":{}}''';
 
-    var validator = ValidateV4();
-    var validatedResponse = validator.validateResponse(response);
+    var validatedResponse = validateV4Response(response);
     expect(validatedResponse.error, equals(''));
     expect(validatedResponse.returnValues.length, equals(1));
     expect(validatedResponse.returnValues[0].name, equals('p'));
@@ -40,8 +38,7 @@ void main(){
 {"summary":{}}
 {"info":{}}''';
 
-    var validator = ValidateV4();
-    var validatedResponse = validator.validateResponse(response);
+    var validatedResponse = validateV4Response(response);
     expect(validatedResponse.error, equals(''));
     expect(validatedResponse.returnValues.length, equals(2));
     expect(validatedResponse.returnValues[0].name, equals('p'));
@@ -53,8 +50,7 @@ void main(){
 
   test("invalid json",(){
     var response = '''invalid json''';
-    var validator = ValidateV4();
-    var validatedResponse = validator.validateResponse(response);
+    var validatedResponse = validateV4Response(response);
     expect(validatedResponse, isNotNull);
     print(json.encode(validatedResponse.toJson()));
   });
@@ -66,8 +62,7 @@ void main(){
 \u001E{"summary":{}}
 \u001E{"info":{}}''';
 
-    var validator = ValidateV4();
-    var validatedResponse = validator.validateResponse(response);
+    var validatedResponse = validateV4Response(response);
     expect(validatedResponse.error, equals(''));
     expect(validatedResponse.returnValues.length, equals(1));
     expect(validatedResponse.returnValues[0].name, equals('p'));
