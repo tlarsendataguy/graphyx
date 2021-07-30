@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:input/bloc.dart';
 import 'package:input/configuration.dart';
 import 'package:input/decode_config.dart';
+import 'package:input/validate_v4.dart';
 import 'package:input/validated_response.dart';
-import 'package:input/validate.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:http/http.dart' as http;
 
@@ -145,7 +145,8 @@ class AppState extends BlocState {
       if (response.statusCode != 200) {
         validated = ValidatedResponse(error: 'error ${response.statusCode} returned from server', returnValues: []);
       } else {
-        validated = validate(response.body);
+        var validator = ValidateV4();
+        validated = validator.validateResponse(response.body);
       }
     }
     catch (ex) {

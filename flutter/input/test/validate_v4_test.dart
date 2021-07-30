@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:input/validate.dart';
+import 'package:input/validate_v4.dart';
 
 void main(){
   test("error response",(){
@@ -12,7 +12,8 @@ void main(){
   } ]
 }''';
 
-    var validatedResponse = validate(response);
+    var validator = ValidateV4();
+    var validatedResponse = validator.validateResponse(response);
     expect(validatedResponse, isNotNull);
     expect(validatedResponse.error, isNot(''));
     print(validatedResponse.error);
@@ -24,7 +25,8 @@ void main(){
 {"summary":{}}
 {"info":{}}''';
 
-    var validatedResponse = validate(response);
+    var validator = ValidateV4();
+    var validatedResponse = validator.validateResponse(response);
     expect(validatedResponse.error, equals(''));
     expect(validatedResponse.returnValues.length, equals(1));
     expect(validatedResponse.returnValues[0].name, equals('p'));
@@ -38,7 +40,8 @@ void main(){
 {"summary":{}}
 {"info":{}}''';
 
-    var validatedResponse = validate(response);
+    var validator = ValidateV4();
+    var validatedResponse = validator.validateResponse(response);
     expect(validatedResponse.error, equals(''));
     expect(validatedResponse.returnValues.length, equals(2));
     expect(validatedResponse.returnValues[0].name, equals('p'));
@@ -50,7 +53,8 @@ void main(){
 
   test("invalid json",(){
     var response = '''invalid json''';
-    var validatedResponse = validate(response);
+    var validator = ValidateV4();
+    var validatedResponse = validator.validateResponse(response);
     expect(validatedResponse, isNotNull);
     print(json.encode(validatedResponse.toJson()));
   });
@@ -62,7 +66,8 @@ void main(){
 \u001E{"summary":{}}
 \u001E{"info":{}}''';
 
-    var validatedResponse = validate(response);
+    var validator = ValidateV4();
+    var validatedResponse = validator.validateResponse(response);
     expect(validatedResponse.error, equals(''));
     expect(validatedResponse.returnValues.length, equals(1));
     expect(validatedResponse.returnValues[0].name, equals('p'));
