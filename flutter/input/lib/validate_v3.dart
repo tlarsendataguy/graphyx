@@ -14,18 +14,29 @@ ValidatedResponse validateV3Response(String response) {
     var data = firstRow['row'][columnIndex];
     columnIndex++;
     if (meta == null) {
-      switch (data.runtimeType.toString()) {
-        case 'String':
-          returnValues.add(ReturnValue(name: column, dataType: 'String'));
+      var dataType = getDataType(data.runtimeType.toString());
+      if (dataType == '') {
+        continue;
       }
+      returnValues.add(ReturnValue(name: column, dataType: dataType));
       continue;
     }
 
-    switch (meta['type'].toString()) {
-      case 'node':
-        returnValues.add(ReturnValue(name: column, dataType: 'Node'));
+    var dataType = getDataType(meta['type'].toString());
+    if (dataType == '') {
+      continue;
     }
+    returnValues.add(ReturnValue(name: column, dataType: dataType));
   }
 
   return ValidatedResponse(error: "", returnValues: returnValues);
+}
+
+String getDataType(String typeFromJson) {
+  switch (typeFromJson) {
+    case 'String':
+      return 'String';
+    case 'node':
+      return 'Node';
+  }
 }
