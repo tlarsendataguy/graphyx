@@ -7,5 +7,11 @@ main(){
 
     var validated = validateV3Response(response);
     expect(validated, isNotNull);
+    expect(validated.error, equals(''));
+    expect(validated.returnValues.length, equals(2));
+    expect(validated.returnValues[0].dataType, equals('String'));
+    expect(validated.returnValues[0].name, equals('n.title'));
+    expect(validated.returnValues[1].dataType, equals('Node'));
+    expect(validated.returnValues[1].name, equals('n'));
   });
 }
