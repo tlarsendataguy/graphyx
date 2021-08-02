@@ -13,16 +13,8 @@ ValidatedResponse validateV3Response(String response) {
     var meta = firstRow['meta'][columnIndex];
     var data = firstRow['row'][columnIndex];
     columnIndex++;
-    if (meta == null) {
-      var dataType = getDataType(data.runtimeType.toString());
-      if (dataType == '') {
-        continue;
-      }
-      returnValues.add(ReturnValue(name: column, dataType: dataType));
-      continue;
-    }
+    var dataType = getDataType(meta == null ? data.runtimeType.toString() : meta['type'].toString());
 
-    var dataType = getDataType(meta['type'].toString());
     if (dataType == '') {
       continue;
     }
@@ -38,5 +30,7 @@ String getDataType(String typeFromJson) {
       return 'String';
     case 'node':
       return 'Node';
+    default:
+      return '';
   }
 }
