@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:input/return_value_types.dart';
 import 'package:input/validated_response.dart';
 
 ValidatedResponse validateV3Response(String response) {
@@ -15,7 +16,7 @@ ValidatedResponse validateV3Response(String response) {
     columnIndex++;
     var dataType = getDataType(meta == null ? data.runtimeType.toString() : meta['type'].toString());
 
-    if (dataType == '') {
+    if (dataType == rUnknown) {
       continue;
     }
     returnValues.add(ReturnValue(name: column, dataType: dataType));
@@ -27,14 +28,17 @@ ValidatedResponse validateV3Response(String response) {
 String getDataType(String typeFromJson) {
   switch (typeFromJson) {
     case 'String':
-      return 'String';
+      return rString;
     case 'node':
-      return 'Node';
+      return rNode;
     case 'date':
-      return 'Date';
+      return rDate;
     case 'int':
-      return 'Integer';
+      return rInteger;
+    case '_InternalLinkedHashMap<String, dynamic>':
+      return rMap;
     default:
-      return '';
+      print(typeFromJson);
+      return rUnknown;
   }
 }

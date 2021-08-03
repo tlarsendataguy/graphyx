@@ -1,0 +1,11 @@
+const String rDate = 'Date';
+const String rInteger = 'Integer';
+const String rNode = 'Node';
+const String rPath = 'Path';
+const String rString = 'String';
+const String rRelationship = 'Relationship';
+const String rMap = 'Map';
+const String rBoolean = 'Boolean';
+const String rFloat = 'Float';
+const String rUnknown = 'Unknown';
+const String rList = 'List';

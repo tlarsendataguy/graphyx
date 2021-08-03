@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:input/return_value_types.dart';
 import 'package:input/validated_response.dart';
 
 ValidatedResponse validateV4Response(String response) {
@@ -36,7 +37,7 @@ ValidatedResponse validateV4Response(String response) {
       case '[]':
         var firstItem = dataTypes[index][dataType][0];
         var firstItemType = List.from(firstItem.keys)[0];
-        fieldType = 'List:${_decodeNonListDataType(firstItemType)}';
+        fieldType = '$rList:${_decodeNonListDataType(firstItemType)}';
         break;
       default:
         fieldType = _decodeNonListDataType(dataType);
@@ -60,25 +61,25 @@ String _cleanJsonLine(String raw) {
 String _decodeNonListDataType(String dataType) {
   switch (dataType) {
     case '..':
-      return 'Path';
+      return rPath;
     case '()':
-      return 'Node';
+      return rNode;
     case '->':
     case '<-':
-      return 'Relationship';
+      return rRelationship;
     case '{}':
-      return 'Map';
+      return rMap;
     case '?':
-      return 'Boolean';
+      return rBoolean;
     case 'Z':
-      return 'Integer';
+      return rInteger;
     case 'R':
-      return 'Float';
+      return rFloat;
     case 'U':
-      return 'String';
+      return rString;
     case 'T':
-      return 'Date';
+      return rDate;
     default:
-      return 'Unknown';
+      return rUnknown;
   }
 }
