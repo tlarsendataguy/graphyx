@@ -30,6 +30,10 @@ String getDataType(String typeFromJson) {
       return 'String';
     case 'node':
       return 'Node';
+    case 'date':
+      return 'Date';
+    case 'int':
+      return 'Integer';
     default:
       return '';
   }
