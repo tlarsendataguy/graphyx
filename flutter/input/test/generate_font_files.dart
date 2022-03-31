@@ -37,7 +37,7 @@ main(){
 
   test('generate material_icons.dart', () async {
       await generateFontFile(
-        """build/web/assets/fonts/MaterialIcons-Regular.otf""",
+        """fonts/MaterialIcons-Regular.ttf""",
         """lib/material_icons.dart""",
         "materialIcons",
       );

@@ -132,8 +132,9 @@ class AppState extends BlocState {
         ],
       };
       var password = await getPassword();
+      var db = _config.database == '' ? 'neo4j' : _config.database;
       var response = await http.post(
-        '${_config.connStr}/db/neo4j/tx/commit',
+        '${_config.connStr}/db/$db/tx/commit',
         headers: {
           'Accept': 'application/vnd.neo4j.jolt+json-seq;strict=true',
           'Content-Type': 'application/json',

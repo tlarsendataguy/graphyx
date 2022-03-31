@@ -6,7 +6,6 @@ import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/configuration.dart';
 import 'package:input/controls.dart';
-import 'package:input/material_icons.dart';
 import 'package:input/mono_font_file.dart';
 
 Future<ByteData> fontFileToByteData(List<int> file) async {
@@ -29,12 +28,7 @@ void main() async {
   monoLoader.addFont(fontFileToByteData(monoFontFile));
   var monoFuture = monoLoader.load();
 
-  var materialLoader = FontLoader("MaterialIcons");
-  materialLoader.addFont(fontFileToByteData(materialIcons));
-  var materialFuture = materialLoader.load();
-
   await monoFuture;
-  await materialFuture;
 
   runApp(BlocProvider<AppState>(
     child: Neo4jInputApp(),
