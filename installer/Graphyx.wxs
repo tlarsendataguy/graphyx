@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+    <Product Name='Graphyx' Manufacturer='tlarsendataguy'
+        Id='00edf6ca-535f-4d2b-8e4f-a892e0df9340' 
+		UpgradeCode='cdb04ddb-1cc6-4d73-96b3-9a4ffee350b7'
+        Language='1033' Codepage='1252' Version='1.0.2'>
+		<Package Id='*' Keywords='Installer' Description="Graphyx installer"
+			Comments='Neo4j input and output tools for Alteryx' Manufacturer='tlarsendataguy'
+			InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform="x64" />
+
+		<Condition Message="You need to be an administrator to install this product.">
+			Privileged
+		</Condition>
+		
+		<Icon Id="icon.ico" SourceFile="icon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+		
+		<Media Id='1' Cabinet='graphyx.cab' EmbedCab='yes' />
+		
+		<Property Id="ALTERYXDIR">
+			<RegistrySearch Id='AlteryxInstallDir' Type='raw' Root='HKCU' Key='Software\SRC\Alteryx' Name='LastInstallDir' />
+		</Property>
+		
+		<Directory Id='TARGETDIR' Name='SourceDir'>
+			<Directory Id='ALTERYXDIR' Name='ALTERYXDIR'>
+				<Directory Id='ALTERYXPLUGINS' Name='Plugins'>
+					<Component Id='EngineComponent' Guid='2c3a9927-3c1d-497e-8306-b9dba851766b'>
+						<File Id='EngineDll' Name='graphyx.dll' DiskId='1' Source='graphyx.dll' />
+					</Component>
+				</Directory>
+			</Directory>
+			<Directory Id='CommonAppDataFolder' Name='ProgramData'>
+				<Directory Id='ALTERYXCOMMONDATA' Name='Alteryx'>
+					<Directory Id='ALTERYXTOOLSFOLDER' Name='Tools'>
+						<Directory Id='NEO4JINPUT' Name='Neo4jInput'>
+							<Component Id='Neo4jInputComponent' Guid='0fc69650-625d-4af9-875a-4ea7cb6bf7d3'>
+								<File Id='Neo4jInputUi' Name='index.html' DiskId='1' Source='..\go\input\Neo4jInput\index.html' />
+								<File Id='Neo4jInputIcon' Name='icon.png' DiskId='1' Source='..\go\input\Neo4jInput\icon.png' />
+								<File Id='Neo4jInputConfig' Name='Neo4jInputConfig.xml' DiskId='1' Source='..\go\input\Neo4jInput\Neo4jInputConfig.xml' />
+								<File Id='Neo4jInputMainDart' Name='main.dart.js' DiskId='1' Source='..\go\input\Neo4jInput\main.dart.js' />
+								<File Id='Neo4jInputManifest' Name='manifest.json' DiskId='1' Source='..\go\input\Neo4jInput\manifest.json' />
+							</Component>
+							<Directory Id='NEO4JINPUTASSETS' Name='assets'>
+								<Component Id='Neo4jInputAssetsComponent' Guid='c228ebed-0598-4a2d-b1fb-76371fcab96a'>
+									<File Id='Neo4jInputAssetManifest' Name='AssetManifest.json' DiskId='1' Source='..\go\input\Neo4jInput\assets\AssetManifest.json' />
+									<File Id='Neo4jInputFontManifest' Name='FontManifest.json' DiskId='1' Source='..\go\input\Neo4jInput\assets\FontManifest.json' />
+								</Component>
+								<Directory Id='NEO4JINPUTFONTS' Name='fonts'>
+									<Component Id='Neo4jInputFontsComponent' Guid='6e200c5e-c568-4564-bcc2-adbca84c4bd6'>
+										<File Id='Neo4jInputMaterialIcons' Name='MaterialIcons-Regular.otf' DiskId='1' Source='..\go\input\Neo4jInput\assets\fonts\MaterialIcons-Regular.otf' />
+									</Component>
+								</Directory>
+							</Directory>
+						</Directory>
+						<Directory Id='NEO4JOUTPUT' Name='Neo4jOutput'>
+							<Component Id='Neo4jOutputComponent' Guid='5e1f0f15-9f47-4df8-a00d-1fedaf1d7f13'>
+								<File Id='Neo4jOutputUi' Name='index.html' DiskId='1' Source='..\go\output\Neo4jOutput\index.html' />
+								<File Id='Neo4jOutputIcon' Name='icon.png' DiskId='1' Source='..\go\output\Neo4jOutput\icon.png' />
+								<File Id='Neo4jOutputConfig' Name='Neo4jOutputConfig.xml' DiskId='1' Source='..\go\output\Neo4jOutput\Neo4jOutputConfig.xml' />
+								<File Id='Neo4jOutputMainDart' Name='main.dart.js' DiskId='1' Source='..\go\output\Neo4jOutput\main.dart.js' />
+								<File Id='Neo4jOutputManifest' Name='manifest.json' DiskId='1' Source='..\go\output\Neo4jOutput\manifest.json' />
+							</Component>
+							<Directory Id='NEO4JOUTPUTASSETS' Name='assets'>
+								<Component Id='Neo4jOutputAssetsComponent' Guid='b75dd13e-e0f7-45e5-8eff-8b61357e2bd1'>
+									<File Id='Neo4jOutputAssetManifest' Name='AssetManifest.json' DiskId='1' Source='..\go\output\Neo4jOutput\assets\AssetManifest.json' />
+									<File Id='Neo4jOutputFontManifest' Name='FontManifest.json' DiskId='1' Source='..\go\output\Neo4jOutput\assets\FontManifest.json' />
+								</Component>
+								<Directory Id='NEO4JOUTPUTFONTS' Name='fonts'>
+									<Component Id='Neo4jOutputFontsComponent' Guid='c8fba6c8-5910-462d-9812-d95314605a41'>
+										<File Id='Neo4jOutputMaterialIcons' Name='MaterialIcons-Regular.otf' DiskId='1' Source='..\go\output\Neo4jOutput\assets\fonts\MaterialIcons-Regular.otf' />
+									</Component>
+								</Directory>
+							</Directory>
+						</Directory>
+						<Directory Id='NEO4JDELETE' Name='Neo4jDelete'>
+							<Component Id='Neo4jDeleteComponent' Guid='6637253c-dfa7-4b50-80ac-e8e2af71d7f8'>
+								<File Id='Neo4jDeleteUi' Name='index.html' DiskId='1' Source='..\go\delete\Neo4jDelete\index.html' />
+								<File Id='Neo4jDeleteIcon' Name='icon.png' DiskId='1' Source='..\go\delete\Neo4jDelete\icon.png' />
+								<File Id='Neo4jDeleteConfig' Name='Neo4jDeleteConfig.xml' DiskId='1' Source='..\go\delete\Neo4jDelete\Neo4jDeleteConfig.xml' />
+								<File Id='Neo4jDeleteMainDart' Name='main.dart.js' DiskId='1' Source='..\go\delete\Neo4jDelete\main.dart.js' />
+								<File Id='Neo4jDeleteManifest' Name='manifest.json' DiskId='1' Source='..\go\delete\Neo4jDelete\manifest.json' />
+							</Component>
+							<Directory Id='NEO4JDELETEASSETS' Name='assets'>
+								<Component Id='Neo4jDeleteAssetsComponent' Guid='2d8c19ad-cb8a-4027-9a26-fc62fc46e7d4'>
+									<File Id='Neo4jDeleteAssetManifest' Name='AssetManifest.json' DiskId='1' Source='..\go\delete\Neo4jDelete\assets\AssetManifest.json' />
+									<File Id='Neo4jDeleteFontManifest' Name='FontManifest.json' DiskId='1' Source='..\go\delete\Neo4jDelete\assets\FontManifest.json' />
+								</Component>
+								<Directory Id='NEO4JDELETEFONTS' Name='fonts'>
+									<Component Id='Neo4jDeleteFontsComponent' Guid='33f37131-8fa0-4bb9-a37d-5dd4b8f439cc'>
+										<File Id='Neo4jDeleteMaterialIcons' Name='MaterialIcons-Regular.otf' DiskId='1' Source='..\go\delete\Neo4jDelete\assets\fonts\MaterialIcons-Regular.otf' />
+									</Component>
+								</Directory>
+							</Directory>
+						</Directory>
+					</Directory>
+				</Directory>
+			</Directory>
+		</Directory>
+
+		<Feature Id='Complete' Level='1'>
+		  <ComponentRef Id='EngineComponent' />
+		  <ComponentRef Id='Neo4jInputComponent' />
+		  <ComponentRef Id='Neo4jInputAssetsComponent' />
+		  <ComponentRef Id='Neo4jInputFontsComponent' />
+		  <ComponentRef Id='Neo4jOutputComponent' />
+		  <ComponentRef Id='Neo4jOutputAssetsComponent' />
+		  <ComponentRef Id='Neo4jOutputFontsComponent' />
+		  <ComponentRef Id='Neo4jDeleteComponent' />
+		  <ComponentRef Id='Neo4jDeleteAssetsComponent' />
+		  <ComponentRef Id='Neo4jDeleteFontsComponent' />
+		</Feature>
+
+		<UIRef Id="WixUI_Minimal" />
+		<UIRef Id="WixUI_ErrorProgressText" />
+		<WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+		<WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
+	</Product>
+</Wix>
