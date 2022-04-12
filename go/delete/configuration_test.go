@@ -1,7 +1,7 @@
 package delete_test
 
 import "testing"
-import "github.com/tlarsen7572/graphyx/delete"
+import "github.com/tlarsendataguy/graphyx/delete"
 
 func TestDeleteNode(t *testing.T) {
 	props := &delete.DeleteNodesProperties{

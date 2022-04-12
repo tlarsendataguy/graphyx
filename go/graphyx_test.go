@@ -3,10 +3,10 @@ package main_test
 import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
-	"github.com/tlarsen7572/goalteryx/sdk"
-	"github.com/tlarsen7572/graphyx/delete"
-	"github.com/tlarsen7572/graphyx/input"
-	"github.com/tlarsen7572/graphyx/output"
+	"github.com/tlarsendataguy/goalteryx/sdk"
+	"github.com/tlarsendataguy/graphyx/delete"
+	"github.com/tlarsendataguy/graphyx/input"
+	"github.com/tlarsendataguy/graphyx/output"
 	"strings"
 	"testing"
 )

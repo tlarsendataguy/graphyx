@@ -2,7 +2,7 @@ package input_test
 
 import (
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
-	"github.com/tlarsen7572/graphyx/input"
+	"github.com/tlarsendataguy/graphyx/input"
 	"reflect"
 	"testing"
 	"time"

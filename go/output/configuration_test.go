@@ -1,7 +1,7 @@
 package output_test
 
 import (
-	"github.com/tlarsen7572/graphyx/output"
+	"github.com/tlarsendataguy/graphyx/output"
 	"testing"
 )
 

@@ -2,7 +2,7 @@ package util
 
 import (
 	"fmt"
-	"github.com/tlarsen7572/goalteryx/sdk"
+	"github.com/tlarsendataguy/goalteryx/sdk"
 )
 
 type CopyData func(sdk.Record, map[string]interface{})

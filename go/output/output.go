@@ -3,9 +3,9 @@ package output
 import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
-	"github.com/tlarsen7572/goalteryx/sdk"
-	"github.com/tlarsen7572/graphyx/bolt_url"
-	"github.com/tlarsen7572/graphyx/util"
+	"github.com/tlarsendataguy/goalteryx/sdk"
+	"github.com/tlarsendataguy/graphyx/bolt_url"
+	"github.com/tlarsendataguy/graphyx/util"
 )
 
 type Configuration struct {
