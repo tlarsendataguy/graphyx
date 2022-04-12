@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:output/bloc.dart';
@@ -8,11 +6,6 @@ import 'package:output/connection_controls.dart';
 import 'package:output/decode_config.dart';
 import 'package:output/field_mapper.dart';
 import 'package:output/field_selector.dart';
-import 'package:output/material_icons.dart';
-
-Future<ByteData> fontFileToByteData(List<int> file) async {
-  return ByteData.sublistView(Uint8List.fromList(file));
-}
 
 List<String> lazyLoadIncomingFields(){
   List<String> incomingFields = [];
@@ -34,10 +27,6 @@ void main() async {
   registerSaveConfigCallback(appState.getConfig);
   registerDecryptCallback(appState.callbackDecryptedPassword);
   registerEncryptCallback(appState.callbackEncryptedPassword);
-
-  var materialLoader = FontLoader("MaterialIcons");
-  materialLoader.addFont(fontFileToByteData(materialIcons));
-  await materialLoader.load();
 
   runApp(BlocProvider<Configuration>(
     child: MyApp(),
