@@ -21,6 +21,7 @@ type RelationshipConfig struct {
 	RightNeo4jFields   []string
 	Label              string
 	PropFields         []string
+	IdFields           []string
 }
 
 func NodeQuery(config *NodeConfig) (string, error) {
@@ -63,7 +64,7 @@ func RelationshipQuery(config *RelationshipConfig) (string, error) {
 	builder.WriteString("UNWIND $batch AS row\n")
 	matchNode(builder, escapeName(config.LeftLabel), config.LeftAlteryxFields, config.LeftNeo4jFields, `left`)
 	matchNode(builder, escapeName(config.RightLabel), config.RightAlteryxFields, config.RightNeo4jFields, `right`)
-	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`]->(right)\n", escapeName(config.Label)))
+	mergeRelClause(builder, config)
 	if len(config.PropFields) == 0 {
 		return builder.String(), nil
 	}
@@ -130,4 +131,23 @@ func buildSetProperties(builder *strings.Builder, props []string, neo4jVariable 
 
 func escapeName(name string) string {
 	return strings.Replace(name, "`", "``", -1)
+}
+
+func mergeRelClause(builder *strings.Builder, config *RelationshipConfig) {
+	label := escapeName(config.Label)
+	builder.WriteString(fmt.Sprintf("MERGE (left)-[newRel:`%v`", label))
+	if len(config.IdFields) == 0 {
+		builder.WriteString("]->(right)\n")
+		return
+	}
+
+	builder.WriteString(` {`)
+	for index, id := range config.IdFields {
+		id = escapeName(id)
+		if index > 0 {
+			builder.WriteString(",")
+		}
+		builder.WriteString(fmt.Sprintf("`%v`:row.`%v`", id, id))
+	}
+	builder.WriteString("}]->(right)\n")
 }
