@@ -15,7 +15,7 @@ class AyxToNeo4jMap {
 typedef List<String> LazyFieldLoader();
 
 class Configuration extends BlocState {
-  Configuration({this.connStr, this.username, this.password, this.database, this.urlCollapsed, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.loadFields});
+  Configuration({this.connStr, this.username, this.password, this.database, this.urlCollapsed, this.exportObject, this.batchSize, this.nodeLabel, this.nodeIdFields, this.nodePropFields, this.relLabel, this.relIdFields, this.relPropFields, this.relLeftLabel, this.relLeftFields, this.relRightLabel, this.relRightFields, this.loadFields});
 
   String connStr;
   String username;
@@ -28,6 +28,7 @@ class Configuration extends BlocState {
   List<String> nodeIdFields;
   List<String> nodePropFields;
   String relLabel;
+  List<String> relIdFields;
   List<String> relPropFields;
   String relLeftLabel;
   List<AyxToNeo4jMap> relLeftFields;
@@ -96,6 +97,7 @@ class Configuration extends BlocState {
       "NodeIdFields": nodeIdFields,
       "NodePropFields": nodePropFields,
       "RelLabel": relLabel,
+      "RelIdFields": relIdFields,
       "RelPropFields": relPropFields,
       "RelLeftLabel": relLeftLabel,
       "RelLeftFields": relLeftFields.map<Map>((e) => e.toJson()).toList(),
@@ -119,6 +121,7 @@ Configuration decodeConfig(String configStr, LazyFieldLoader incomingFields) {
       nodeIdFields: [],
       nodePropFields: [],
       relLabel: '',
+      relIdFields: [],
       relPropFields: [],
       relLeftLabel: '',
       relLeftFields: [],
@@ -140,6 +143,7 @@ Configuration decodeConfig(String configStr, LazyFieldLoader incomingFields) {
     nodeIdFields: decodeStringList(decoded['NodeIdFields']),
     nodePropFields: decodeStringList(decoded['NodePropFields']),
     relLabel: decoded['RelLabel'] ?? '',
+    relIdFields: decodeStringList(decoded['RelIdFields']),
     relPropFields: decodeStringList(decoded['RelPropFields']),
     relLeftLabel: decoded['RelLeftLabel'] ?? '',
     relLeftFields: decodeFieldMapping(decoded['RelLeftFields']),
