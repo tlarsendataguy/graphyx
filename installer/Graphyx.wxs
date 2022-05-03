@@ -1,13 +1,17 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
     <Product Name='Graphyx' Manufacturer='tlarsendataguy'
-        Id='00edf6ca-535f-4d2b-8e4f-a892e0df9340' 
+        Id='a3261b4a-d8a7-4b08-a7d0-85dd6db18dd9' 
 		UpgradeCode='cdb04ddb-1cc6-4d73-96b3-9a4ffee350b7'
-        Language='1033' Codepage='1252' Version='1.0.2'>
+        Language='1033' Codepage='1252' Version='1.0.3'>
 		<Package Id='*' Keywords='Installer' Description="Graphyx installer"
 			Comments='Neo4j input and output tools for Alteryx' Manufacturer='tlarsendataguy'
 			InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform="x64" />
 
+		<MajorUpgrade Schedule="afterInstallInitialize"
+                DowngradeErrorMessage="A later version of [ProductName] is already installed"
+                AllowSameVersionUpgrades="yes" />
+				
 		<Condition Message="You need to be an administrator to install this product.">
 			Privileged
 		</Condition>
@@ -48,8 +52,15 @@
 								<Directory Id='NEO4JINPUTFONTS' Name='fonts'>
 									<Component Id='Neo4jInputFontsComponent' Guid='6e200c5e-c568-4564-bcc2-adbca84c4bd6'>
 										<File Id='Neo4jInputMaterialIcons' Name='MaterialIcons-Regular.otf' DiskId='1' Source='..\go\input\Neo4jInput\assets\fonts\MaterialIcons-Regular.otf' />
+										<File Id='Neo4jInputMonoFont' Name='JetBrainsMono-Regular.ttf' DiskId='1' Source='..\go\input\Neo4jInput\assets\fonts\JetBrainsMono-Regular.ttf' />
 									</Component>
 								</Directory>
+							</Directory>
+							<Directory Id='NEO4JINPUTCANVASKIT' Name='canvaskit'>
+								<Component Id='Neo4jInputCanvaskitComponent' Guid='6e0c9185-f27f-4497-bcf5-7be0403cdd2e'>
+									<File Id='Neo4jInputCanvaskitJs' Name='canvaskit.js' DiskId='1' Source='..\go\input\Neo4jInput\canvaskit\canvaskit.js' />
+									<File Id='Neo4jInputCanvaskitWasm' Name='canvaskit.wasm' DiskId='1' Source='..\go\input\Neo4jInput\canvaskit\canvaskit.wasm' />
+								</Component>
 							</Directory>
 						</Directory>
 						<Directory Id='NEO4JOUTPUT' Name='Neo4jOutput'>
@@ -71,6 +82,12 @@
 									</Component>
 								</Directory>
 							</Directory>
+							<Directory Id='NEO4JOUTPUTCANVASKIT' Name='canvaskit'>
+								<Component Id='Neo4jOutputCanvaskitComponent' Guid='cb40c716-9bc0-4c34-94b0-72ec5fcc65fe'>
+									<File Id='Neo4jOutputCanvaskitJs' Name='canvaskit.js' DiskId='1' Source='..\go\output\Neo4jOutput\canvaskit\canvaskit.js' />
+									<File Id='Neo4jOutputCanvaskitWasm' Name='canvaskit.wasm' DiskId='1' Source='..\go\output\Neo4jOutput\canvaskit\canvaskit.wasm' />
+								</Component>
+							</Directory>
 						</Directory>
 						<Directory Id='NEO4JDELETE' Name='Neo4jDelete'>
 							<Component Id='Neo4jDeleteComponent' Guid='6637253c-dfa7-4b50-80ac-e8e2af71d7f8'>
@@ -91,6 +108,12 @@
 									</Component>
 								</Directory>
 							</Directory>
+							<Directory Id='NEO4JDELETECANVASKIT' Name='canvaskit'>
+								<Component Id='Neo4jDeleteCanvaskitComponent' Guid='ea3e8091-3081-4c46-90d1-b913981fbf87'>
+									<File Id='Neo4jDeleteCanvaskitJs' Name='canvaskit.js' DiskId='1' Source='..\go\delete\Neo4jDelete\canvaskit\canvaskit.js' />
+									<File Id='Neo4jDeleteCanvaskitWasm' Name='canvaskit.wasm' DiskId='1' Source='..\go\delete\Neo4jDelete\canvaskit\canvaskit.wasm' />
+								</Component>
+							</Directory>
 						</Directory>
 					</Directory>
 				</Directory>
@@ -102,12 +125,15 @@
 		  <ComponentRef Id='Neo4jInputComponent' />
 		  <ComponentRef Id='Neo4jInputAssetsComponent' />
 		  <ComponentRef Id='Neo4jInputFontsComponent' />
+		  <ComponentRef Id='Neo4jInputCanvaskitComponent' />
 		  <ComponentRef Id='Neo4jOutputComponent' />
 		  <ComponentRef Id='Neo4jOutputAssetsComponent' />
 		  <ComponentRef Id='Neo4jOutputFontsComponent' />
+		  <ComponentRef Id='Neo4jOutputCanvaskitComponent' />
 		  <ComponentRef Id='Neo4jDeleteComponent' />
 		  <ComponentRef Id='Neo4jDeleteAssetsComponent' />
 		  <ComponentRef Id='Neo4jDeleteFontsComponent' />
+		  <ComponentRef Id='Neo4jDeleteCanvaskitComponent' />
 		</Feature>
 
 		<UIRef Id="WixUI_Minimal" />
