@@ -19,6 +19,7 @@ type Configuration struct {
 	NodeIdFields   []string
 	NodePropFields []string
 	RelLabel       string
+	RelIdFields    []string
 	RelPropFields  []string
 	RelLeftLabel   string
 	RelLeftFields  []map[string]interface{}
@@ -65,6 +66,7 @@ func (o *Neo4jOutput) Init(provider sdk.Provider) {
 			}
 		}
 		o.outputFields = append(o.outputFields, o.config.RelPropFields...)
+		o.outputFields = append(o.outputFields, o.config.RelIdFields...)
 	}
 	outputFieldLen := len(o.outputFields)
 	for index := range o.batch {
@@ -207,6 +209,7 @@ func (o *Neo4jOutput) generateRelationshipQuery() {
 		RightNeo4jFields:   rightNeo4jFields,
 		Label:              o.config.RelLabel,
 		PropFields:         o.config.RelPropFields,
+		IdFields:           o.config.RelIdFields,
 	}
 	o.query, err = RelationshipQuery(relConfig)
 	if err != nil {
