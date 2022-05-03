@@ -1,16 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:input/app_state.dart';
 import 'package:input/bloc.dart';
 import 'package:input/configuration.dart';
 import 'package:input/controls.dart';
-import 'package:input/mono_font_file.dart';
-
-Future<ByteData> fontFileToByteData(List<int> file) async {
-  return ByteData.sublistView(Uint8List.fromList(file));
-}
 
 void main() async {
   while (true) {
@@ -23,12 +15,6 @@ void main() async {
   registerSaveConfigCallback(appState.getConfig);
   registerDecryptCallback(appState.useDecryptedPassword);
   registerEncryptCallback(appState.useEncryptedPassword);
-
-  var monoLoader = FontLoader("JetBrains Mono");
-  monoLoader.addFont(fontFileToByteData(monoFontFile));
-  var monoFuture = monoLoader.load();
-
-  await monoFuture;
 
   runApp(BlocProvider<AppState>(
     child: Neo4jInputApp(),
