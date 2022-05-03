@@ -236,6 +236,7 @@ class _RelationshipConfigState extends State<RelationshipConfig> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextField(controller: relLabelController, decoration: InputDecoration(labelText: "relationship label"), onChanged: relLabelChanged),
+                FieldSelector(source: config.relIdFields, label: "relationship ID fields"),
                 FieldSelector(source: config.relPropFields, label: "update the following relationship properties"),
               ],
             ),
