@@ -20,12 +20,7 @@ The user interfaces were built using [Flutter](https://github.com/flutter/flutte
 
 ## Installation
 
-1. Download graphyx.zip from the latest [release](https://github.com/tlarsen7572/graphyx/releases).
-2. Extract the zip file to a temporary location.
-3. Copy the Neo4jInput, Neo4jOutput, and Neo4jDelete folders to an appropriate custom tool folder. To install for all users, the path is typically `C:\ProgramData\Alteryx\Tools`. For a user-specific install, the path is typically `C:\Users\YourUsername\AppData\Roaming\Alteryx\Tools`. This step installs the tool configurations and UIs.
-4. Copy graphyx.dll to your Alteryx plugins folder. For an admin installation of Alteryx, the path is typically `C:\Program Files\Alteryx\bin\Plugins`. For a user-specific installation, the path is typically `C:\Users\YourUsername\AppData\Local\Alteryx\bin\Plugins`. This step installs the engine for the connectors.
-
-Graphyx is now installed. You can find the new connectors in the Connectors tab in Designer.
+Download the installer from [tools.tlarsendataguy.com](https://tools.tlarsendataguy.com/l/tqebq). After running the installer, the new tools will be available in the Connectors tab in Designer.
 
 [Back to top](#graphyx)
 
