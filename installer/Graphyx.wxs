@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
     <Product Name='Graphyx' Manufacturer='tlarsendataguy'
-        Id='a3261b4a-d8a7-4b08-a7d0-85dd6db18dd9' 
+        Id='935ef05f-f92b-4595-967f-a64e9da63200' 
 		UpgradeCode='cdb04ddb-1cc6-4d73-96b3-9a4ffee350b7'
-        Language='1033' Codepage='1252' Version='1.0.3'>
+        Language='1033' Codepage='1252' Version='1.0.4'>
 		<Package Id='*' Keywords='Installer' Description="Graphyx installer"
 			Comments='Neo4j input and output tools for Alteryx' Manufacturer='tlarsendataguy'
 			InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform="x64" />
