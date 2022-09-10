@@ -23,20 +23,14 @@ func TestInput(t *testing.T) {
 }
 
 func TestAdHocQuery(t *testing.T) {
-	uri := `bolt://localhost:7687`
-	username := `test`
-	password := `test`
-	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	conn, err := openSession()
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
-	defer driver.Close()
-
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
-	defer session.Close()
+	defer conn.Close()
 
 	query := `MATCH p = (:Person)-[*0..2]-(:Person) RETURN p SKIP 119 LIMIT 1`
-	_, err = session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+	_, err = conn.session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		result, txErr := tx.Run(query, nil)
 		if txErr != nil {
 			return nil, txErr
@@ -61,24 +55,18 @@ func TestAdHocQuery(t *testing.T) {
 }
 
 func TestConnection(t *testing.T) {
-	uri := `bolt://localhost:7687`
-	username := `test`
-	password := `test`
-	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	conn, err := openSession()
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
-	defer driver.Close()
-
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: `neo4j`})
-	defer session.Close()
+	defer conn.Close()
 
 	//query := `MATCH (people:Person)-[relatedTo]-(:Movie {title: "Cloud Atlas"}) RETURN *`
 	//query := `MATCH (people:Person)-[relatedTo]-(:Movie {title: "Cloud Atlas"}) RETURN people.name, Type(relatedTo), relatedTo`
 	//query := `CALL db.relationshipTypes()`
 	query := `MATCH p=()-[r:ACTED_IN]->() RETURN p`
 
-	_, err = session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+	_, err = conn.session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		result, txErr := tx.Run(query, nil)
 		if txErr != nil {
 			return nil, txErr
@@ -101,20 +89,14 @@ func TestConnection(t *testing.T) {
 }
 
 func TestOutput(t *testing.T) {
-	uri := `bolt://localhost:7687`
-	username := `test`
-	password := `test`
-	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	conn, err := openSession()
 	if err != nil {
 		t.Fatalf(`expected no error but got: %v`, err.Error())
 	}
-	defer driver.Close()
+	defer conn.Close()
 
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: `Movie Database`})
-	defer session.Close()
-
-	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-		tx.Run(``, nil)
+	_, err = conn.session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		_, _ = tx.Run(``, nil)
 		return nil, nil
 	})
 }
@@ -229,20 +211,13 @@ func TestEndToEnd(t *testing.T) {
 }
 
 func checkNumberOfItems(query string) (int, error) {
-	uri := `bolt://localhost:7687`
-	database := `neo4j`
-	username := `test`
-	password := `test`
-	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	conn, err := openSession()
 	if err != nil {
 		return 0, err
 	}
-	defer driver.Close()
+	defer conn.Close()
 
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: database})
-	defer session.Close()
-
-	result, err := session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+	result, err := conn.session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		result, txErr := tx.Run(query, nil)
 		if txErr != nil {
 			return nil, txErr
@@ -352,18 +327,11 @@ func TestDoNotRunDeleteIfUpdateOnly(t *testing.T) {
 }
 
 func addStuffForDeletion() error {
-	uri := `bolt://localhost:7687`
-	database := `neo4j`
-	username := `test`
-	password := `test`
-	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	conn, err := openSession()
 	if err != nil {
 		return err
 	}
-	defer driver.Close()
-
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: database})
-	defer session.Close()
+	defer conn.Close()
 
 	createQuery := `CREATE (n1:DELETE {Id:1});
 CREATE (n2:DELETE {Id:2});
@@ -373,7 +341,7 @@ CREATE (n1)-[:Relates_To]->(n2);
 MATCH (n2:DELETE), (n3:DELETE) WHERE n2.Id=2 AND n3.Id=3
 CREATE (n2)-[:Relates_To]->(n3);`
 
-	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+	_, err = conn.session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		queries := strings.Split(createQuery, `;`)
 		for _, query := range queries {
 			if query == `` {
@@ -398,23 +366,16 @@ CREATE (n2)-[:Relates_To]->(n3);`
 }
 
 func deleteTestStuff() error {
-	uri := `bolt://localhost:7687`
-	database := `neo4j`
-	username := `test`
-	password := `test`
-	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	conn, err := openSession()
 	if err != nil {
 		return err
 	}
-	defer driver.Close()
-
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: database})
-	defer session.Close()
+	defer conn.Close()
 
 	deleteNodes := `MATCH (n:TestLabel) DETACH DELETE n;
 MATCH (n:DELETE) DETACH DELETE n;`
 
-	_, err = session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+	_, err = conn.session.WriteTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		queries := strings.Split(deleteNodes, `;`)
 		for _, query := range queries {
 			if query == `` {
@@ -436,4 +397,31 @@ MATCH (n:DELETE) DETACH DELETE n;`
 	})
 
 	return err
+}
+
+type ConnStuff struct {
+	driver  neo4j.Driver
+	session neo4j.Session
+}
+
+func (c *ConnStuff) Close() {
+	_ = c.session.Close()
+	_ = c.driver.Close()
+}
+
+func openSession() (*ConnStuff, error) {
+	uri := `bolt://localhost:7687`
+	database := `neo4j`
+	username := `test`
+	password := `test`
+	driver, err := neo4j.NewDriver(uri, neo4j.BasicAuth(username, password, ""))
+	if err != nil {
+		return nil, err
+	}
+
+	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite, DatabaseName: database})
+	return &ConnStuff{
+		driver:  driver,
+		session: session,
+	}, nil
 }

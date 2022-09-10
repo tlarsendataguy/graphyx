@@ -23,6 +23,8 @@ github.com/neo4j/neo4j-go-driver/v4 v4.2.2 h1:trN+8bbxn2qDVG54E9P/oyMZC4M/LPit4g
 github.com/neo4j/neo4j-go-driver/v4 v4.2.2/go.mod h1:4e45lVy4oHcgLEQQrGHcc4MbyCeEPIQ33DhXqxf9AT4=
 github.com/neo4j/neo4j-go-driver/v4 v4.4.2 h1:l9gTl/ki79a4aoLGws+MggpWHaZurBvbDVooKUcJStw=
 github.com/neo4j/neo4j-go-driver/v4 v4.4.2/go.mod h1:NexOfrm4c317FVjekrhVV8pHBXgtMG5P6GeweJWCyo4=
+github.com/neo4j/neo4j-go-driver/v4 v4.4.4 h1:SWVwM+F76eGeJaXSOw61zn5MHpHHsaM75ceRZytst9U=
+github.com/neo4j/neo4j-go-driver/v4 v4.4.4/go.mod h1:NexOfrm4c317FVjekrhVV8pHBXgtMG5P6GeweJWCyo4=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
@@ -43,6 +45,8 @@ github.com/tlarsendataguy/goalteryx v0.5.16 h1:YUpK3LNcQ5dC22EvmizGp4TA0AGn4J4Ds
 github.com/tlarsendataguy/goalteryx v0.5.16/go.mod h1:O6tsex6/wvz52sG/RDYgIUdyYoRm+U3P8Qx5x54zkhQ=
 github.com/tlarsendataguy/goalteryx v0.5.17 h1:oyRMwV5yqdkWye9KYdvxuS6BS2TuBa06ZBsS64XjweM=
 github.com/tlarsendataguy/goalteryx v0.5.17/go.mod h1:O6tsex6/wvz52sG/RDYgIUdyYoRm+U3P8Qx5x54zkhQ=
+github.com/tlarsendataguy/goalteryx v0.5.19 h1:7MLm06fU4z+nBRaX7BFDrPZyyT90j0qjAclf/Ot0i2Q=
+github.com/tlarsendataguy/goalteryx v0.5.19/go.mod h1:O6tsex6/wvz52sG/RDYgIUdyYoRm+U3P8Qx5x54zkhQ=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=

@@ -1,8 +1,7 @@
 module github.com/tlarsendataguy/graphyx
 
-go 1.15
+go 1.19
 
-require (
-	github.com/neo4j/neo4j-go-driver/v4 v4.4.2
-	github.com/tlarsendataguy/goalteryx v0.5.17 // indirect
-)
+require github.com/neo4j/neo4j-go-driver/v4 v4.4.4
+
+require github.com/tlarsendataguy/goalteryx v0.5.19 // indirect
