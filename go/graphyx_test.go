@@ -7,6 +7,7 @@ import (
 	"github.com/tlarsendataguy/graphyx/delete"
 	"github.com/tlarsendataguy/graphyx/input"
 	"github.com/tlarsendataguy/graphyx/output"
+	"runtime/debug"
 	"strings"
 	"testing"
 )
@@ -19,6 +20,59 @@ func TestInput(t *testing.T) {
 	runner := sdk.RegisterToolTest(plugin, 1, config)
 	collector := runner.CaptureOutgoingAnchor(`Output`)
 	runner.SimulateLifecycle()
+	t.Logf(`%v`, collector.Data)
+}
+
+func checkNil(t *testing.T, value interface{}) {
+	if value != nil {
+		debug.PrintStack()
+		t.Fatalf(`expected nil but got %v`, value)
+	}
+}
+
+func TestOptionalNodeMatch(t *testing.T) {
+	config := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Query":"MATCH (n:Movie {title:'Apollo 13'})\nOPTIONAL MATCH (n)-[]-(p:Person) WHERE p.name = 'Thomas Larsen'\nRETURN n, p","Database":"neo4j","UrlCollapsed":false,"LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"n","DataType":"Node"},{"Name":"p","DataType":"Node"}]},"Fields":[{"Name":"Movie","DataType":"String","Path":[{"Key":"n","DataType":"Node"},{"Key":"ToString","DataType":"String"}]},{"Name":"Person ID","DataType":"Integer","Path":[{"Key":"p","DataType":"Node"},{"Key":"ID","DataType":"Integer"}]},{"Name":"Person Name","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"Properties","DataType":"Map"},{"Key":"name","DataType":"String"}]},{"Name":"Person Label","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"Labels","DataType":"List:String"},{"Key":"First","DataType":"String"}]},{"Name":"Person String","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"ToString","DataType":"String"}]}]}</JSON>
+</Configuration>`
+	plugin := &input.Neo4jInput{}
+	runner := sdk.RegisterToolTest(plugin, 1, config)
+	collector := runner.CaptureOutgoingAnchor(`Output`)
+	runner.SimulateLifecycle()
+
+	columns := len(collector.Data)
+	if columns != 5 {
+		t.Fatalf(`expected 5 columns but got %v`, columns)
+	}
+
+	checkNil(t, collector.Data[`Person ID`][0])
+	checkNil(t, collector.Data[`Person Name`][0])
+	checkNil(t, collector.Data[`Person Label`][0])
+	checkNil(t, collector.Data[`Person String`][0])
+
+	t.Logf(`%v`, collector.Data)
+}
+
+func TestOptionalRelationshipMatch(t *testing.T) {
+	config := `<Configuration>
+  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Query":"MATCH (m:Movie {title:'The Matrix'})\nOPTIONAL MATCH (m)-[r]-(t:Person) WHERE t.name = 'Thomas Larsen'\nRETURN m,r","Database":"neo4j","UrlCollapsed":false,"LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"m","DataType":"Node"},{"Name":"r","DataType":"Relationship"}]},"Fields":[{"Name":"Movie","DataType":"String","Path":[{"Key":"m","DataType":"Node"},{"Key":"ToString","DataType":"String"}]},{"Name":"R ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"ID","DataType":"Integer"}]},{"Name":"R Start ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"StartId","DataType":"Integer"}]},{"Name":"R End ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"EndId","DataType":"Integer"}]},{"Name":"R Type","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"Type","DataType":"String"}]},{"Name":"R Roles","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"Properties","DataType":"Map"},{"Key":"roles","DataType":"String"}]},{"Name":"R String","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"ToString","DataType":"String"}]}]}</JSON>
+</Configuration>`
+	plugin := &input.Neo4jInput{}
+	runner := sdk.RegisterToolTest(plugin, 1, config)
+	collector := runner.CaptureOutgoingAnchor(`Output`)
+	runner.SimulateLifecycle()
+
+	columns := len(collector.Data)
+	if columns != 7 {
+		t.Fatalf(`expected 7 columns but got %v`, columns)
+	}
+
+	checkNil(t, collector.Data[`R ID`][0])
+	checkNil(t, collector.Data[`R Start ID`][0])
+	checkNil(t, collector.Data[`R End ID`][0])
+	checkNil(t, collector.Data[`R Type`][0])
+	checkNil(t, collector.Data[`R Roles`][0])
+	checkNil(t, collector.Data[`R String`][0])
+
 	t.Logf(`%v`, collector.Data)
 }
 

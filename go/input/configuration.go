@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsendataguy/goalteryx/sdk"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -266,6 +267,9 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 			if !exists {
 				return emptyNode, nil
 			}
+			if value == nil {
+				return emptyNode, nil
+			}
 			nodeValue, ok := value.(neo4j.Node)
 			if !ok {
 				return emptyNode, fmt.Errorf(`path key %v for field %v is not a Node as expected, but is %T`, element.Key, field.Name, value)
@@ -277,6 +281,9 @@ func generateTransferFunc(iterator *pathIterator, field Field) (GetValueFunc, er
 		extractRelationshipFunc := func(record *neo4j.Record) (neo4j.Relationship, error) {
 			value, exists := record.Get(element.Key)
 			if !exists {
+				return emptyRel, nil
+			}
+			if value == nil {
 				return emptyRel, nil
 			}
 			relValue, ok := value.(neo4j.Relationship)
@@ -318,7 +325,7 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			if err != nil {
 				return nil, err
 			}
-			if node.Id < 0 {
+			if node.Id == math.MinInt64 {
 				return nil, nil
 			}
 			return node.Id, nil
@@ -347,6 +354,9 @@ func nodeTransferFunc(iterator *pathIterator, field Field, nodeExtractor extract
 			if err != nil {
 				return nil, err
 			}
+			if node.Id == math.MinInt64 {
+				return nil, nil
+			}
 			str := ToString(node)
 			return str, nil
 		}, nil
@@ -369,7 +379,7 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
-			if relationship.Id < 0 {
+			if relationship.Id == math.MinInt64 {
 				return nil, nil
 			}
 			return relationship.Id, nil
@@ -380,7 +390,7 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
-			if relationship.Id < 0 {
+			if relationship.Id == math.MinInt64 {
 				return nil, nil
 			}
 			return relationship.StartId, nil
@@ -391,7 +401,7 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
-			if relationship.Id < 0 {
+			if relationship.Id == math.MinInt64 {
 				return nil, nil
 			}
 			return relationship.EndId, nil
@@ -402,7 +412,7 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			if err != nil {
 				return nil, err
 			}
-			if relationship.Id < 0 {
+			if relationship.Id == math.MinInt64 {
 				return nil, nil
 			}
 			return relationship.Type, nil
@@ -421,6 +431,9 @@ func relationshipTransferFunc(iterator *pathIterator, field Field, relExtractor 
 			relationship, err := relExtractor(record)
 			if err != nil {
 				return nil, err
+			}
+			if relationship.Id == math.MinInt64 {
+				return nil, nil
 			}
 			str := ToString(relationship)
 			return str, nil
@@ -473,7 +486,7 @@ func pathTransferFunc(iterator *pathIterator, field Field, extract extractPath) 
 
 type extractRelList func(record *neo4j.Record) ([]neo4j.Relationship, error)
 
-var emptyRel = neo4j.Relationship{Id: -1}
+var emptyRel = neo4j.Relationship{Id: math.MinInt64}
 
 func relListTransferFunc(iterator *pathIterator, field Field, extractList extractRelList) (GetValueFunc, error) {
 	element, ok := iterator.NextField()
@@ -537,7 +550,7 @@ func relListTransferFunc(iterator *pathIterator, field Field, extractList extrac
 
 type extractNodeList func(record *neo4j.Record) ([]neo4j.Node, error)
 
-var emptyNode = neo4j.Node{Id: -1}
+var emptyNode = neo4j.Node{Id: math.MinInt64}
 
 func nodeListTransferFunc(iterator *pathIterator, field Field, extractList extractNodeList) (GetValueFunc, error) {
 	element, ok := iterator.NextField()
