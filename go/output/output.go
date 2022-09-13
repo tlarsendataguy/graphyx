@@ -126,7 +126,10 @@ func (o *Neo4jOutput) OnRecordPacket(connection sdk.InputConnection) {
 		copyFrom := packet.Record()
 		copyTo := o.batch[o.currentBatchSize]
 		for _, copyData := range o.copier {
-			copyData(copyFrom, copyTo)
+			err := copyData(copyFrom, copyTo)
+			if err != nil {
+				o.provider.Io().Error(err.Error())
+			}
 		}
 		o.currentBatchSize++
 	}

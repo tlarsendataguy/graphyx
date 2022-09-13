@@ -10,7 +10,7 @@ import 'package:output/field_selector.dart';
 List<String> lazyLoadIncomingFields(){
   List<String> incomingFields = [];
   for (var field in getIncomingFields) {
-    if (field.strType == 'Blob' || field.strType == 'SpatialObj') continue;
+    if (field.strType == 'SpatialObj') continue;
     incomingFields.add(field.strName);
   }
   return incomingFields;
