@@ -29,7 +29,6 @@ class Neo4jInputApp extends StatelessWidget {
       title: 'Neo4j Input',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
-        accentColor: Colors.green,
       ),
       home: Scaffold(
         body: Padding(

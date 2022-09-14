@@ -45,7 +45,7 @@ class PathSelector extends StatelessWidget {
           case 'String':
             return SizedBox(height: 0);
           default:
-            return Text("The current path ends in an invalid data type");
+            return Text("The current path ends in an invalid data type", overflow: TextOverflow.ellipsis);
         }
       },
     );
@@ -63,7 +63,7 @@ class ChooseReturnValue extends StatelessWidget {
       builder: (_, AsyncSnapshot<ValidatedResponse> response){
         List<DropdownMenuItem<ReturnValue>> widgets;
         if (response.hasData && response.data.error == ''){
-          widgets = response.data.returnValues.map<DropdownMenuItem<ReturnValue>>((e)=>DropdownMenuItem<ReturnValue>(child: Text('${e.name}:${e.dataType}'), value: e)).toList();
+          widgets = response.data.returnValues.map<DropdownMenuItem<ReturnValue>>((e)=>DropdownMenuItem<ReturnValue>(child: Text('${e.name}:${e.dataType}', overflow: TextOverflow.ellipsis), value: e)).toList();
         } else {
           widgets = [];
         }
@@ -89,9 +89,9 @@ class SelectPathChild extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropDown<SelectData>(
       items: [
-        DropdownMenuItem<SelectData>(child: Text("Nodes"), value: SelectData("Nodes", "List:Node")),
-        DropdownMenuItem<SelectData>(child: Text("Relationships"), value: SelectData("Relationships", "List:Relationship")),
-        DropdownMenuItem<SelectData>(child: Text("To String"), value: SelectData("ToString", 'String')),
+        DropdownMenuItem<SelectData>(child: Text("Nodes", overflow: TextOverflow.ellipsis), value: SelectData("Nodes", "List:Node")),
+        DropdownMenuItem<SelectData>(child: Text("Relationships", overflow: TextOverflow.ellipsis), value: SelectData("Relationships", "List:Relationship")),
+        DropdownMenuItem<SelectData>(child: Text("To String", overflow: TextOverflow.ellipsis), value: SelectData("ToString", 'String')),
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
@@ -151,13 +151,13 @@ class _IndexDialogState extends State<IndexDialog> {
                 Expanded(
                   child: TextButton(
                     onPressed: cancel,
-                    child: Text("Cancel"),
+                    child: Text("Cancel", overflow: TextOverflow.ellipsis),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: submit,
-                    child: Text("Submit"),
+                    child: Text("Submit", overflow: TextOverflow.ellipsis),
                   ),
                 ),
               ],
@@ -177,10 +177,10 @@ class SelectListChild extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropDown<SelectData>(
       items: [
-        DropdownMenuItem<SelectData>(child: Text("First"), value: SelectData("First", itemType)),
-        DropdownMenuItem<SelectData>(child: Text("Last"), value: SelectData("Last", itemType)),
-        DropdownMenuItem<SelectData>(child: Text("Index"), value: SelectData("Index", itemType)),
-        DropdownMenuItem<SelectData>(child: Text("Count"), value: SelectData("Count", "Integer")),
+        DropdownMenuItem<SelectData>(child: Text("First", overflow: TextOverflow.ellipsis), value: SelectData("First", itemType)),
+        DropdownMenuItem<SelectData>(child: Text("Last", overflow: TextOverflow.ellipsis), value: SelectData("Last", itemType)),
+        DropdownMenuItem<SelectData>(child: Text("Index", overflow: TextOverflow.ellipsis), value: SelectData("Index", itemType)),
+        DropdownMenuItem<SelectData>(child: Text("Count", overflow: TextOverflow.ellipsis), value: SelectData("Count", "Integer")),
       ],
       onChanged: (e) async {
         if (e.name == 'Index') {
@@ -209,10 +209,10 @@ class SelectNodeChild extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropDown<SelectData>(
       items: [
-        DropdownMenuItem<SelectData>(child: Text("ID"), value: SelectData("ID", 'Integer')),
-        DropdownMenuItem<SelectData>(child: Text("Labels"), value: SelectData("Labels", 'List:String')),
-        DropdownMenuItem<SelectData>(child: Text("Properties"), value: SelectData("Properties", 'Map')),
-        DropdownMenuItem<SelectData>(child: Text("To String"), value: SelectData("ToString", 'String')),
+        DropdownMenuItem<SelectData>(child: Text("ID", overflow: TextOverflow.ellipsis), value: SelectData("ID", 'Integer')),
+        DropdownMenuItem<SelectData>(child: Text("Labels", overflow: TextOverflow.ellipsis), value: SelectData("Labels", 'List:String')),
+        DropdownMenuItem<SelectData>(child: Text("Properties", overflow: TextOverflow.ellipsis), value: SelectData("Properties", 'Map')),
+        DropdownMenuItem<SelectData>(child: Text("To String", overflow: TextOverflow.ellipsis), value: SelectData("ToString", 'String')),
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
@@ -229,12 +229,12 @@ class SelectRelationshipChild extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropDown<SelectData>(
       items: [
-        DropdownMenuItem<SelectData>(child: Text("ID"), value: SelectData("ID", 'Integer')),
-        DropdownMenuItem<SelectData>(child: Text("StartId"), value: SelectData("StartId", 'Integer')),
-        DropdownMenuItem<SelectData>(child: Text("EndId"), value: SelectData("EndId", 'Integer')),
-        DropdownMenuItem<SelectData>(child: Text("Type"), value: SelectData("Type", 'String')),
-        DropdownMenuItem<SelectData>(child: Text("Properties"), value: SelectData("Properties", 'Map')),
-        DropdownMenuItem<SelectData>(child: Text("To String"), value: SelectData("ToString", 'String')),
+        DropdownMenuItem<SelectData>(child: Text("ID", overflow: TextOverflow.ellipsis), value: SelectData("ID", 'Integer')),
+        DropdownMenuItem<SelectData>(child: Text("StartId", overflow: TextOverflow.ellipsis), value: SelectData("StartId", 'Integer')),
+        DropdownMenuItem<SelectData>(child: Text("EndId", overflow: TextOverflow.ellipsis), value: SelectData("EndId", 'Integer')),
+        DropdownMenuItem<SelectData>(child: Text("Type", overflow: TextOverflow.ellipsis), value: SelectData("Type", 'String')),
+        DropdownMenuItem<SelectData>(child: Text("Properties", overflow: TextOverflow.ellipsis), value: SelectData("Properties", 'Map')),
+        DropdownMenuItem<SelectData>(child: Text("To String", overflow: TextOverflow.ellipsis), value: SelectData("ToString", 'String')),
       ],
       onChanged: (e){
         var fieldState = BlocProvider.of<FieldState>(context);
@@ -270,14 +270,14 @@ class _SelectMapChildState extends State<SelectMapChild>{
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
           child: DropDown<String>(
-            hint: Text("Select property type"),
+            hint: Text("Select property type", overflow: TextOverflow.ellipsis),
             value: _selectedType,
             items: [
-              DropdownMenuItem<String>(child: Text("Boolean"), value: "Boolean"),
-              DropdownMenuItem<String>(child: Text("DateTime"), value: "DateTime"),
-              DropdownMenuItem<String>(child: Text("Float"), value: "Float"),
-              DropdownMenuItem<String>(child: Text("Integer"), value: "Integer"),
-              DropdownMenuItem<String>(child: Text("String"), value: "String"),
+              DropdownMenuItem<String>(child: Text("Boolean", overflow: TextOverflow.ellipsis), value: "Boolean"),
+              DropdownMenuItem<String>(child: Text("DateTime", overflow: TextOverflow.ellipsis), value: "DateTime"),
+              DropdownMenuItem<String>(child: Text("Float", overflow: TextOverflow.ellipsis), value: "Float"),
+              DropdownMenuItem<String>(child: Text("Integer", overflow: TextOverflow.ellipsis), value: "Integer"),
+              DropdownMenuItem<String>(child: Text("String", overflow: TextOverflow.ellipsis), value: "String"),
             ],
             onChanged: (e){
               setState(() =>_selectedType = e);

@@ -41,7 +41,6 @@ class MyApp extends StatelessWidget {
       title: 'Neo4j Output',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        accentColor: Colors.green,
       ),
       home: Scaffold(
         body: Padding(
@@ -128,12 +127,12 @@ class _ExportObjectSelectorState extends State<ExportObjectSelector> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(height: 20),
-        Text("export object:", textScaleFactor: 0.9),
+        Text("export object:", overflow: TextOverflow.ellipsis, textScaleFactor: 0.9),
         DropdownButton<String>(
-          hint: Text("export object"),
+          hint: Text("export object", overflow: TextOverflow.ellipsis),
           items: [
-            DropdownMenuItem(child: Text("Node"), value: "Node"),
-            DropdownMenuItem(child: Text("Relationship"), value: "Relationship"),
+            DropdownMenuItem(child: Text("Node", overflow: TextOverflow.ellipsis), value: "Node"),
+            DropdownMenuItem(child: Text("Relationship", overflow: TextOverflow.ellipsis), value: "Relationship"),
           ],
           value: config.exportObject,
           onChanged: exportObjectChanged,
@@ -154,7 +153,7 @@ class NodeOrRelationshipConfig extends StatelessWidget {
     if (exportObject == 'Relationship') {
       return RelationshipConfig();
     }
-    return Text("Invalid export object");
+    return Text("Invalid export object", overflow: TextOverflow.ellipsis);
   }
 }
 

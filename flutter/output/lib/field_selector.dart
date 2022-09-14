@@ -20,7 +20,7 @@ class _FieldSelectorState extends State<FieldSelector> {
     var config = BlocProvider.of<Configuration>(context);
     List<PopupMenuItem<String>> incomingFields = [];
     for (var field in config.incomingFields) {
-      incomingFields.add(PopupMenuItem<String>(value: field, child: Text(field)));
+      incomingFields.add(PopupMenuItem<String>(value: field, child: Text(field, overflow: TextOverflow.ellipsis)));
     }
     return incomingFields;
   }
@@ -70,7 +70,7 @@ class _FieldSelectorState extends State<FieldSelector> {
               itemBuilder: (context, index) {
                 return Row(
                   children: [
-                    Expanded(child: Text(widget.source[index])),
+                    Expanded(child: Text(widget.source[index], overflow: TextOverflow.ellipsis)),
                     IconButton(icon: Icon(Icons.delete), onPressed: generateFieldRemover(index)),
                   ],
                 );

@@ -80,7 +80,7 @@ class _QueryControlsState extends State<QueryControls> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Validate query"),
+                      Text("Validate query", overflow: TextOverflow.ellipsis),
                       isValidating ? CircularProgressIndicator(strokeWidth: 2) : SizedBox(width: 0),
                     ],
                   ),
@@ -99,7 +99,7 @@ class _QueryControlsState extends State<QueryControls> {
                 return SizedBox(height: 0);
               },
             ),
-            ElevatedButton(onPressed: state.addField, child: Text("Add field")),
+            ElevatedButton(onPressed: state.addField, child: Text("Add field", overflow: TextOverflow.ellipsis)),
             StreamBuilder<List<Field>>(
               stream: BlocProvider.of<AppState>(context).fields,
               builder: (_, AsyncSnapshot<List<Field>> value) {

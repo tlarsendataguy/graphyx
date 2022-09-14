@@ -133,6 +133,7 @@ func (o *Neo4jOutput) OnRecordPacket(connection sdk.InputConnection) {
 		}
 		o.currentBatchSize++
 	}
+	o.provider.Io().UpdateProgress(connection.Progress())
 }
 
 func (o *Neo4jOutput) sendBatch() {
@@ -156,6 +157,7 @@ func (o *Neo4jOutput) OnComplete() {
 	if o.driver != nil {
 		o.driver.Close()
 	}
+	o.provider.Io().UpdateProgress(1.0)
 }
 
 func (o *Neo4jOutput) error(msg string) {

@@ -20,7 +20,7 @@ class _FieldMapperState extends State<FieldMapper> {
     List<PopupMenuItem<String>> incomingFields = [];
     var config = BlocProvider.of<Configuration>(context);
     for (var field in config.incomingFields) {
-      incomingFields.add(PopupMenuItem<String>(value: field, child: Text(field)));
+      incomingFields.add(PopupMenuItem<String>(value: field, child: Text(field, overflow: TextOverflow.ellipsis)));
     }
     return incomingFields;
   }
@@ -115,7 +115,7 @@ class _FieldMapState extends State<FieldMap> {
     return Row(
       children: [
         Expanded(
-          child: Text(map().ayxField),
+          child: Text(map().ayxField, overflow: TextOverflow.ellipsis),
         ),
         Expanded(
           child: TextField(

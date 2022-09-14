@@ -65,7 +65,7 @@ class _ConnectionControlsState extends State<ConnectionControls> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(height: 16, child: TextButton(onPressed: toggleUrlCollapse, child: Icon(Icons.keyboard_arrow_down))),
-                Text(this.urlController.text),
+                Text(this.urlController.text, overflow: TextOverflow.ellipsis),
               ],
             ) : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

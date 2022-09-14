@@ -157,6 +157,7 @@ func (d *Neo4jDelete) OnRecordPacket(connection sdk.InputConnection) {
 		}
 		d.currentBatchSize++
 	}
+	d.provider.Io().UpdateProgress(connection.Progress())
 }
 
 func (d *Neo4jDelete) OnComplete() {
@@ -169,6 +170,7 @@ func (d *Neo4jDelete) OnComplete() {
 	if d.driver != nil {
 		d.driver.Close()
 	}
+	d.provider.Io().UpdateProgress(1.0)
 }
 
 func (d *Neo4jDelete) sendBatch() {

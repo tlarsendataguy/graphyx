@@ -64,6 +64,9 @@ func (i *Neo4jInput) OnComplete() {
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: i.config.Database})
 	defer session.Close()
 
+	i.provider.Io().UpdateProgress(0.0)
+	i.output.UpdateProgress(0.0)
+
 	_, err = session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		result, txErr := tx.Run(i.config.Query, nil)
 		if txErr != nil {
@@ -90,4 +93,6 @@ func (i *Neo4jInput) OnComplete() {
 	if err != nil {
 		i.provider.Io().Error(err.Error())
 	}
+	i.output.UpdateProgress(1.0)
+	i.provider.Io().UpdateProgress(1.0)
 }

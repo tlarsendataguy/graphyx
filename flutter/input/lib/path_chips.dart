@@ -39,7 +39,7 @@ class ElementChip extends StatelessWidget {
   Widget build(BuildContext context) {
     var fieldState = BlocProvider.of<FieldState>(context);
     return Chip(
-        label: Text(label),
+        label: Text(label, overflow: TextOverflow.ellipsis),
         deleteIcon: Icon(Icons.close),
         onDeleted: () {
           fieldState.truncatePathAtElement(index);
