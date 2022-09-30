@@ -47,6 +47,8 @@ github.com/tlarsendataguy/goalteryx v0.5.17 h1:oyRMwV5yqdkWye9KYdvxuS6BS2TuBa06Z
 github.com/tlarsendataguy/goalteryx v0.5.17/go.mod h1:O6tsex6/wvz52sG/RDYgIUdyYoRm+U3P8Qx5x54zkhQ=
 github.com/tlarsendataguy/goalteryx v0.5.19 h1:7MLm06fU4z+nBRaX7BFDrPZyyT90j0qjAclf/Ot0i2Q=
 github.com/tlarsendataguy/goalteryx v0.5.19/go.mod h1:O6tsex6/wvz52sG/RDYgIUdyYoRm+U3P8Qx5x54zkhQ=
+github.com/tlarsendataguy/goalteryx v0.5.20 h1:wWImxFDCiD1Rv3oqZpFS5q+cjGi4WTDi8nNJdTRhgBg=
+github.com/tlarsendataguy/goalteryx v0.5.20/go.mod h1:O6tsex6/wvz52sG/RDYgIUdyYoRm+U3P8Qx5x54zkhQ=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
