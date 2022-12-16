@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
     <Product Name='Graphyx' Manufacturer='tlarsendataguy'
-        Id='843bfcb1-5536-4ab0-8d5f-8ecf7d87a1d9' 
+        Id='2f17e2a0-5b2e-40ff-8520-a50d24c96fb7' 
 		UpgradeCode='cdb04ddb-1cc6-4d73-96b3-9a4ffee350b7'
-        Language='1033' Codepage='1252' Version='1.0.6'>
+        Language='1033' Codepage='1252' Version='1.0.7'>
 		<Package Id='*' Keywords='Installer' Description="Graphyx installer"
 			Comments='Neo4j input and output tools for Alteryx' Manufacturer='tlarsendataguy'
 			InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform="x64" />
@@ -21,7 +21,8 @@
 		<Media Id='1' Cabinet='graphyx.cab' EmbedCab='yes' />
 		
 		<Property Id="ALTERYXDIR">
-			<RegistrySearch Id='AlteryxInstallDir' Type='raw' Root='HKCU' Key='Software\SRC\Alteryx' Name='LastInstallDir' />
+			<RegistrySearch Id='AlteryxInstallDirRegex' Type='directory' Root='HKCU' Key='Software\SRC\Alteryx' Name='LastInstallDir' />
+			<DirectorySearch Id='AlteryxInstallDir' Path='c:\Program Files\Alteryx\bin' />
 		</Property>
 		
 		<Directory Id='TARGETDIR' Name='SourceDir'>
