@@ -48,6 +48,7 @@ func (o *Neo4jOutput) Init(provider sdk.Provider) {
 		provider.Io().Error(err.Error())
 		return
 	}
+
 	o.batch = make([]map[string]interface{}, o.config.BatchSize)
 	if o.config.ExportObject == `Node` {
 		o.generateNodeQuery()
@@ -100,8 +101,8 @@ func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 		o.copier = append(o.copier, copier)
 	}
 
-	password := o.provider.Io().DecryptPassword(o.config.Password)
-	o.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(o.config.Username, password, ""))
+	username, password := util.GetCredentials(o.config.Username, o.config.Password, o.provider)
+	o.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		o.error(err.Error())
 		return

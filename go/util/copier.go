@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j/dbtype"
 	"github.com/tlarsendataguy/goalteryx/sdk"
 )
 
@@ -53,7 +54,20 @@ func FindFieldAndGenerateCopier(field string, incomingInfo sdk.IncomingRecordInf
 					return nil
 				}
 				return copier, nil
-			case `Date`, `DateTime`:
+			case `Date`:
+				timeField, _ := incomingInfo.GetTimeField(field)
+				getTime := timeField.GetValue
+				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) error {
+					value, isNull := getTime(copyFrom)
+					if isNull {
+						copyTo[field] = nil
+						return nil
+					}
+					copyTo[field] = dbtype.Date(value)
+					return nil
+				}
+				return copier, nil
+			case `DateTime`:
 				timeField, _ := incomingInfo.GetTimeField(field)
 				getTime := timeField.GetValue
 				copier = func(copyFrom sdk.Record, copyTo map[string]interface{}) error {

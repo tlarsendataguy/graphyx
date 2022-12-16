@@ -5,6 +5,7 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsendataguy/goalteryx/sdk"
 	"github.com/tlarsendataguy/graphyx/bolt_url"
+	"github.com/tlarsendataguy/graphyx/util"
 )
 
 type Neo4jInput struct {
@@ -48,8 +49,8 @@ func (i *Neo4jInput) OnComplete() {
 		i.provider.Io().Error(fmt.Sprintf(`error connecting to Neo4j: %v`, err.Error()))
 	}
 
-	password := i.provider.Io().DecryptPassword(i.config.Password)
-	driver, err := neo4j.NewDriver(boltUrl, neo4j.BasicAuth(i.config.Username, password, ""))
+	username, password := util.GetCredentials(i.config.Username, i.config.Password, i.provider)
+	driver, err := neo4j.NewDriver(boltUrl, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		i.provider.Io().Error(fmt.Sprintf(`expected no error but got: %v`, err.Error()))
 		return
