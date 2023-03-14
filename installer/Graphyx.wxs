@@ -3,8 +3,8 @@
     <Product Name='Graphyx' Manufacturer='tlarsendataguy'
         Id='2f17e2a0-5b2e-40ff-8520-a50d24c96fb7' 
 		UpgradeCode='cdb04ddb-1cc6-4d73-96b3-9a4ffee350b7'
-        Language='1033' Codepage='1252' Version='1.0.7'>
-		<Package Id='*' Keywords='Installer' Description="Graphyx installer"
+        Language='1033' Codepage='1252' Version='1.0.8'>
+		<Package Id='*' Keywords='Installer' Description="Graphyx installer" InstallPrivileges="elevated" InstallScope="perMachine"
 			Comments='Neo4j input and output tools for Alteryx' Manufacturer='tlarsendataguy'
 			InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform="x64" />
 
