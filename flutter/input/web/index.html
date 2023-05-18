@@ -16,6 +16,8 @@
 
   <title>input</title>
   <link rel="manifest" href="manifest.json">
+
+  <script src="neo4j-web.min.js" type="application/javascript"></script>
 </head>
 <body>
   <script type="text/javascript">
@@ -32,9 +34,9 @@
         }
       }
       let testConfig = {
-        "ConnStr": "http://localhost:7474",
-        "Username": "test",
-        "Password": "test",
+        "ConnStr": "bolt://localhost:7687",
+        "Username": "neo4j",
+        "Password": "",
         "Database": "neo4j",
         "Query": "MATCH p=()-[r:ACTED_IN]->() RETURN p",
         "Fields": [],
@@ -86,6 +88,73 @@
           }
         }));
       }
+    }
+
+    function getType(value) {
+      if (value === null) {
+        return 'Unknown';
+      }
+      if (value instanceof Array) {
+        if (value.length === 0) {
+          return 'List:String'
+        }
+        const firstItem = value[0];
+        return 'List:' + getType(firstItem);
+      }
+      if (value instanceof Boolean) {
+        return 'Boolean';
+      }
+      if (value instanceof neo4j.types.Integer) {
+        return 'Integer';
+      }
+      if (value instanceof Number) {
+        return 'Float';
+      }
+      if (value instanceof String) {
+        return 'String';
+      }
+      if (value instanceof Date) {
+        return 'Date';
+      }
+      if (value instanceof neo4j.types.Node) {
+        return 'Node';
+      }
+      if (value instanceof neo4j.types.Relationship) {
+        return 'Relationship';
+      }
+      if (value instanceof neo4j.types.Path || value instanceof neo4j.types.PathSegment) {
+        return 'Path';
+      }
+      return 'Unknown';
+    }
+
+    window.returnValueMetadata = async function (uri, user, password, database, query) {
+      let result;
+      try {
+        const driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
+        const session = driver.session({
+          database: database,
+          defaultAccessMode: neo4j.session.READ
+        });
+        result = await session.run(query, {});
+        session.close();
+        driver.close();
+      } catch (e) {
+        return {"Error": e.toString(), "Fields": []};
+      }
+
+      let metadata = [];
+      if (result.records.length === 0) {
+        return {"Error": '', "Fields": metadata};
+      }
+
+      const record = result.records[0];
+      for (const key of record.keys) {
+        const value = record.get(key);
+        const dataType = getType(value);
+        metadata.push({"Name": key, "DataType": dataType});
+      }
+      return {"Error": "", "Fields": metadata};
     }
   </script>
   <script src="main.dart.js" type="application/javascript"></script>

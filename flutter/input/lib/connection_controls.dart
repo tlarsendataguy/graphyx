@@ -71,7 +71,7 @@ class _ConnectionControlsState extends State<ConnectionControls> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(height: 16, child: TextButton(onPressed: toggleUrlCollapse, child: Icon(Icons.keyboard_arrow_up))),
-                TextField(controller: this.urlController, decoration: InputDecoration(labelText: "url"), onChanged: urlChanged, autocorrect: false),
+                TextField(controller: this.urlController, decoration: InputDecoration(labelText: "connection (bolt or neo4j address)"), onChanged: urlChanged, autocorrect: false),
                 TextField(controller: this.userController, decoration: InputDecoration(labelText: "username"), onChanged: usernameChanged, autocorrect: false),
                 TextField(controller: this.passwordController, decoration: InputDecoration(labelText: "password"), autocorrect: false, obscureText: true, onChanged: passwordChanged),
                 TextField(controller: this.databaseController, decoration: InputDecoration(labelText: "database"), onChanged: databaseChanged, autocorrect: false),

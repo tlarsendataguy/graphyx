@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:js_util';
 import 'package:input/bloc.dart';
 import 'package:input/configuration.dart';
 import 'package:input/decode_config.dart';
-import 'package:input/validate_v4.dart';
 import 'package:input/validated_response.dart';
 import 'package:rxdart/rxdart.dart' as rx;
-import 'package:http/http.dart' as http;
 
 enum updated {
   ReturnValues,
@@ -121,37 +120,26 @@ class AppState extends BlocState {
       query += " LIMIT 1";
     }
 
+    var uri = _config.connStr;
+    var password = await getPassword();
+    var db = _config.database == '' ? 'neo4j' : _config.database;
+    var user = _config.username;
+
+    var result = await promiseToFuture(returnValueMetadata(uri, user, password, db, query));
+
     ValidatedResponse validated;
-    try {
-      var body = {
-        "statements": [
-          {
-            "statement": query,
-            "parameters": {},
-          },
-        ],
-      };
-      var password = await getPassword();
-      var db = _config.database == '' ? 'neo4j' : _config.database;
-      var response = await http.post(
-        '${_config.connStr}/db/$db/tx/commit',
-        headers: {
-          'Accept': 'application/vnd.neo4j.jolt+json-seq;strict=true',
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic ' + base64Encode(
-              utf8.encode('${_config.username}:$password')),
-        },
-        body: jsonEncode(body),
-      );
-      if (response.statusCode != 200) {
-        validated = ValidatedResponse(error: 'error ${response.statusCode} returned from server', returnValues: []);
-      } else {
-        validated = validateV4Response(response.body);
+    var error = result.Error;
+    var jsonFields = result.Fields;
+    if (error != '') {
+      validated = ValidatedResponse(error: 'Error: $error', returnValues: []);
+    } else {
+      var fields = <ReturnValue>[];
+      for (var raw in jsonFields) {
+        fields.add(ReturnValue(name: raw.Name ?? '', dataType: raw.DataType ?? 'Unknown'));
       }
+      validated = ValidatedResponse(error: '', returnValues: fields);
     }
-    catch (ex) {
-      validated = ValidatedResponse(error: 'Unable to connect to the Neo4j database.  Double-check the URL make sure you have a working network connection to the database.', returnValues: []);
-    }
+
     _config.lastValidatedResponse = validated;
     _lastValidatedResponse.add(validated);
   }

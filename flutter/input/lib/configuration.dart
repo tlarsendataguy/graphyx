@@ -33,3 +33,8 @@ external bool get configurationLoaded;
 
 @JS('Alteryx.JsEvent')
 external void JsEvent(String eventStr);
+
+@JS('returnValueMetadata')
+external Future<Map<String, dynamic>> returnValueMetadata(String uri, String user, String password, String database, String query);
+
+
