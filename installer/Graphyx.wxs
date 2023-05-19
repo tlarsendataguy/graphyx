@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
     <Product Name='Graphyx' Manufacturer='tlarsendataguy'
-        Id='2f17e2a0-5b2e-40ff-8520-a50d24c96fb7' 
+        Id='473d8926-fe69-4d1e-b4ff-65952cfde31f' 
 		UpgradeCode='cdb04ddb-1cc6-4d73-96b3-9a4ffee350b7'
-        Language='1033' Codepage='1252' Version='1.0.8'>
+        Language='1033' Codepage='1252' Version='2.0.0'>
 		<Package Id='*' Keywords='Installer' Description="Graphyx installer" InstallPrivileges="elevated" InstallScope="perMachine"
 			Comments='Neo4j input and output tools for Alteryx' Manufacturer='tlarsendataguy'
 			InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform="x64" />
@@ -42,6 +42,7 @@
 								<File Id='Neo4jInputIcon' Name='icon.png' DiskId='1' Source='..\go\input\Neo4jInput\icon.png' />
 								<File Id='Neo4jInputConfig' Name='Neo4jInputConfig.xml' DiskId='1' Source='..\go\input\Neo4jInput\Neo4jInputConfig.xml' />
 								<File Id='Neo4jInputMainDart' Name='main.dart.js' DiskId='1' Source='..\go\input\Neo4jInput\main.dart.js' />
+								<File Id='Neo4jInputNeo4jDriver' Name='neo4j-web.min.js' DiskId='1' Source='..\go\input\Neo4jInput\neo4j-web.min.js' />
 								<File Id='Neo4jInputManifest' Name='manifest.json' DiskId='1' Source='..\go\input\Neo4jInput\manifest.json' />
 							</Component>
 							<Directory Id='NEO4JINPUTASSETS' Name='assets'>

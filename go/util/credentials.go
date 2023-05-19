@@ -9,13 +9,9 @@ import (
 	"strings"
 )
 
-func GetCredentials(username, password string, provider sdk.Provider) (string, string) {
-	if username == `` && password == `` {
-		creds, err := wincred.GetGenericCredential(`Graphyx`)
-		if err != nil {
-			return ``, ``
-		}
-
+func GetCredentials(url, username, password string, provider sdk.Provider) (string, string) {
+	creds, err := wincred.GetGenericCredential(url)
+	if err == nil && creds != nil {
 		builder := strings.Builder{}
 		decoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewDecoder()
 		scanner := bufio.NewScanner(decoder.Reader(bytes.NewReader(creds.CredentialBlob)))
@@ -25,5 +21,6 @@ func GetCredentials(username, password string, provider sdk.Provider) (string, s
 
 		return creds.UserName, builder.String()
 	}
+
 	return username, provider.Io().DecryptPassword(password)
 }

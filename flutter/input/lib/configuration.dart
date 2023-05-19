@@ -34,7 +34,19 @@ external bool get configurationLoaded;
 @JS('Alteryx.JsEvent')
 external void JsEvent(String eventStr);
 
+@JS()
+class FieldMetadata {
+  external String get Name;
+  external String get DataType;
+}
+
+@JS()
+class ReturnValueMetadata {
+  external String get Error;
+  external List<FieldMetadata> get Fields;
+}
+
 @JS('returnValueMetadata')
-external Future<Map<String, dynamic>> returnValueMetadata(String uri, String user, String password, String database, String query);
+external ReturnValueMetadata returnValueMetadata(String uri, String user, String password, String database, String query);
 
 

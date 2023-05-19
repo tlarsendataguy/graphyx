@@ -12,7 +12,7 @@
       <Description>Import Neo4j queries into Alteryx</Description>
       <CategoryName>Connectors</CategoryName>
       <SearchTags>go, sdk, graph database, neo4j, cypher</SearchTags>
-      <ToolVersion>1.00</ToolVersion>
+      <ToolVersion>2.0.0</ToolVersion>
       <Author>tlarsendataguy</Author>
       <Company></Company>
       <Copyright>2020</Copyright>

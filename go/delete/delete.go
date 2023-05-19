@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsendataguy/goalteryx/sdk"
-	"github.com/tlarsendataguy/graphyx/bolt_url"
 	"github.com/tlarsendataguy/graphyx/util"
 )
 
@@ -109,11 +108,7 @@ func (d *Neo4jDelete) OnInputConnectionOpened(connection sdk.InputConnection) {
 		return
 	}
 
-	url, err := bolt_url.GetBoltUrl(d.config.ConnStr)
-	if err != nil {
-		d.error(err.Error())
-		return
-	}
+	var err error
 
 	var copier util.CopyData
 	incomingInfo := connection.Metadata()
@@ -126,8 +121,8 @@ func (d *Neo4jDelete) OnInputConnectionOpened(connection sdk.InputConnection) {
 		d.copiers = append(d.copiers, copier)
 	}
 
-	username, password := util.GetCredentials(d.config.Username, d.config.Password, d.provider)
-	d.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(username, password, ""))
+	username, password := util.GetCredentials(d.config.ConnStr, d.config.Username, d.config.Password, d.provider)
+	d.driver, err = neo4j.NewDriver(d.config.ConnStr, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		d.error(err.Error())
 		return
@@ -153,7 +148,7 @@ func (d *Neo4jDelete) OnRecordPacket(connection sdk.InputConnection) {
 		copyFrom := packet.Record()
 		copyTo := d.batch[d.currentBatchSize]
 		for _, copyData := range d.copiers {
-			copyData(copyFrom, copyTo)
+			_ = copyData(copyFrom, copyTo)
 		}
 		d.currentBatchSize++
 	}
@@ -165,10 +160,10 @@ func (d *Neo4jDelete) OnComplete() {
 		d.sendBatch()
 	}
 	if d.session != nil {
-		d.session.Close()
+		_ = d.session.Close()
 	}
 	if d.driver != nil {
-		d.driver.Close()
+		_ = d.driver.Close()
 	}
 	d.provider.Io().UpdateProgress(1.0)
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsendataguy/goalteryx/sdk"
-	"github.com/tlarsendataguy/graphyx/bolt_url"
 	"github.com/tlarsendataguy/graphyx/util"
 )
 
@@ -84,11 +83,7 @@ func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 		return
 	}
 
-	url, err := bolt_url.GetBoltUrl(o.config.ConnStr)
-	if err != nil {
-		o.error(err.Error())
-		return
-	}
+	var err error
 
 	var copier util.CopyData
 	incomingInfo := connection.Metadata()
@@ -101,8 +96,8 @@ func (o *Neo4jOutput) OnInputConnectionOpened(connection sdk.InputConnection) {
 		o.copier = append(o.copier, copier)
 	}
 
-	username, password := util.GetCredentials(o.config.Username, o.config.Password, o.provider)
-	o.driver, err = neo4j.NewDriver(url, neo4j.BasicAuth(username, password, ""))
+	username, password := util.GetCredentials(o.config.ConnStr, o.config.Username, o.config.Password, o.provider)
+	o.driver, err = neo4j.NewDriver(o.config.ConnStr, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		o.error(err.Error())
 		return
@@ -153,10 +148,10 @@ func (o *Neo4jOutput) OnComplete() {
 		o.sendBatch()
 	}
 	if o.session != nil {
-		o.session.Close()
+		_ = o.session.Close()
 	}
 	if o.driver != nil {
-		o.driver.Close()
+		_ = o.driver.Close()
 	}
 	o.provider.Io().UpdateProgress(1.0)
 }

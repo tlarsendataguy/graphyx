@@ -125,16 +125,14 @@ class AppState extends BlocState {
     var db = _config.database == '' ? 'neo4j' : _config.database;
     var user = _config.username;
 
-    var result = await promiseToFuture(returnValueMetadata(uri, user, password, db, query));
+    var result = await promiseToFuture<ReturnValueMetadata>(returnValueMetadata(uri, user, password, db, query));
 
     ValidatedResponse validated;
-    var error = result.Error;
-    var jsonFields = result.Fields;
-    if (error != '') {
-      validated = ValidatedResponse(error: 'Error: $error', returnValues: []);
+    if (result.Error != '') {
+      validated = ValidatedResponse(error: 'Error: ${result.Error}', returnValues: []);
     } else {
       var fields = <ReturnValue>[];
-      for (var raw in jsonFields) {
+      for (var raw in result.Fields) {
         fields.add(ReturnValue(name: raw.Name ?? '', dataType: raw.DataType ?? 'Unknown'));
       }
       validated = ValidatedResponse(error: '', returnValues: fields);

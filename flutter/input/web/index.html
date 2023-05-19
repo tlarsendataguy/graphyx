@@ -128,6 +128,20 @@
       return 'Unknown';
     }
 
+    class ReturnValueMetadata {
+      constructor(error, fields) {
+        this.Error = error;
+        this.Fields = fields;
+      }
+    }
+
+    class FieldMetadata {
+      constructor(name, dataType) {
+        this.Name = name;
+        this.DataType = dataType;
+      }
+    }
+
     window.returnValueMetadata = async function (uri, user, password, database, query) {
       let result;
       try {
@@ -140,21 +154,21 @@
         session.close();
         driver.close();
       } catch (e) {
-        return {"Error": e.toString(), "Fields": []};
+        return new ReturnValueMetadata(e.toString, []);
       }
 
-      let metadata = [];
       if (result.records.length === 0) {
-        return {"Error": '', "Fields": metadata};
+        return new ReturnValueMetadata('', []);
       }
 
+      const returnObj = new ReturnValueMetadata('', []);
       const record = result.records[0];
       for (const key of record.keys) {
         const value = record.get(key);
         const dataType = getType(value);
-        metadata.push({"Name": key, "DataType": dataType});
+        returnObj.Fields.push(new FieldMetadata(key, dataType));
       }
-      return {"Error": "", "Fields": metadata};
+      return returnObj;
     }
   </script>
   <script src="main.dart.js" type="application/javascript"></script>

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 	"github.com/tlarsendataguy/goalteryx/sdk"
-	"github.com/tlarsendataguy/graphyx/bolt_url"
 	"github.com/tlarsendataguy/graphyx/util"
 )
 
@@ -44,13 +43,8 @@ func (i *Neo4jInput) OnComplete() {
 		return
 	}
 
-	boltUrl, err := bolt_url.GetBoltUrl(i.config.ConnStr)
-	if err != nil {
-		i.provider.Io().Error(fmt.Sprintf(`error connecting to Neo4j: %v`, err.Error()))
-	}
-
-	username, password := util.GetCredentials(i.config.Username, i.config.Password, i.provider)
-	driver, err := neo4j.NewDriver(boltUrl, neo4j.BasicAuth(username, password, ""))
+	username, password := util.GetCredentials(i.config.ConnStr, i.config.Username, i.config.Password, i.provider)
+	driver, err := neo4j.NewDriver(i.config.ConnStr, neo4j.BasicAuth(username, password, ""))
 	if err != nil {
 		i.provider.Io().Error(fmt.Sprintf(`expected no error but got: %v`, err.Error()))
 		return
@@ -60,10 +54,14 @@ func (i *Neo4jInput) OnComplete() {
 		i.provider.Io().Error(err.Error())
 		return
 	}
-	defer driver.Close()
+	defer func() {
+		_ = driver.Close()
+	}()
 
 	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead, DatabaseName: i.config.Database})
-	defer session.Close()
+	defer func() {
+		_ = session.Close()
+	}()
 
 	i.provider.Io().UpdateProgress(0.0)
 	i.output.UpdateProgress(0.0)

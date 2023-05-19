@@ -32,7 +32,7 @@ func checkNil(t *testing.T, value interface{}) {
 
 func TestOptionalNodeMatch(t *testing.T) {
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Query":"MATCH (n:Movie {title:'Apollo 13'})\nOPTIONAL MATCH (n)-[]-(p:Person) WHERE p.name = 'Thomas Larsen'\nRETURN n, p","Database":"neo4j","UrlCollapsed":false,"LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"n","DataType":"Node"},{"Name":"p","DataType":"Node"}]},"Fields":[{"Name":"Movie","DataType":"String","Path":[{"Key":"n","DataType":"Node"},{"Key":"ToString","DataType":"String"}]},{"Name":"Person ID","DataType":"Integer","Path":[{"Key":"p","DataType":"Node"},{"Key":"ID","DataType":"Integer"}]},{"Name":"Person Name","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"Properties","DataType":"Map"},{"Key":"name","DataType":"String"}]},{"Name":"Person Label","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"Labels","DataType":"List:String"},{"Key":"First","DataType":"String"}]},{"Name":"Person String","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"ToString","DataType":"String"}]}]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Query":"MATCH (n:Movie {title:'Apollo 13'})\nOPTIONAL MATCH (n)-[]-(p:Person) WHERE p.name = 'Thomas Larsen'\nRETURN n, p","Database":"neo4j","UrlCollapsed":false,"LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"n","DataType":"Node"},{"Name":"p","DataType":"Node"}]},"Fields":[{"Name":"Movie","DataType":"String","Path":[{"Key":"n","DataType":"Node"},{"Key":"ToString","DataType":"String"}]},{"Name":"Person ID","DataType":"Integer","Path":[{"Key":"p","DataType":"Node"},{"Key":"ID","DataType":"Integer"}]},{"Name":"Person Name","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"Properties","DataType":"Map"},{"Key":"name","DataType":"String"}]},{"Name":"Person Label","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"Labels","DataType":"List:String"},{"Key":"First","DataType":"String"}]},{"Name":"Person String","DataType":"String","Path":[{"Key":"p","DataType":"Node"},{"Key":"ToString","DataType":"String"}]}]}</JSON>
 </Configuration>`
 	plugin := &input.Neo4jInput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
@@ -54,7 +54,7 @@ func TestOptionalNodeMatch(t *testing.T) {
 
 func TestOptionalRelationshipMatch(t *testing.T) {
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Query":"MATCH (m:Movie {title:'The Matrix'})\nOPTIONAL MATCH (m)-[r]-(t:Person) WHERE t.name = 'Thomas Larsen'\nRETURN m,r","Database":"neo4j","UrlCollapsed":false,"LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"m","DataType":"Node"},{"Name":"r","DataType":"Relationship"}]},"Fields":[{"Name":"Movie","DataType":"String","Path":[{"Key":"m","DataType":"Node"},{"Key":"ToString","DataType":"String"}]},{"Name":"R ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"ID","DataType":"Integer"}]},{"Name":"R Start ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"StartId","DataType":"Integer"}]},{"Name":"R End ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"EndId","DataType":"Integer"}]},{"Name":"R Type","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"Type","DataType":"String"}]},{"Name":"R Roles","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"Properties","DataType":"Map"},{"Key":"roles","DataType":"String"}]},{"Name":"R String","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"ToString","DataType":"String"}]}]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Query":"MATCH (m:Movie {title:'The Matrix'})\nOPTIONAL MATCH (m)-[r]-(t:Person) WHERE t.name = 'Thomas Larsen'\nRETURN m,r","Database":"neo4j","UrlCollapsed":false,"LastValidatedResponse":{"Error":"","ReturnValues":[{"Name":"m","DataType":"Node"},{"Name":"r","DataType":"Relationship"}]},"Fields":[{"Name":"Movie","DataType":"String","Path":[{"Key":"m","DataType":"Node"},{"Key":"ToString","DataType":"String"}]},{"Name":"R ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"ID","DataType":"Integer"}]},{"Name":"R Start ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"StartId","DataType":"Integer"}]},{"Name":"R End ID","DataType":"Integer","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"EndId","DataType":"Integer"}]},{"Name":"R Type","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"Type","DataType":"String"}]},{"Name":"R Roles","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"Properties","DataType":"Map"},{"Key":"roles","DataType":"String"}]},{"Name":"R String","DataType":"String","Path":[{"Key":"r","DataType":"Relationship"},{"Key":"ToString","DataType":"String"}]}]}</JSON>
 </Configuration>`
 	plugin := &input.Neo4jInput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
@@ -162,7 +162,7 @@ func TestBatch(t *testing.T) {
 	}
 
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["Value"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["Value"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
 </Configuration>`
 	plugin := &output.Neo4jOutput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
@@ -184,7 +184,7 @@ func TestDataTypesCopyCorrectly(t *testing.T) {
 	}
 
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["ByteField","Int16Field","Int32Field","StringField","WStringField","V_StringField","V_WStringField","DateField","DateTimeField","FloatField","DoubleField","FixedDecimalField","BoolField"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["ByteField","Int16Field","Int32Field","StringField","WStringField","V_StringField","V_WStringField","DateField","DateTimeField","FloatField","DoubleField","FixedDecimalField","BoolField"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
 </Configuration>`
 	plugin := &output.Neo4jOutput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config)
@@ -213,7 +213,7 @@ func TestDoNotRunOutputIfUpdateOnly(t *testing.T) {
 	}
 
 	config := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["ByteField","Int16Field","Int32Field","StringField","WStringField","V_StringField","V_WStringField","DateField","DateTimeField","FloatField","DoubleField","FixedDecimalField","BoolField"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["ByteField","Int16Field","Int32Field","StringField","WStringField","V_StringField","V_WStringField","DateField","DateTimeField","FloatField","DoubleField","FixedDecimalField","BoolField"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
 </Configuration>`
 	plugin := &output.Neo4jOutput{}
 	runner := sdk.RegisterToolTest(plugin, 1, config, sdk.UpdateOnly(true))
@@ -235,7 +235,7 @@ func TestEndToEnd(t *testing.T) {
 	}
 
 	configNodes := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["Value"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Node","BatchSize":10000,"NodeLabel":"TestLabel","NodeIdFields":["ID"],"NodePropFields":["Value"],"RelLabel":"","RelPropFields":[],"RelLeftLabel":"","RelLeftFields":[],"RelRightLabel":"","RelRightFields":[]}</JSON>
 </Configuration>`
 	pluginNodes := &output.Neo4jOutput{}
 	runnerNodes := sdk.RegisterToolTest(pluginNodes, 1, configNodes)
@@ -243,7 +243,7 @@ func TestEndToEnd(t *testing.T) {
 	runnerNodes.SimulateLifecycle()
 
 	configRelationships := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Relationship","BatchSize":10000,"NodeLabel":"","NodeIdFields":[],"NodePropFields":[],"RelLabel":"TestRel","RelPropFields":["Value"],"RelLeftLabel":"TestLabel","RelLeftFields":[{"LeftID":"ID"}],"RelRightLabel":"TestLabel","RelRightFields":[{"RightID":"ID"}]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","ExportObject":"Relationship","BatchSize":10000,"NodeLabel":"","NodeIdFields":[],"NodePropFields":[],"RelLabel":"TestRel","RelPropFields":["Value"],"RelLeftLabel":"TestLabel","RelLeftFields":[{"LeftID":"ID"}],"RelRightLabel":"TestLabel","RelRightFields":[{"RightID":"ID"}]}</JSON>
 </Configuration>`
 	pluginRelationships := &output.Neo4jOutput{}
 	runnerRelationships := sdk.RegisterToolTest(pluginRelationships, 100, configRelationships)
@@ -301,7 +301,7 @@ func TestEndToEndDeleteNodes(t *testing.T) {
 	}
 
 	configNodes := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Node","BatchSize":10000,"NodeLabel":"DELETE","NodeIdFields":["Id"]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Node","BatchSize":10000,"NodeLabel":"DELETE","NodeIdFields":["Id"]}</JSON>
 </Configuration>`
 	pluginNodes := &delete.Neo4jDelete{}
 	runnerNodes := sdk.RegisterToolTest(pluginNodes, 1, configNodes)
@@ -333,7 +333,7 @@ func TestEndToEndDeleteRelationships(t *testing.T) {
 	}
 
 	configNodes := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Relationship","BatchSize":10000,"RelType":"Relates_To","RelFields":[],"RelLeftLabel":"DELETE","RelLeftFields":[{"LeftId":"Id"}],"RelRightLabel":"DELETE","RelRightFields":[{"RightId":"Id"}]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Relationship","BatchSize":10000,"RelType":"Relates_To","RelFields":[],"RelLeftLabel":"DELETE","RelLeftFields":[{"LeftId":"Id"}],"RelRightLabel":"DELETE","RelRightFields":[{"RightId":"Id"}]}</JSON>
 </Configuration>`
 	pluginNodes := &delete.Neo4jDelete{}
 	runnerNodes := sdk.RegisterToolTest(pluginNodes, 1, configNodes)
@@ -365,7 +365,7 @@ func TestDoNotRunDeleteIfUpdateOnly(t *testing.T) {
 	}
 
 	configNodes := `<Configuration>
-  <JSON>{"ConnStr":"http://localhost:7474","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Node","BatchSize":10000,"NodeLabel":"DELETE","NodeIdFields":["Id"]}</JSON>
+  <JSON>{"ConnStr":"bolt://localhost:7687","Username":"test","Password":"test","Database":"neo4j","DeleteObject":"Node","BatchSize":10000,"NodeLabel":"DELETE","NodeIdFields":["Id"]}</JSON>
 </Configuration>`
 	plugin := &output.Neo4jOutput{}
 	runner := sdk.RegisterToolTest(plugin, 1, configNodes, sdk.UpdateOnly(true))
