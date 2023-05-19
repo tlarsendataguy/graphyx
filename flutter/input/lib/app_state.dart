@@ -116,7 +116,7 @@ class AppState extends BlocState {
 
   Future validateQuery() async {
     var query = _config.query;
-    if (!RegExp("\\sLIMIT\\s").hasMatch(query)) {
+    if (!RegExp("\\s[Ll][Ii][Mm][Ii][Tt]\\s").hasMatch(query)) {
       query += " LIMIT 1";
     }
 
