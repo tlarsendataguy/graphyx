@@ -1,15 +1,16 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
     <Product Name='Graphyx' Manufacturer='tlarsendataguy'
-        Id='473d8926-fe69-4d1e-b4ff-65952cfde31f' 
+        Id='*' 
 		UpgradeCode='cdb04ddb-1cc6-4d73-96b3-9a4ffee350b7'
-        Language='1033' Codepage='1252' Version='2.0.0'>
+        Language='1033' Codepage='1252' Version='2.0.0' >
 		<Package Id='*' Keywords='Installer' Description="Graphyx installer" InstallPrivileges="elevated" InstallScope="perMachine"
 			Comments='Neo4j input and output tools for Alteryx' Manufacturer='tlarsendataguy'
 			InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' Platform="x64" />
 
-		<MajorUpgrade Schedule="afterInstallInitialize"
-                DowngradeErrorMessage="A later version of [ProductName] is already installed" />
+		<MajorUpgrade
+			Schedule="afterInstallInitialize"
+			DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
 				
 		<Condition Message="You need to be an administrator to install this product.">
 			Privileged
