@@ -154,7 +154,7 @@
         session.close();
         driver.close();
       } catch (e) {
-        return new ReturnValueMetadata(e.toString, []);
+        return new ReturnValueMetadata(e.toString(), []);
       }
 
       if (result.records.length === 0) {
